@@ -1,0 +1,80 @@
+{
+  "name": "shaderop-unity-dev",
+  "version": "2.0.0",
+  "description": "Unity総合開発支援プラグイン - 12専門Taskエージェント + 10スキル",
+  "author": "ShaderOp Team",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/ShaderOp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ShaderOp.git"
+  },
+  "keywords": [
+    "unity",
+    "shader",
+    "hlsl",
+    "shader-graph",
+    "unitask",
+    "unirx",
+    "python",
+    "automation",
+    "cicd",
+    "jenkins",
+    "mobile-game",
+    "ui-toolkit",
+    "testing",
+    "security",
+    "performance",
+    "architecture"
+  ],
+  "components": {
+    "agents": ".claude/agents/**/*.md",
+    "commands": ".claude/commands/**/*.md",
+    "skills": ".claude/skills/**/*.md",
+    "rules": ".claude/rules/**/*.md",
+    "hooks": ".claude/hooks/hooks.json"
+  },
+  "statistics": {
+    "agents": 12,
+    "skills": 10,
+    "rules": 3,
+    "hooks": 4
+  },
+  "agents": {
+    "planning": ["project-planner"],
+    "development": ["architect", "unity-developer", "shader-dev", "automation-dev", "ui-ux-designer"],
+    "quality": ["code-reviewer", "test-engineer", "performance-analyzer", "security-auditor"],
+    "infrastructure": ["cicd-helper", "doc-writer"]
+  },
+  "requirements": {
+    "claudeCodeVersion": ">=2.1.0",
+    "unity": ">=2022.3.0",
+    "python": ">=3.9",
+    "node": ">=16.0.0"
+  },
+  "features": [
+    "プロジェクト計画・要件定義・進捗管理",
+    "アーキテクチャ設計・機能計画（SOLID原則）",
+    "Unity C#開発（UI Toolkit, Addressables）",
+    "Shader Graph/HLSL開発支援",
+    "Python/JS自動化ツール開発",
+    "コードレビュー・リファクタリング",
+    "Unity Test Framework・TDD",
+    "パフォーマンス最適化（UniTask/UniRx）",
+    "セキュリティ監査（OWASP Top 10）",
+    "Jenkins CI/CD パイプライン構築",
+    "技術ドキュメント自動生成"
+  ],
+  "categories": [
+    "game-development",
+    "unity",
+    "shader",
+    "automation",
+    "cicd",
+    "quality-assurance",
+    "testing",
+    "security",
+    "performance",
+    "architecture"
+  ]
+}

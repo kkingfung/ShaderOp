@@ -1,0 +1,22 @@
+{
+  "preToolUse": {
+    "enabled": true,
+    "script": ".claude/hooks/scripts/pre-tool-use.js",
+    "description": "ツール使用前のバリデーションとコンテキスト準備"
+  },
+  "postToolUse": {
+    "enabled": true,
+    "script": ".claude/hooks/scripts/post-tool-use.js",
+    "description": "ツール使用後のパターン抽出と学習"
+  },
+  "preSessionStart": {
+    "enabled": true,
+    "script": ".claude/hooks/scripts/session-start.js",
+    "description": "セッション開始時のコンテキスト読み込み"
+  },
+  "postSessionEnd": {
+    "enabled": true,
+    "script": ".claude/hooks/scripts/session-end.js",
+    "description": "セッション終了時のメモリ永続化とパターン保存"
+  }
+}
