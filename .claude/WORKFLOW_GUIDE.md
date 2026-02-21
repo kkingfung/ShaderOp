@@ -1,130 +1,231 @@
 # ShaderOp 実践ワークフローガイド
 
-## プロジェクト目標
+## プロジェクトビジョン
 
-キャラクターカスタマイズ系モバイルゲーム向けの**次世代質感表現**と**開発効率化**を実現する。
+**Unified Stylized Shader Library for Mobile Character Customization Games**
 
-### 3つの柱
+キャラクターカスタマイズ系モバイルゲーム向けの**統合スタイライズドシェーダーライブラリ**を構築する。
 
-1. **次世代質感表現ライブラリ** - マルチレイヤー衣装シェーダー、ダイナミックカラー変更
-2. **アセット入稿・デバッグ自動化** - Python/JS自動化ツール、ワンクリックビルド
-3. **通信・ロード最適化フレームワーク** - UniTask非同期、通信バッチング
+### コアコンセプト
+
+- **アート方向性**: トゥーンシェーディングキャラクター（Unity-Chan風） × スタイライズド環境（SoStylized風）
+- **ターゲット**: 中級モバイル端末（iPhone 11 / Galaxy S10世代）で60fps維持
+- **開発手法**: Shader Graph + HLSL Custom Functions（ビルドファースト・反復開発）
+- **カスタマイズ**: カラー変更、マテリアルレイヤリング、テクスチャスワップ、プロシージャル生成
+
+### インポート済みアセット
+
+1. **SD Unity-Chan Haon Custom** - Unity-Chan Toon Shader 2.0.6（参考実装・学習用）
+2. **SoStylized** - URP最適化スタイライズド環境（参考実装）
+3. **TomatocolCharacterVarietyPackVol1DEMO** - キャラクターバリエーション
 
 ---
 
-## ワークフロー1: 新しいシェーダー開発
+## マイルストーン1: シェーダーテンプレートコレクション構築（Week 1）
+
+このマイルストーンでは、プロジェクトの基盤となる4つのShader Graphテンプレートと、再利用可能なHLSL Custom Functionライブラリを構築します。
 
 ### 目標
-「サテン生地の質感シェーダーを作成し、実機でデモを確認する」
-
-### ステップ1: 設計（architect）
-```
-プロンプト:
-「サテン生地の異方性反射を表現するシェーダーを設計してください。
-要件:
-- モバイル向け最適化
-- カラーバリエーション対応
-- Shader Graphで実装
-」
-
-出力:
-- シェーダーの技術要件
-- プロパティ設計（_AnisotropyStrength, _SatinColor等）
-- パフォーマンス目標（ドローコール、テクスチャサンプリング数）
-- 実装タスクリスト
-```
-
-### ステップ2: シェーダー作成（shader-dev）
-```
-プロンプト:
-「サテン生地シェーダーのShader Graphテンプレートを作成してください」
-
-または コマンド:
-/new-shader "SG_Cloth_Satin" "ShaderGraph"
-
-出力:
-- Shader Graphノード構成
-- HLSLカスタムノード（異方性計算）
-- サンプルマテリアル設定
-```
-
-### ステップ3: Unity実装（unity-developer）
-```
-プロンプト:
-「サテンシェーダーを適用するマテリアルマネージャーを実装してください。
-要件:
-- Addressablesでマテリアルをロード
-- カラーバリエーションをランタイムで変更
-- UIからプレビュー可能
-」
-
-出力:
-- MaterialManager.cs（Addressables対応）
-- SatinMaterialController.cs（カラー変更）
-- UI Toolkitプレビュー画面
-```
-
-### ステップ4: デモシーン作成（unity-developer）
-```
-プロンプト:
-「サテンシェーダーのデモシーンを作成してください。
-- キャラクターモデルに適用
-- カラーピッカーUI
-- ライティング設定
-」
-
-出力:
-- DemoScene.unity
-- DemoSceneController.cs
-- UI（カラーピッカー、パラメータスライダー）
-```
-
-### ステップ5: シェーダーレビュー（shader-dev）
-```
-コマンド:
-/review-shader "Assets/Shaders/SG_Cloth_Satin.shadergraph"
-
-出力:
-- パフォーマンス評価
-- モバイル最適化提案
-- ベストプラクティスチェック
-- 改善コード例
-```
-
-### ステップ6: 最適化（shader-dev + performance-analyzer）
-```
-プロンプト（shader-dev）:
-/optimize-shader "Assets/Shaders/SG_Cloth_Satin.shadergraph"
-
-プロンプト（performance-analyzer）:
-「デモシーンのパフォーマンスをプロファイリングしてください」
-
-出力:
-- 最適化されたシェーダー
-- ドローコール削減提案
-- メモリ使用量レポート
-- FPS改善案
-```
-
-### ステップ7: 実機ビルド（automation-dev + cicd-helper）
-```
-プロンプト（automation-dev）:
-「実機デプロイ用のビルドスクリプトを作成してください」
-
-コマンド（cicd-helper）:
-/build-jenkins "Android"
-
-出力:
-- ビルド済みAPK
-- Firebase App Distribution へ自動配信
-- テスター向け通知
-```
-
-**所要時間**: 設計30分 → 実装2時間 → レビュー30分 → 最適化1時間 → ビルド15分 = **約4時間**
+「モバイル最適化されたShader Graphテンプレート群を作成し、将来の機能追加の土台を整える」
 
 ---
 
-## ワークフロー2: アセット検証ツール開発
+### Day 1: Unity-Chan Toon Shader解析 + キャラクターベースシェーダー
+
+#### ステップ1: Unity-Chan Toon Shaderの構造理解（shader-dev）
+
+```
+プロンプト:
+「Unity-Chan Toon Shader 2.0.6の基本構造を分析してください。
+パス: ShaderOptimizer/Assets/SD Unity-Chan Haon Custom/Shader/
+重点:
+- セルシェーディングの実装方法
+- アウトラインレンダリング技法
+- モバイル最適化のテクニック
+- プロパティ構成
+」
+
+出力期待:
+- 主要.shaderファイルの構造解説
+- セルシェーディング計算ロジック（UCTS_DoubleShadeWithFeather.cginc等）
+- モバイル向け最適化ポイント
+- Shader Graphへの移植可能な部分の特定
+```
+
+#### ステップ2: SG_Character_Base.shadergraph 作成（shader-dev）
+
+```
+プロンプト:
+「キャラクターベースシェーダーテンプレートを作成してください。
+要件:
+- Shader Graphで実装（URP）
+- 基本セルシェーディング（2トーン: Base + Shadow）
+- プレースホルダーCustom Functionノード配置
+- モバイル最適化設定
+- プロパティ: BaseColor, ShadowColor, ShadowThreshold
+」
+
+コマンド代替:
+/new-shader "SG_Character_Base" "ShaderGraph"
+
+出力:
+- Assets/Shaders/ShaderGraphs/Character/SG_Character_Base.shadergraph
+- サンプルマテリアル
+- 使用方法ドキュメント
+```
+
+---
+
+### Day 2: 髪・衣装シェーダーテンプレート
+
+#### ステップ3: SG_Character_Hair.shadergraph 作成（shader-dev）
+
+```
+プロンプト:
+「髪専用シェーダーテンプレートを作成してください。
+要件:
+- SG_Character_Baseを基礎とする
+- 異方性ハイライト用プレースホルダー（AnisotropicHighlight.hlsl）
+- Angel Ring（髪の天使の輪）用プレースホルダー
+- プロパティ: HairColor, HighlightColor, AnisotropyStrength
+」
+
+出力:
+- Assets/Shaders/ShaderGraphs/Character/SG_Character_Hair.shadergraph
+- プレースホルダーCustom Function配置図
+```
+
+#### ステップ4: SG_Character_Cloth.shadergraph 作成（shader-dev）
+
+```
+プロンプト:
+「衣装専用シェーダーテンプレートを作成してください。
+要件:
+- カラーマスク対応（Base, Pattern, Trim, Accent の4ゾーン）
+- ColorCustomization.hlsl プレースホルダー
+- サテン/レース用オプション設定
+- プロパティ: ClothColor, PatternColor, SatinStrength
+」
+
+出力:
+- Assets/Shaders/ShaderGraphs/Character/SG_Character_Cloth.shadergraph
+- カラーマスク使用例
+```
+
+---
+
+### Day 3: 環境シェーダーテンプレート
+
+#### ステップ5: SoStylized解析（shader-dev）
+
+```
+プロンプト:
+「SoStylizedの環境シェーダーを分析してください。
+パス: ShaderOptimizer/Assets/SoStylized/
+重点:
+- URP最適化手法
+- 頂点カラー活用
+- シンプルなライティングモデル
+」
+
+出力:
+- SoStylizedのシェーダー構造レポート
+- モバイル最適化テクニック抽出
+```
+
+#### ステップ6: SG_Environment_Stylized.shadergraph 作成（shader-dev）
+
+```
+プロンプト:
+「スタイライズド環境シェーダーテンプレートを作成してください。
+要件:
+- 頂点カラー対応
+- シンプルライティング（Lambertベース）
+- 風揺れアニメーション用プレースホルダー
+- プロパティ: TintColor, ShadowStrength, WindStrength
+」
+
+出力:
+- Assets/Shaders/ShaderGraphs/Environment/SG_Environment_Stylized.shadergraph
+```
+
+---
+
+### Day 4: HLSL Custom Function基盤構築
+
+#### ステップ7: Custom Function HLSLファイル作成（shader-dev）
+
+```
+プロンプト:
+「再利用可能なHLSL Custom Functionファイルを作成してください。
+各ファイルには基本的な関数スタブとコメントを含める。
+
+ファイル構成:
+1. ToonLighting.hlsl - セルシェーディング計算
+2. OutlineUtils.hlsl - アウトライン幅計算
+3. ColorCustomization.hlsl - HSV変換、カラーマスク処理
+4. AnisotropicHighlight.hlsl - 異方性反射計算
+5. MatcapUtils.hlsl - Matcapサンプリング
+」
+
+出力:
+- Assets/Shaders/HLSL/*.hlsl（5ファイル）
+- 各関数のインターフェース定義
+- 使用例コメント
+```
+
+#### ステップ8: ドキュメント作成（doc-writer）
+
+```
+プロンプト:
+「シェーダーテンプレート使用ガイドを作成してください。
+内容:
+- 各テンプレートの目的と使い分け
+- Custom Functionの追加方法
+- モバイル最適化チェックリスト
+- 次週以降の機能追加ロードマップ
+」
+
+出力:
+- ShaderOptimizer/Assets/Shaders/README.md
+- ShaderTemplateGuide.md
+```
+
+---
+
+**Week 1 完了時の成果物**:
+- ✅ 4つのShader Graphテンプレート
+- ✅ 5つのHLSL Custom Functionスタブ
+- ✅ Unity-Chan/SoStylized解析レポート
+- ✅ テンプレート使用ガイド
+
+---
+
+## Week 2-4: 段階的機能実装（参考）
+
+Week 1でテンプレート基盤ができた後は、段階的に機能を追加していきます。
+
+### Week 2: 基本トゥーンライティング実装
+- ToonLighting.hlslの実装（2トーンセルシェーディング）
+- OutlineUtils.hlslの実装（アウトライン計算）
+- Unity-Chanモデルでのテスト
+
+### Week 3: カラーカスタマイズシステム
+- ColorCustomization.hlsl実装（HSV変換、カラーマスク）
+- Unity C#側のマテリアル管理システム
+- UI Toolkitカラーピッカー
+
+### Week 4: 高度機能
+- AnisotropicHighlight.hlsl実装（髪/サテン）
+- MatcapUtils.hlsl実装（フェイクリフレクション）
+- リムライト追加
+- 最終最適化
+
+---
+
+## その他のワークフロー（将来的な展開）
+
+### ワークフロー2: アセット検証ツール開発
 
 ### 目標
 「デザイナーが作成したテクスチャを自動検証するツールを作成」
@@ -412,12 +513,27 @@ test-engineer → performance-analyzer → security-auditor → cicd-helper → 
 
 ## まとめ
 
-このチームで実現できること:
+### ShaderOpプロジェクトで実現すること
 
-✅ **高品質なシェーダー開発** - Shader Graph/HLSL、モバイル最適化
-✅ **完全自動化** - アセット検証、ビルド、デプロイ
-✅ **パフォーマンス保証** - 60fps維持、メモリ最適化
-✅ **品質保証体制** - コードレビュー、テスト、セキュリティ監査
-✅ **高速開発サイクル** - 設計からデプロイまで一貫サポート
+#### フェーズ1（現在）: 統合スタイライズドシェーダーライブラリ
+✅ **トゥーン × スタイライズド融合** - Unity-Chan風キャラクター + SoStylized風環境
+✅ **Shader Graph + HLSL** - 視覚的で保守性高い、かつパワフル
+✅ **モバイル最適化** - 中級端末で60fps維持
+✅ **包括的カスタマイズ** - カラー変更、レイヤリング、テクスチャスワップ、プロシージャル
+✅ **学習可能な設計** - コメント付き、段階的実装
 
-**すべてのフェーズで専門家がサポート**し、**モバイルゲーム開発を劇的に効率化**します。
+#### Week 1の重要性
+**テンプレートコレクション**は、プロジェクト全体の成功を左右する基盤です:
+- 将来の機能追加が容易になる
+- コード再利用性が高まる
+- チーム内での知識共有が簡単になる
+- モバイル最適化の方針が明確になる
+
+#### 次のステップ
+Week 1完了後、以下の方向性が選択可能:
+1. **Week 2-4**: 機能実装を続行（トゥーンライティング → カスタマイズ → 高度機能）
+2. **ツール開発**: アセット検証、自動化ツールへ展開
+3. **最適化**: パフォーマンス分析、プロファイリング
+4. **統合**: UniTask/UniRx、Addressablesとの連携
+
+**このプロジェクトは、モバイルゲーム開発における質感表現とカスタマイズシステムの新しい標準を目指します。**
