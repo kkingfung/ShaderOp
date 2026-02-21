@@ -2,31 +2,66 @@
 
 ## プロジェクトビジョン
 
-**Unified Stylized Shader Library for Mobile Character Customization Games**
+**Unified Stylized Shader Library for Casual Mobile Game Suite**
 
-キャラクターカスタマイズ系モバイルゲーム向けの**統合スタイライズドシェーダーライブラリ**を構築する。
+カジュアルモバイルゲームスイート向けの**統合スタイライズドシェーダーライブラリ**を構築する。
 
-### コアコンセプト
+### ゲーム構成
 
-- **アート方向性**: トゥーンシェーディングキャラクター（Unity-Chan風） × スタイライズド環境（SoStylized風）
+#### メインゲーム: ポケコロ風キャラクターカスタマイズ
+- **参考作品**: ココネ「ポケコロ」「リヴリーアイランド」
+- **コアループ**: アバター作成 → 着せ替え → 部屋デコレーション → ソーシャル交流
+- **使用アセット**: SD Unity-Chan（キャラクター）、SoStylized（環境）、AITranslator（多言語）
+- **シェーダー要件**: 高品質トゥーンシェーディング、詳細カスタマイズ、近距離カメラ対応
+
+#### サブゲーム: クラシックボードゲーム集（ヘックスタイル版）
+- **参考作品**: リバーシ、チェッカー、マンカラ等の古典ボードゲーム
+- **コアループ**: ミニゲーム選択 → ターン制プレイ（1-3分） → リワード獲得 → メインゲームへ還元
+- **使用アセット**: 8Set Hex Tiles（12タイル）、Tomatocol Characters（20スプライト、ゲーム駒）
+- **シェーダー要件**: 軽量トゥーンシェーディング、複数キャラクター同時表示、俯瞰カメラ対応、ヘックスタイルハイライト
+
+### 技術コンセプト
+
+- **統一シェーダーライブラリ**: 両ゲームで共通基盤、品質レベルで切り替え
 - **ターゲット**: 中級モバイル端末（iPhone 11 / Galaxy S10世代）で60fps維持
 - **開発手法**: Shader Graph + HLSL Custom Functions（ビルドファースト・反復開発）
 - **カスタマイズ**: カラー変更、マテリアルレイヤリング、テクスチャスワップ、プロシージャル生成
 
-### インポート済みアセット
+### インポート済みアセット分類
 
-1. **SD Unity-Chan Haon Custom** - Unity-Chan Toon Shader 2.0.6（参考実装・学習用）
-2. **SoStylized** - URP最適化スタイライズド環境（参考実装）
-3. **TomatocolCharacterVarietyPackVol1DEMO** - キャラクターバリエーション
+**メインゲーム用:**
+1. **SD Unity-Chan Haon Custom** - Unity-Chan Toon Shader 2.0.6（高品質トゥーン参考実装）
+2. **SoStylized** - URP最適化スタイライズド環境（部屋デコ、背景）
+3. **AITranslator** - 多言語対応ツール
+
+**ミニゲーム用:**
+1. **8Set Free 2D Hex Tiles** - 12枚のヘックスタイル（4地形、2特殊、6装飾）
+2. **TomatocolCharacterVarietyPackVol1DEMO** - 20種の2Dキャラクタースプライト（ゲーム駒として使用）
 
 ---
 
 ## マイルストーン1: シェーダーテンプレートコレクション構築（Week 1）
 
-このマイルストーンでは、プロジェクトの基盤となる4つのShader Graphテンプレートと、再利用可能なHLSL Custom Functionライブラリを構築します。
+このマイルストーンでは、**メインゲームとミニゲーム両方で使える**統一シェーダーライブラリの基盤を構築します。
 
 ### 目標
-「モバイル最適化されたShader Graphテンプレート群を作成し、将来の機能追加の土台を整える」
+「モバイル最適化されたShader Graphテンプレート群を作成し、品質レベル切り替えで両ゲームに対応できる土台を整える」
+
+### シェーダー設計の重要ポイント
+
+#### 両ゲーム対応のための設計原則
+
+**1. 品質レベル階層化**
+- **High Quality（メインゲーム）**: 全機能有効、近距離カメラ向け、1-2キャラクター
+- **Low Quality（ミニゲーム）**: 基本機能のみ、俯瞰カメラ向け、複数キャラクター同時表示
+
+**2. カメラアングル考慮**
+- **近距離カメラ（メインゲーム）**: 太いアウトライン、詳細テクスチャ、リッチエフェクト
+- **俯瞰カメラ（ミニゲーム）**: 細いアウトライン、明るいカラー、視認性優先
+
+**3. パフォーマンス階層**
+- **メインゲーム**: マットキャップ、異方性ハイライト、4ゾーンカラーマスク
+- **ミニゲーム**: 基本トゥーンライティング、2ゾーンカラーマスク、シンプルアウトライン
 
 ---
 
@@ -62,15 +97,23 @@
 - 基本セルシェーディング（2トーン: Base + Shadow）
 - プレースホルダーCustom Functionノード配置
 - モバイル最適化設定
-- プロパティ: BaseColor, ShadowColor, ShadowThreshold
+- **品質レベル切り替え対応**（QualityLevel enum: High/Low）
+  - High: メインゲーム用（マットキャップ、リムライト有効）
+  - Low: ミニゲーム用（基本トゥーンのみ）
+- **カメラ距離対応**（OutlineWidth: Near=0.01, Far=0.003）
+- プロパティ: BaseColor, ShadowColor, ShadowThreshold, QualityLevel, OutlineWidth
 」
+
+使用シナリオ例:
+- メインゲーム: SD Unity-Chanモデルに適用（近距離カメラ、High Quality）
+- ミニゲーム: Tomatocolキャラクターに適用（俯瞰カメラ、Low Quality）
 
 コマンド代替:
 /new-shader "SG_Character_Base" "ShaderGraph"
 
 出力:
 - Assets/Shaders/ShaderGraphs/Character/SG_Character_Base.shadergraph
-- サンプルマテリアル
+- サンプルマテリアル（2種類: MainGame_Material, MiniGame_Material）
 - 使用方法ドキュメント
 ```
 
@@ -531,9 +574,36 @@ test-engineer → performance-analyzer → security-auditor → cicd-helper → 
 
 #### 次のステップ
 Week 1完了後、以下の方向性が選択可能:
-1. **Week 2-4**: 機能実装を続行（トゥーンライティング → カスタマイズ → 高度機能）
-2. **ツール開発**: アセット検証、自動化ツールへ展開
-3. **最適化**: パフォーマンス分析、プロファイリング
-4. **統合**: UniTask/UniRx、Addressablesとの連携
 
-**このプロジェクトは、モバイルゲーム開発における質感表現とカスタマイズシステムの新しい標準を目指します。**
+**フェーズ2（Week 2-4）: シェーダー機能拡張**
+1. Week 2: 基本トゥーンライティング実装（ToonLighting.hlsl、OutlineUtils.hlsl）
+2. Week 3: カラーカスタマイズシステム（ColorCustomization.hlsl、Unity C#連携）
+3. Week 4: 高度機能（マットキャップ、異方性、リムライト）
+
+**フェーズ3（Month 2+）: ゲーム開発本格化**
+
+**メインゲーム（ポケコロ風）開発:**
+- キャラクターカスタマイズUI（着せ替えシステム）
+- 部屋デコレーションシステム（SoStylized環境活用）
+- Addressablesアセット管理（衣装、家具、背景）
+- ソーシャル機能（フレンド訪問、ギフト）
+
+**ミニゲーム開発（クラシックボードゲーム集）:**
+- Phase 1（MVP）: Tic-Tac-Toe Hex、Hex Reversi、Hex Checkers
+- Phase 2: Hex Chinese Checkers、Hex Mancala
+- Phase 3: Hex Catan（簡易版）、Hex Battleship、Hex Dominoes、Hex Peg Solitaire、Hex Shogi
+- ヘックスグリッドシステム（Axial Coordinate）
+- ターン制ゲームロジック
+- マルチプレイヤーシステム（ローカル/オンライン、1-4プレイヤー）
+- リワード連携（ミニゲーム報酬 → メインゲーム衣装アンロック）
+- 詳細: `.claude/MINIGAME_DESIGNS.md` 参照
+
+**共通インフラ:**
+- 多言語対応（AITranslator統合）
+- セーブ/ロードシステム
+- ガチャ/課金システム
+- パフォーマンス最適化（UniTask/UniRx、バッチング）
+
+---
+
+**このプロジェクトは、カジュアルモバイルゲーム開発における質感表現・カスタマイズシステム・ミニゲーム統合の新しい標準を目指します。**
