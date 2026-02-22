@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mcp-unity": {
+      "command": "node",
+      "args": [
+        "D:/PersonalGameDev/ShaderOp/ShaderOptimizer/Library/PackageCache/com.gamelovers.mcp-unity@05f766e8c271/Server~/build/index.js"
+      ]
+    }
+  }
+}

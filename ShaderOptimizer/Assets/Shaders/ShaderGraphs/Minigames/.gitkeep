@@ -1,0 +1,4 @@
+# ミニゲーム用Shader Graphテンプレート格納ディレクトリ
+# - SG_HexTile.shadergraph - ヘックスタイル用（選択、ホバー、無効化）
+# - SG_GamePiece_2D.shadergraph - 2Dスプライトゲーム駒用（チームカラーティント）
+# - SG_UIOverlay.shadergraph - UI オーバーレイ用（数字、アイコン表示）

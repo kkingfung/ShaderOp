@@ -1,0 +1,56 @@
+# Unity YAML設定 - unityyamlmergeを使用してマージ競合を軽減
+*.meta -text merge=unityyamlmerge diff
+*.unity -text merge=unityyamlmerge diff
+*.prefab -text merge=unityyamlmerge diff
+*.asset -text merge=unityyamlmerge diff
+*.mat -text merge=unityyamlmerge diff
+*.anim -text merge=unityyamlmerge diff
+*.controller -text merge=unityyamlmerge diff
+*.overrideController -text merge=unityyamlmerge diff
+*.physicMaterial -text merge=unityyamlmerge diff
+*.physicsMaterial2D -text merge=unityyamlmerge diff
+*.renderTexture -text merge=unityyamlmerge diff
+*.cubemap -text merge=unityyamlmerge diff
+*.flare -text merge=unityyamlmerge diff
+*.fontsettings -text merge=unityyamlmerge diff
+*.guiskin -text merge=unityyamlmerge diff
+*.giparams -text merge=unityyamlmerge diff
+*.mask -text merge=unityyamlmerge diff
+*.brush -text merge=unityyamlmerge diff
+*.terrainlayer -text merge=unityyamlmerge diff
+*.shadervariants -text merge=unityyamlmerge diff
+*.lighting -text merge=unityyamlmerge diff
+*.spriteatlas -text merge=unityyamlmerge diff
+*.scenetemplate -text merge=unityyamlmerge diff
+*.mixer -text merge=unityyamlmerge diff
+*.signal -text merge=unityyamlmerge diff
+*.playable -text merge=unityyamlmerge diff
+*.vfx -text merge=unityyamlmerge diff
+
+# Shader Graph - 重要なプロジェクトファイル
+*.shadergraph -text merge=unityyamlmerge diff
+*.shadersubgraph -text merge=unityyamlmerge diff
+
+# シェーダーファイル - テキストとして扱う
+*.shader text
+*.hlsl text
+*.cginc text
+*.compute text
+
+# スクリプトファイル
+*.cs text diff=csharp
+*.py text diff=python
+*.js text
+*.json text
+
+# ドキュメント
+*.md text
+*.txt text
+
+# 改行コード統一 (LF)
+*.cs text eol=lf
+*.shader text eol=lf
+*.hlsl text eol=lf
+*.cginc text eol=lf
+*.py text eol=lf
+*.md text eol=lf

@@ -1,0 +1,6 @@
+# 再利用可能HLSL Custom Function格納ディレクトリ
+# - ToonLighting.hlsl
+# - OutlineUtils.hlsl
+# - ColorCustomization.hlsl
+# - AnisotropicHighlight.hlsl
+# - MatcapUtils.hlsl
