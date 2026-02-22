@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "shaderop-unity-editor": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "D:/PersonalGameDev/ShaderOp/ShaderOptimizer/Library/PackageCache/com.gamelovers.mcp-unity@05f766e8c271/Server~/build/index.js"
+      ],
+      "env": {}
+    },
+    "shaderop-unity-project": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "D:/PersonalGameDev/ShaderOp/ShaderOptimizer"
+      ],
+      "env": {}
+    }
+  }
+}

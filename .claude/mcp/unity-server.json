@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "shaderop-unity-editor": {
+      "command": "node",
+      "args": [
+        "D:/PersonalGameDev/ShaderOp/ShaderOptimizer/Library/PackageCache/com.gamelovers.mcp-unity@05f766e8c271/Server~/build/index.js"
+      ],
+      "env": {
+        "MCP_TOOL_TIMEOUT": "720000"
+      },
+      "description": "Unity Editor direct control via MCP Unity package"
+    },
+    "shaderop-unity-project": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "D:/PersonalGameDev/ShaderOp/ShaderOptimizer"
+      ],
+      "description": "Unity ShaderOptimizer project filesystem access - Read/Write .cs, .shadergraph, .hlsl files"
+    }
+  }
+}
