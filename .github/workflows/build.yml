@@ -105,7 +105,7 @@ jobs:
 
       # ビルド成果物のアップロード
       - name: Upload Android build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Build-Android-${{ needs.setup.outputs.version }}
           path: builds/Android
@@ -158,7 +158,7 @@ jobs:
 
       # Xcodeプロジェクトのアップロード
       - name: Upload iOS build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Build-iOS-${{ needs.setup.outputs.version }}
           path: builds/iOS
@@ -211,7 +211,7 @@ jobs:
 
       # WebGLビルドのアップロード
       - name: Upload WebGL build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Build-WebGL-${{ needs.setup.outputs.version }}
           path: builds/WebGL
@@ -264,7 +264,7 @@ jobs:
 
       # Windowsビルドのアップロード
       - name: Upload Windows build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Build-Windows64-${{ needs.setup.outputs.version }}
           path: builds/StandaloneWindows64
@@ -317,7 +317,7 @@ jobs:
 
       # Linuxビルドのアップロード
       - name: Upload Linux build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Build-Linux64-${{ needs.setup.outputs.version }}
           path: builds/StandaloneLinux64

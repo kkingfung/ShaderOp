@@ -51,7 +51,7 @@ jobs:
           cat pip-audit-report.json
 
       - name: Upload Python security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: python-security-reports
@@ -144,7 +144,7 @@ jobs:
           cat unity-packages-report.md
 
       - name: Upload Unity package report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: unity-package-report
           path: unity-packages-report.md
