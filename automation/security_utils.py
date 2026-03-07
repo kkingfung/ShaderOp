@@ -78,8 +78,13 @@ class PathValidator:
             raise SecurityError("Null文字は許可されていません")
 
         # 危険な文字をチェック（Windows/Unix共通）
-        dangerous_chars = r'[<>:"|?*\x00-\x1f]'
-        if re.search(dangerous_chars, user_input):
+        # Windowsドライブレター（C:, D:等）は許可
+        dangerous_chars = r'[<>"|?*\x00-\x1f]'
+        # Windowsドライブレター部分を除外してチェック
+        check_path = user_input
+        if sys.platform == 'win32' and len(user_input) >= 2 and user_input[1] == ':':
+            check_path = user_input[2:]  # ドライブレター以降をチェック
+        if re.search(dangerous_chars, check_path):
             raise SecurityError(f"不正な文字が含まれています: {user_input}")
 
         # パストラバーサルチェック
