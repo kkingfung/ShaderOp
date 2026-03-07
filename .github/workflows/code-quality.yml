@@ -1,0 +1,316 @@
+name: Code Quality
+
+# コード品質チェックワークフロー - PR作成時に実行
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # Python スクリプトによるアセット検証
+  validate-assets:
+    name: Validate Assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run asset validation
+        run: |
+          python automation/validate_assets.py --project ShaderOptimizer --fail-on-warning
+        continue-on-error: true
+        id: validate
+
+      - name: Comment validation results on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 📋 アセット検証結果\n\n';
+
+            if ('${{ steps.validate.outcome }}' === 'success') {
+              comment += '✅ アセット検証に合格しました\n';
+            } else {
+              comment += '⚠️ アセット検証で問題が見つかりました\n\n';
+              comment += '詳細はワークフローログを確認してください。\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # プリコミットチェック
+  pre-commit-check:
+    name: Pre-commit Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > changed_files.txt
+          else
+            git diff --name-only HEAD~1 HEAD > changed_files.txt
+          fi
+
+          if [ -s changed_files.txt ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run pre-commit checks
+        if: steps.changed-files.outputs.has_changes == 'true'
+        run: |
+          FILES=$(cat changed_files.txt | tr '\n' ' ')
+          python automation/pre_commit_check.py --files $FILES
+        continue-on-error: true
+        id: precommit
+
+      - name: Comment pre-commit results on PR
+        if: github.event_name == 'pull_request' && steps.changed-files.outputs.has_changes == 'true' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let comment = '## 🔍 プリコミットチェック結果\n\n';
+
+            if ('${{ steps.precommit.outcome }}' === 'success') {
+              comment += '✅ コード品質チェックに合格しました\n';
+            } else {
+              comment += '⚠️ コード品質チェックで問題が見つかりました\n\n';
+              comment += '詳細はワークフローログを確認してください。\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # C# コードフォーマットチェック
+  csharp-format:
+    name: C# Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dotnet-format
+        run: dotnet tool install -g dotnet-format
+
+      - name: Check C# formatting
+        run: |
+          cd ShaderOptimizer
+          dotnet format --verify-no-changes --verbosity diagnostic
+        continue-on-error: true
+
+  # Unity プロジェクト検証
+  unity-validation:
+    name: Unity Project Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: ShaderOptimizer/Library
+          key: Library-Validation-${{ hashFiles('ShaderOptimizer/Packages/manifest.json') }}
+          restore-keys: |
+            Library-Validation-
+            Library-
+
+      # Unity の基本的な検証（コンパイルエラーチェック）
+      - name: Unity Project Validation
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ShaderOptimizer
+          unityVersion: 6000.0.30f1
+          targetPlatform: StandaloneLinux64
+          buildMethod: UnityEditor.BuildPipeline.BuildPlayer
+          allowDirtyBuild: true
+          customParameters: -quit -batchmode -nographics -executeMethod BuildScript.PrintBuildInfo
+
+  # シェーダーコンパイルチェック
+  shader-compilation:
+    name: Shader Compilation Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check shader syntax
+        run: |
+          echo "Checking shader files..."
+
+          # 基本的な構文チェック（括弧の数など）
+          python -c "
+          import sys
+          from pathlib import Path
+
+          errors = []
+          shader_files = list(Path('ShaderOptimizer/Assets/Shaders').rglob('*.shader'))
+
+          for shader_file in shader_files:
+              content = shader_file.read_text(encoding='utf-8', errors='ignore')
+
+              # 括弧の数をチェック
+              open_braces = content.count('{')
+              close_braces = content.count('}')
+
+              if open_braces != close_braces:
+                  errors.append(f'{shader_file.name}: Brace mismatch ({open_braces} vs {close_braces})')
+
+              # 基本的なシェーダー構造チェック
+              if 'Shader' not in content:
+                  errors.append(f'{shader_file.name}: Missing Shader declaration')
+
+              if 'SubShader' not in content:
+                  errors.append(f'{shader_file.name}: Missing SubShader')
+
+          if errors:
+              print('Shader compilation errors found:')
+              for error in errors:
+                  print(f'  - {error}')
+              sys.exit(1)
+          else:
+              print(f'✅ All {len(shader_files)} shader files passed syntax check')
+          "
+
+  # ビルド番号チェック
+  build-number-check:
+    name: Build Number Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check build info
+        run: |
+          if [ -f "build_info.json" ]; then
+            python -c "
+            import json
+            with open('build_info.json', 'r') as f:
+                data = json.load(f)
+                print('Current version:', data.get('version', 'Not set'))
+                print('Build numbers:')
+                for key, value in data.items():
+                    if 'build_number' in key:
+                        print(f'  {key}: {value}')
+            "
+          else
+            echo "build_info.json not found (will be created on first build)"
+          fi
+
+  # 統合レポート
+  quality-report:
+    name: Quality Report
+    runs-on: ubuntu-latest
+    needs: [validate-assets, pre-commit-check, shader-compilation, unity-validation]
+    if: always()
+
+    steps:
+      - name: Generate quality report
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const results = {
+              'validate-assets': '${{ needs.validate-assets.result }}',
+              'pre-commit-check': '${{ needs.pre-commit-check.result }}',
+              'shader-compilation': '${{ needs.shader-compilation.result }}',
+              'unity-validation': '${{ needs.unity-validation.result }}'
+            };
+
+            let report = '# 📊 コード品質レポート\n\n';
+            report += '| チェック項目 | 結果 |\n';
+            report += '|--------------|------|\n';
+
+            for (const [check, result] of Object.entries(results)) {
+              const emoji = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⚠️';
+              report += `| ${check} | ${emoji} ${result} |\n`;
+            }
+
+            const allPassed = Object.values(results).every(r => r === 'success');
+
+            if (allPassed) {
+              report += '\n✅ **すべての品質チェックに合格しました**\n';
+            } else {
+              report += '\n⚠️ **一部の品質チェックで問題が見つかりました**\n';
+            }
+
+            console.log(report);
+
+            // PRにコメントを投稿（PR の場合のみ）
+            if (context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: report
+              });
+            }

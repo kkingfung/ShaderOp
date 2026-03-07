@@ -25,6 +25,9 @@ namespace ShaderOp.Minigames.HexGrid
         /// <summary>S軸座標（左上方向、計算プロパティ）</summary>
         public int S => -Q - R;
 
+        /// <summary>原点座標 (0, 0)</summary>
+        public static HexCoordinate Zero => new HexCoordinate(0, 0);
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -45,6 +48,25 @@ namespace ShaderOp.Minigames.HexGrid
         public int DistanceTo(HexCoordinate other)
         {
             return (Math.Abs(Q - other.Q) + Math.Abs(R - other.R) + Math.Abs(S - other.S)) / 2;
+        }
+
+        /// <summary>
+        /// 2つの座標間の距離を計算（DistanceToのエイリアス）
+        /// </summary>
+        public int Distance(HexCoordinate other)
+        {
+            return DistanceTo(other);
+        }
+
+        /// <summary>
+        /// マンハッタン距離を計算（ヘックスグリッド用の距離メトリック）
+        /// </summary>
+        /// <remarks>
+        /// ヘックスグリッドでは、DistanceToと同じ結果を返します
+        /// </remarks>
+        public int ManhattanDistance(HexCoordinate other)
+        {
+            return DistanceTo(other);
         }
 
         /// <summary>
@@ -112,7 +134,7 @@ namespace ShaderOp.Minigames.HexGrid
         /// <summary>
         /// 小数座標を最も近いヘックス座標に丸める
         /// </summary>
-        private static HexCoordinate RoundToHex(float q, float r)
+        internal static HexCoordinate RoundToHex(float q, float r)
         {
             float s = -q - r;
 

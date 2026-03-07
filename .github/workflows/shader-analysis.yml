@@ -1,0 +1,159 @@
+name: Shader Analysis
+
+on:
+  pull_request:
+    paths:
+      - 'ShaderOptimizer/Assets/Shaders/**'
+      - 'ShaderOptimizer/Assets/**/*.shader'
+      - 'ShaderOptimizer/Assets/**/*.shadergraph'
+  push:
+    branches:
+      - main
+    paths:
+      - 'ShaderOptimizer/Assets/Shaders/**'
+      - 'ShaderOptimizer/Assets/**/*.shader'
+      - 'ShaderOptimizer/Assets/**/*.shadergraph'
+  workflow_dispatch:
+
+jobs:
+  analyze-shaders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Shader Profiling
+        run: |
+          python automation/shader_profiling.py \
+            --project ShaderOptimizer \
+            --export-json \
+            --output shader_profile_report.json
+
+      - name: Upload Shader Profile Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: shader-profile-report
+          path: shader_profile_report.json
+          retention-days: 30
+
+      - name: Extract Report Summary
+        id: summary
+        run: |
+          if [ -f shader_profile_report.json ]; then
+            # JSONから主要な統計を抽出
+            SHADER_COUNT=$(python -c "import json; data=json.load(open('shader_profile_report.json')); print(data['statistics'].get('shader_files', 0))")
+            SHADER_GRAPH_COUNT=$(python -c "import json; data=json.load(open('shader_profile_report.json')); print(data['statistics'].get('shader_graphs', 0))")
+            WARNING_COUNT=$(python -c "import json; data=json.load(open('shader_profile_report.json')); print(len(data.get('warnings', [])))")
+            ERROR_COUNT=$(python -c "import json; data=json.load(open('shader_profile_report.json')); print(len(data.get('errors', [])))")
+
+            echo "shader_count=$SHADER_COUNT" >> $GITHUB_OUTPUT
+            echo "shader_graph_count=$SHADER_GRAPH_COUNT" >> $GITHUB_OUTPUT
+            echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+            echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            if (!fs.existsSync('shader_profile_report.json')) {
+              console.log('No shader profile report found');
+              return;
+            }
+
+            const report = JSON.parse(fs.readFileSync('shader_profile_report.json', 'utf8'));
+            const stats = report.statistics || {};
+            const warnings = report.warnings || [];
+            const errors = report.errors || [];
+
+            // コメント本文を作成
+            let commentBody = '## 🎨 Shader Analysis Results\n\n';
+            commentBody += '### 📊 Statistics\n\n';
+            commentBody += `- **Shader Files**: ${stats.shader_files || 0}\n`;
+            commentBody += `- **Shader Graphs**: ${stats.shader_graphs || 0}\n`;
+            commentBody += `- **Total Passes**: ${stats.total_passes || 0}\n`;
+            commentBody += `- **Avg Passes/Shader**: ${stats.avg_passes_per_shader || 0}\n`;
+            commentBody += `- **Total Nodes (Shader Graph)**: ${stats.total_nodes || 0}\n`;
+            commentBody += `- **Avg Nodes/Graph**: ${stats.avg_nodes_per_graph || 0}\n\n`;
+
+            if (errors.length > 0) {
+              commentBody += `### ❌ Errors (${errors.length})\n\n`;
+              errors.slice(0, 5).forEach(error => {
+                commentBody += `- ${error}\n`;
+              });
+              if (errors.length > 5) {
+                commentBody += `\n... and ${errors.length - 5} more errors\n`;
+              }
+              commentBody += '\n';
+            }
+
+            if (warnings.length > 0) {
+              commentBody += `### ⚠️ Warnings (${warnings.length})\n\n`;
+              warnings.slice(0, 10).forEach(warning => {
+                commentBody += `- ${warning}\n`;
+              });
+              if (warnings.length > 10) {
+                commentBody += `\n... and ${warnings.length - 10} more warnings\n`;
+              }
+              commentBody += '\n';
+            }
+
+            if (errors.length === 0 && warnings.length === 0) {
+              commentBody += '### ✅ No Issues Found\n\n';
+              commentBody += 'All shaders passed the profiling checks!\n\n';
+            }
+
+            // 複雑なシェーダーの情報
+            if (stats.complex_shaders && stats.complex_shaders.length > 0) {
+              commentBody += '### 📌 Most Complex Shaders (by Pass count)\n\n';
+              stats.complex_shaders.slice(0, 5).forEach(shader => {
+                commentBody += `- **${shader.name}**: ${shader.passes} passes\n`;
+              });
+              commentBody += '\n';
+            }
+
+            if (stats.complex_graphs && stats.complex_graphs.length > 0) {
+              commentBody += '### 📌 Most Complex Shader Graphs (by Node count)\n\n';
+              stats.complex_graphs.slice(0, 5).forEach(graph => {
+                commentBody += `- **${graph.name}**: ${graph.nodes} nodes\n`;
+              });
+              commentBody += '\n';
+            }
+
+            commentBody += '---\n';
+            commentBody += '📄 Full report available in the workflow artifacts.\n';
+
+            // PRにコメント投稿
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
+
+      - name: Fail on Errors
+        if: steps.summary.outputs.error_count > 0
+        run: |
+          echo "❌ Shader profiling detected ${{ steps.summary.outputs.error_count }} error(s)"
+          exit 1
+
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "# Shader Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Shader Files**: ${{ steps.summary.outputs.shader_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Shader Graphs**: ${{ steps.summary.outputs.shader_graph_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Warnings**: ${{ steps.summary.outputs.warning_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Errors**: ${{ steps.summary.outputs.error_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download the full report from the workflow artifacts." >> $GITHUB_STEP_SUMMARY

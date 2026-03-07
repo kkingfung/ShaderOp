@@ -76,10 +76,14 @@ namespace ShaderOp.Minigames.Games
         {
             // TODO: 反転アニメーション実装
             // 現在は即座に更新
-            HexTile? tile = _tiles.ContainsKey(coord) ? Grid?.GetTile(coord) : null;
-            if (tile != null)
+            if (_tiles.TryGetValue(coord, out HexTileView? tileView))
             {
-                UpdateTile(tile);
+                // タイルを直接更新（新しい駒の表示）
+                Sprite? sprite = newPiece == PieceType.Player1 ? _player1Sprite : _player2Sprite;
+                if (sprite != null)
+                {
+                    tileView.ShowPiece(sprite, Color.white);
+                }
             }
         }
     }

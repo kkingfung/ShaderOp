@@ -70,7 +70,7 @@ namespace ShaderOp.Minigames.Games
             }
 
             tile.Piece = CurrentPlayer;
-            OnTileUpdated?.Invoke(to);
+            NotifyTileUpdated(to);
 
             // 勝利判定
             if (CheckWinCondition())

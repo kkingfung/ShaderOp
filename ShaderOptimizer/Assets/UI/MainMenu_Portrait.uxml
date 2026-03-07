@@ -1,0 +1,133 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="portrait-container">
+        
+        <!-- ヘッダー (15%) -->
+        <ui:VisualElement name="Header" class="portrait-header">
+            <ui:Label text="ShaderOp" name="TitleLabel" class="title-text" />
+            <ui:VisualElement name="HeaderIcons" class="header-icons">
+                <ui:Button name="SettingsButton" class="icon-button">
+                    <ui:Label text="⚙" class="icon-text" />
+                </ui:Button>
+                <ui:Button name="ProfileButton" class="icon-button">
+                    <ui:Label text="👤" class="icon-text" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- メインコンテンツ (70%) -->
+        <ui:ScrollView name="MainContent" class="portrait-content" mode="Vertical">
+            
+            <!-- Featured Section -->
+            <ui:VisualElement name="FeaturedSection" class="section">
+                <ui:Label text="Featured" class="section-title" />
+                <ui:VisualElement name="FeaturedBanner" class="featured-banner">
+                    <ui:Label text="Daily Event: Double Rewards!" class="featured-text" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Minigames Section -->
+            <ui:VisualElement name="MinigamesSection" class="section">
+                <ui:Label text="Minigames" class="section-title" />
+                <ui:VisualElement name="MinigamesGrid" class="grid-2-column">
+                    
+                    <ui:Button name="TicTacToeButton" class="game-card">
+                        <ui:VisualElement class="game-icon">
+                            <ui:Label text="⭕" class="game-icon-text" />
+                        </ui:VisualElement>
+                        <ui:Label text="Tic-Tac-Toe" class="game-name" />
+                    </ui:Button>
+                    
+                    <ui:Button name="ReversiButton" class="game-card">
+                        <ui:VisualElement class="game-icon">
+                            <ui:Label text="⚫" class="game-icon-text" />
+                        </ui:VisualElement>
+                        <ui:Label text="Reversi" class="game-name" />
+                    </ui:Button>
+                    
+                    <ui:Button name="CheckersButton" class="game-card">
+                        <ui:VisualElement class="game-icon">
+                            <ui:Label text="🔴" class="game-icon-text" />
+                        </ui:VisualElement>
+                        <ui:Label text="Checkers" class="game-name" />
+                    </ui:Button>
+                    
+                    <ui:Button name="ChessButton" class="game-card">
+                        <ui:VisualElement class="game-icon">
+                            <ui:Label text="♟" class="game-icon-text" />
+                        </ui:VisualElement>
+                        <ui:Label text="Chess" class="game-name" />
+                    </ui:Button>
+                    
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Social Section -->
+            <ui:VisualElement name="SocialSection" class="section">
+                <ui:Label text="Social" class="section-title" />
+                <ui:VisualElement name="SocialButtons" class="vertical-list">
+                    
+                    <ui:Button name="CustomizationButton" class="menu-button">
+                        <ui:Label text="👗" class="button-icon" />
+                        <ui:Label text="Avatar Customization" class="button-text" />
+                        <ui:Label text="›" class="button-arrow" />
+                    </ui:Button>
+                    
+                    <ui:Button name="RoomDecorationButton" class="menu-button">
+                        <ui:Label text="🏠" class="button-icon" />
+                        <ui:Label text="Room Decoration" class="button-text" />
+                        <ui:Label text="›" class="button-arrow" />
+                    </ui:Button>
+                    
+                    <ui:Button name="FriendsButton" class="menu-button">
+                        <ui:Label text="👥" class="button-icon" />
+                        <ui:Label text="Friends" class="button-text" />
+                        <ui:Label text="›" class="button-arrow" />
+                    </ui:Button>
+                    
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Shop Section -->
+            <ui:VisualElement name="ShopSection" class="section">
+                <ui:Label text="Shop" class="section-title" />
+                <ui:Button name="ShopButton" class="shop-banner">
+                    <ui:Label text="🛒 Visit Shop" class="shop-text" />
+                    <ui:Label text="New items available!" class="shop-subtitle" />
+                </ui:Button>
+            </ui:VisualElement>
+            
+        </ui:ScrollView>
+        
+        <!-- フッター / Tab Bar (15%) -->
+        <ui:VisualElement name="Footer" class="portrait-footer tab-bar">
+            <ui:Button name="TabHome" class="tab-button tab-active">
+                <ui:Label text="🏠" class="tab-icon" />
+                <ui:Label text="Home" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabGames" class="tab-button">
+                <ui:Label text="🎮" class="tab-icon" />
+                <ui:Label text="Games" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabFriends" class="tab-button">
+                <ui:Label text="👥" class="tab-icon" />
+                <ui:Label text="Friends" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabShop" class="tab-button">
+                <ui:Label text="🛒" class="tab-icon" />
+                <ui:Label text="Shop" class="tab-label" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+</ui:UXML>

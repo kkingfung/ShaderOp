@@ -64,6 +64,9 @@ namespace ShaderOp.Core
         /// <summary>前フレームのマウス位置</summary>
         private Vector2 _lastMousePosition;
 
+        /// <summary>現在のマウス位置（キャッシュ用）</summary>
+        private Vector2 _currentMousePosition;
+
         /// <summary>マウスドラッグ中フラグ</summary>
         private bool _isDragging = false;
 
@@ -151,15 +154,19 @@ namespace ShaderOp.Core
         }
 
         /// <summary>
-        /// マウス入力を更新
+        /// マウス入力を更新（GCアロケーション最適化版）
         /// </summary>
         private void UpdateMouseInput()
         {
+            // マウス位置を一度だけ取得してキャッシュ（Vector2変換のGC削減）
+            Vector3 mousePos3D = Input.mousePosition;
+            _currentMousePosition.x = mousePos3D.x;
+            _currentMousePosition.y = mousePos3D.y;
+
             // マウス移動
-            Vector2 currentMousePosition = Input.mousePosition;
-            if (currentMousePosition != _lastMousePosition)
+            if (_currentMousePosition != _lastMousePosition)
             {
-                OnMouseMove?.Invoke(currentMousePosition);
+                OnMouseMove?.Invoke(_currentMousePosition);
             }
 
             // マウスドラッグ
@@ -170,7 +177,7 @@ namespace ShaderOp.Core
                     _isDragging = true;
                 }
 
-                Vector2 delta = currentMousePosition - _lastMousePosition;
+                Vector2 delta = _currentMousePosition - _lastMousePosition;
                 if (delta.magnitude > 0.1f)
                 {
                     OnMouseDrag?.Invoke(delta);
@@ -181,7 +188,7 @@ namespace ShaderOp.Core
                 _isDragging = false;
             }
 
-            _lastMousePosition = currentMousePosition;
+            _lastMousePosition = _currentMousePosition;
 
             // マウススクロール
             float scrollDelta = Input.mouseScrollDelta.y;

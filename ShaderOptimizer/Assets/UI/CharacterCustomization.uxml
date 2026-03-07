@@ -1,0 +1,230 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+       editor-extension-mode="False">
+
+    <!-- スタイルシート読み込み -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss" />
+
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="root">
+
+        <!-- ヘッダー -->
+        <ui:VisualElement name="Header" class="panel-elevated">
+            <ui:Label text="Character Customization" class="label-title" />
+            <ui:Label text="Create your unique character" class="label-caption" />
+        </ui:VisualElement>
+
+        <!-- メインコンテンツ (2カラムレイアウト) -->
+        <ui:VisualElement name="MainContent" class="flex-row flex-grow">
+
+            <!-- 左パネル: カスタマイズコントロール -->
+            <ui:ScrollView name="ControlsPanel" class="panel w-1-2">
+
+                <!-- 髪カスタマイズセクション -->
+                <ui:VisualElement name="HairSection" class="section">
+                    <ui:VisualElement class="section-header">
+                        <ui:Label text="Hair" class="label-heading" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="color-picker-group flex-row">
+                        <ui:VisualElement name="HairColorPreview" class="color-preview" />
+                        <ui:VisualElement class="rgb-sliders flex-column flex-grow">
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Red" />
+                                <ui:Slider name="HairColorR" low-value="0" high-value="1" value="0.3"
+                                          class="flex-grow" />
+                                <ui:Label name="HairColorRValue" text="0.30" class="slider-value" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Green" />
+                                <ui:Slider name="HairColorG" low-value="0" high-value="1" value="0.15"
+                                          class="flex-grow" />
+                                <ui:Label name="HairColorGValue" text="0.15" class="slider-value" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Blue" />
+                                <ui:Slider name="HairColorB" low-value="0" high-value="1" value="0.05"
+                                          class="flex-grow" />
+                                <ui:Label name="HairColorBValue" text="0.05" class="slider-value" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- カラープリセット -->
+                    <ui:VisualElement class="flex-row">
+                        <ui:Label text="Presets:" class="label-caption" />
+                        <ui:Button name="HairPreset1" text="Black" class="button-sm" />
+                        <ui:Button name="HairPreset2" text="Blonde" class="button-sm" />
+                        <ui:Button name="HairPreset3" text="Brown" class="button-sm" />
+                        <ui:Button name="HairPreset4" text="Red" class="button-sm" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <!-- 瞳カスタマイズセクション -->
+                <ui:VisualElement name="EyesSection" class="section">
+                    <ui:VisualElement class="section-header">
+                        <ui:Label text="Eyes" class="label-heading" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="color-picker-group flex-row">
+                        <ui:VisualElement name="EyeColorPreview" class="color-preview" />
+                        <ui:VisualElement class="rgb-sliders flex-column flex-grow">
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Red" />
+                                <ui:Slider name="EyeColorR" low-value="0" high-value="1" value="0.2"
+                                          class="flex-grow" />
+                                <ui:Label name="EyeColorRValue" text="0.20" class="slider-value" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Green" />
+                                <ui:Slider name="EyeColorG" low-value="0" high-value="1" value="0.6"
+                                          class="flex-grow" />
+                                <ui:Label name="EyeColorGValue" text="0.60" class="slider-value" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Blue" />
+                                <ui:Slider name="EyeColorB" low-value="0" high-value="1" value="0.3"
+                                          class="flex-grow" />
+                                <ui:Label name="EyeColorBValue" text="0.30" class="slider-value" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- カラープリセット -->
+                    <ui:VisualElement class="flex-row">
+                        <ui:Label text="Presets:" class="label-caption" />
+                        <ui:Button name="EyePreset1" text="Blue" class="button-sm" />
+                        <ui:Button name="EyePreset2" text="Green" class="button-sm" />
+                        <ui:Button name="EyePreset3" text="Brown" class="button-sm" />
+                        <ui:Button name="EyePreset4" text="Violet" class="button-sm" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <!-- 肌カスタマイズセクション -->
+                <ui:VisualElement name="SkinSection" class="section">
+                    <ui:VisualElement class="section-header">
+                        <ui:Label text="Skin" class="label-heading" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="slider-container">
+                        <ui:Label text="Skin Tone" />
+                        <ui:Slider name="SkinTone" low-value="0" high-value="9" value="3"
+                                  class="flex-grow" direction="Horizontal" />
+                        <ui:Label name="SkinToneValue" text="3" class="slider-value" />
+                    </ui:VisualElement>
+
+                    <!-- スキントーンプリセット -->
+                    <ui:VisualElement class="flex-row">
+                        <ui:Label text="Presets:" class="label-caption" />
+                        <ui:Button name="SkinPreset1" text="Fair" class="button-sm" />
+                        <ui:Button name="SkinPreset2" text="Medium" class="button-sm" />
+                        <ui:Button name="SkinPreset3" text="Tan" class="button-sm" />
+                        <ui:Button name="SkinPreset4" text="Dark" class="button-sm" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <!-- 衣装カスタマイズセクション -->
+                <ui:VisualElement name="ClothingSection" class="section">
+                    <ui:VisualElement class="section-header">
+                        <ui:Label text="Clothing" class="label-heading" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="color-picker-group flex-row">
+                        <ui:VisualElement name="ClothingColorPreview" class="color-preview" />
+                        <ui:VisualElement class="rgb-sliders flex-column flex-grow">
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Red" />
+                                <ui:Slider name="ClothingColorR" low-value="0" high-value="1" value="0.3"
+                                          class="flex-grow" />
+                                <ui:Label name="ClothingColorRValue" text="0.30" class="slider-value" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Green" />
+                                <ui:Slider name="ClothingColorG" low-value="0" high-value="1" value="0.3"
+                                          class="flex-grow" />
+                                <ui:Label name="ClothingColorGValue" text="0.30" class="slider-value" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="slider-container">
+                                <ui:Label text="Blue" />
+                                <ui:Slider name="ClothingColorB" low-value="0" high-value="1" value="0.6"
+                                          class="flex-grow" />
+                                <ui:Label name="ClothingColorBValue" text="0.60" class="slider-value" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="divider" />
+
+                <!-- ボディカスタマイズセクション -->
+                <ui:VisualElement name="BodySection" class="section">
+                    <ui:VisualElement class="section-header">
+                        <ui:Label text="Body" class="label-heading" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="slider-container">
+                        <ui:Label text="Height" />
+                        <ui:Slider name="Height" low-value="0.8" high-value="1.2" value="1.0"
+                                  class="flex-grow" />
+                        <ui:Label name="HeightValue" text="1.00" class="slider-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+            </ui:ScrollView>
+
+            <!-- 右パネル: プレビュー -->
+            <ui:VisualElement name="PreviewPanel" class="panel w-1-2">
+                <ui:VisualElement class="section-header">
+                    <ui:Label text="Preview" class="label-heading" />
+                </ui:VisualElement>
+
+                <!-- 3Dプレビュー領域 (Runtime で RenderTexture 割り当て) -->
+                <ui:VisualElement name="CharacterPreview" class="flex-grow"
+                                 style="background-color: rgb(20, 20, 25);
+                                        border-radius: 8px;
+                                        min-height: 400px;">
+                    <ui:Label text="3D Preview"
+                             class="label-caption flex-center"
+                             style="height: 100%;" />
+                </ui:VisualElement>
+
+                <!-- カメラコントロール -->
+                <ui:VisualElement name="CameraControls" class="p-md">
+                    <ui:Label text="Camera Controls" class="label-subheading" />
+                    <ui:Label text="Right Click + Drag: Rotate" class="label-caption" />
+                    <ui:Label text="Scroll: Zoom" class="label-caption" />
+
+                    <ui:VisualElement class="flex-row m-sm">
+                        <ui:Button name="ResetCamera" text="Reset Camera" class="button-sm flex-grow" />
+                        <ui:Toggle name="AutoRotate" label="Auto Rotate" value="false" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- フッター: アクションボタン -->
+        <ui:VisualElement name="Footer" class="panel-elevated flex-space-between">
+            <ui:VisualElement class="flex-row">
+                <ui:Button name="BackButton" text="← Back to Menu" class="button-outline" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="flex-row">
+                <ui:Button name="ResetButton" text="Reset to Default" class="button-secondary" />
+                <ui:Button name="SaveButton" text="Save Character" class="button-success button-lg" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

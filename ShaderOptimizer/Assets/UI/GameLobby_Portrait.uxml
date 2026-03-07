@@ -1,0 +1,79 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="portrait-container">
+        
+        <!-- ヘッダー (10%) -->
+        <ui:VisualElement name="Header" class="lobby-header">
+            <ui:Button name="BackButton" class="icon-button">
+                <ui:Label text="←" class="icon-text" />
+            </ui:Button>
+            <ui:Label name="GameTitle" text="Hex Reversi" class="lobby-title" />
+            <ui:Button name="SettingsButton" class="icon-button">
+                <ui:Label text="⚙" class="icon-text" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+        <!-- ゲームボード (60%) -->
+        <ui:VisualElement name="GameBoardContainer" class="game-board-area">
+            <ui:VisualElement name="GameBoardPlaceholder" class="board-placeholder">
+                <ui:Label text="Game Board Rendered Here" class="placeholder-text" />
+                <ui:Label text="(3D Camera RenderTexture)" class="placeholder-subtitle" />
+            </ui:VisualElement>
+            
+            <!-- ターン表示オーバーレイ -->
+            <ui:VisualElement name="TurnIndicator" class="turn-indicator">
+                <ui:Label name="TurnText" text="Your Turn" class="turn-text" />
+                <ui:Label name="TimerText" text="00:30" class="timer-text" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- プレイヤー情報 (15%) -->
+        <ui:VisualElement name="PlayerInfoBar" class="player-info-bar">
+            <!-- プレイヤー1 -->
+            <ui:VisualElement name="Player1Info" class="player-info">
+                <ui:VisualElement name="Player1Avatar" class="player-avatar">
+                    <ui:Label text="🔴" class="avatar-icon" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Player1Details" class="player-details">
+                    <ui:Label name="Player1Name" text="You" class="player-name" />
+                    <ui:Label name="Player1Score" text="Score: 12" class="player-score" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- VS表示 -->
+            <ui:Label text="VS" class="vs-text" />
+            
+            <!-- プレイヤー2 -->
+            <ui:VisualElement name="Player2Info" class="player-info">
+                <ui:VisualElement name="Player2Avatar" class="player-avatar">
+                    <ui:Label text="⚫" class="avatar-icon" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Player2Details" class="player-details">
+                    <ui:Label name="Player2Name" text="Opponent" class="player-name" />
+                    <ui:Label name="Player2Score" text="Score: 10" class="player-score" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- コントロール (15%) -->
+        <ui:VisualElement name="ControlPanel" class="control-panel">
+            <ui:Button name="PassButton" text="Pass" class="control-button" />
+            <ui:Button name="UndoButton" text="Undo" class="control-button" />
+            <ui:Button name="SurrenderButton" text="Surrender" class="control-button secondary-button" />
+        </ui:VisualElement>
+        
+        <!-- チャットボタン（フローティング） -->
+        <ui:Button name="ChatToggleButton" class="floating-chat-button">
+            <ui:Label text="💬" class="chat-icon" />
+            <ui:Label name="UnreadBadge" text="3" class="unread-badge" />
+        </ui:Button>
+        
+    </ui:VisualElement>
+</ui:UXML>

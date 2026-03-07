@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace ShaderOp.Minigames.HexGrid
@@ -235,19 +234,41 @@ namespace ShaderOp.Minigames.HexGrid
         }
 
         /// <summary>
-        /// 特定の駒を配置しているタイルを検索
+        /// 特定の駒を配置しているタイルを検索（GCアロケーション最適化版）
         /// </summary>
         public List<HexTile> FindTilesByPiece(PieceType piece)
         {
-            return _tiles.Values.Where(t => t.Piece == piece).ToList();
+            // LINQを使わずforeachで実装してGCアロケーションを削減
+            List<HexTile> result = new List<HexTile>(_tiles.Count / 4); // 推定容量で初期化
+
+            foreach (var tile in _tiles.Values)
+            {
+                if (tile.Piece == piece)
+                {
+                    result.Add(tile);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
-        /// 空のタイルを検索
+        /// 空のタイルを検索（GCアロケーション最適化版）
         /// </summary>
         public List<HexTile> FindEmptyTiles()
         {
-            return _tiles.Values.Where(t => t.IsEmpty).ToList();
+            // LINQを使わずforeachで実装してGCアロケーションを削減
+            List<HexTile> result = new List<HexTile>(_tiles.Count / 2); // 推定容量で初期化
+
+            foreach (var tile in _tiles.Values)
+            {
+                if (tile.IsEmpty)
+                {
+                    result.Add(tile);
+                }
+            }
+
+            return result;
         }
     }
 

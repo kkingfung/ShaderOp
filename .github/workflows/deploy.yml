@@ -1,0 +1,240 @@
+name: Deploy
+
+# デプロイワークフロー - リリースタグで自動デプロイ
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to deploy'
+        required: true
+
+env:
+  UNITY_VERSION: 6000.0.30f1
+  PROJECT_PATH: ShaderOptimizer
+
+jobs:
+  # Google Play Store デプロイ (Android)
+  deploy-android:
+    name: Deploy to Google Play
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event.inputs.environment != ''
+
+    steps:
+      - name: Download Android artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          name: Build-Android-*
+          path: builds/Android
+          search_artifacts: true
+
+      # Google Play へのアップロード
+      - name: Upload to Google Play (Internal Testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.shaderop.game
+          releaseFiles: builds/Android/*.apk
+          track: internal
+          status: completed
+          inAppUpdatePriority: 2
+          whatsNewDirectory: distribution/whatsnew
+          mappingFile: builds/Android/mapping.txt
+
+      # 本番環境へのプロモート（手動承認が必要な場合）
+      - name: Promote to Production
+        if: github.event.inputs.environment == 'production'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.shaderop.game
+          track: production
+          status: completed
+
+  # App Store Connect デプロイ (iOS)
+  deploy-ios:
+    name: Deploy to App Store
+    runs-on: macos-latest
+    if: github.event_name == 'release' || github.event.inputs.environment != ''
+
+    steps:
+      - name: Download iOS artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          name: Build-iOS-*
+          path: builds/iOS
+          search_artifacts: true
+
+      # Xcodeプロジェクトのビルド（Unity出力からIPAを生成）
+      - name: Build iOS IPA
+        run: |
+          cd builds/iOS
+          xcodebuild -project Unity-iPhone.xcodeproj \
+            -scheme Unity-iPhone \
+            -configuration Release \
+            -archivePath build/ShaderOp.xcarchive \
+            archive
+
+          xcodebuild -exportArchive \
+            -archivePath build/ShaderOp.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist ExportOptions.plist
+
+      # TestFlight へのアップロード
+      - name: Upload to TestFlight
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: builds/iOS/build/ShaderOp.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+  # WebGL を GitHub Pages にデプロイ
+  deploy-webgl:
+    name: Deploy WebGL to GitHub Pages
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Download WebGL artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          name: Build-WebGL-*
+          path: webgl-build
+          search_artifacts: true
+
+      # GitHub Pages へのデプロイ
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./webgl-build
+          cname: shaderop.example.com  # カスタムドメインがあれば設定
+
+  # Itch.io へのデプロイ
+  deploy-itchio:
+    name: Deploy to Itch.io
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    strategy:
+      matrix:
+        platform:
+          - name: Windows
+            channel: windows
+          - name: Linux
+            channel: linux
+          - name: WebGL
+            channel: html5
+
+    steps:
+      - name: Download ${{ matrix.platform.name }} artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          name: Build-${{ matrix.platform.name }}-*
+          path: builds/${{ matrix.platform.name }}
+          search_artifacts: true
+
+      # Butler (Itch.io CLI) のインストール
+      - name: Install Butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      # Itch.io へのアップロード
+      - name: Upload to Itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          ./butler push \
+            builds/${{ matrix.platform.name }} \
+            yourusername/shaderop:${{ matrix.platform.channel }} \
+            --userversion ${{ github.event.release.tag_name }}
+
+  # Steam へのデプロイ (オプション)
+  deploy-steam:
+    name: Deploy to Steam
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.inputs.environment == 'production'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Windows artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          name: Build-Windows64-*
+          path: builds/Windows
+
+      - name: Download Linux artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml
+          name: Build-Linux64-*
+          path: builds/Linux
+
+      # Steamworks SDK を使ったアップロード
+      - name: Upload to Steam
+        uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: 480  # Steam App ID
+          buildDescription: ${{ github.event.release.tag_name }}
+          rootPath: builds
+          depot1Path: Windows
+          depot2Path: Linux
+          releaseBranch: default
+
+  # デプロイ完了通知
+  notify-deployment:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-android, deploy-ios, deploy-webgl, deploy-itchio]
+    if: always()
+
+    steps:
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            ShaderOp デプロイ完了
+            Version: ${{ github.event.release.tag_name }}
+            Environment: ${{ github.event.inputs.environment || 'production' }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
+
+      - name: Send Discord notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "ShaderOp Deployment"
+          description: |
+            Version: ${{ github.event.release.tag_name }}
+            Status: ${{ job.status }}
+          color: 0x00ff00
+        if: always()

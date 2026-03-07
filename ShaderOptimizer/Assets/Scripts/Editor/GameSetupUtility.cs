@@ -30,6 +30,9 @@ namespace ShaderOp.Editor
         {
             CreateMainMenuScene();
             CreateTicTacToeHexScene();
+            CreateHexReversiScene();
+            CreateHexCheckersScene();
+            CreateHexChessScene();
             CreateRoomDecorationScene();
 
             Debug.Log("[GameSetupUtility] All scenes created successfully!");
@@ -71,10 +74,8 @@ namespace ShaderOp.Editor
             // ゲームマネージャー
             GameObject gameObj = new GameObject("TicTacToeHexGame");
 
-            // Model
-            var modelObj = new GameObject("Model");
-            modelObj.transform.SetParent(gameObj.transform);
-            var model = modelObj.AddComponent<TicTacToeHexModel>();
+            // Controller（Modelは内部で作成される）
+            var controller = gameObj.AddComponent<TicTacToeHexController>();
 
             // View
             var viewObj = new GameObject("View");
@@ -84,11 +85,6 @@ namespace ShaderOp.Editor
             // ボードの親オブジェクト
             var boardParent = new GameObject("BoardParent");
             boardParent.transform.SetParent(viewObj.transform);
-
-            // Controller
-            var controllerObj = new GameObject("Controller");
-            controllerObj.transform.SetParent(gameObj.transform);
-            var controller = controllerObj.AddComponent<TicTacToeHexController>();
 
             // EventSystem
             GameObject eventSystemObj = new GameObject("EventSystem");
@@ -103,6 +99,111 @@ namespace ShaderOp.Editor
 
             EditorSceneManager.SaveScene(scene, SCENES_PATH + "TicTacToeHex.unity");
             Debug.Log("[GameSetupUtility] TicTacToeHex scene created!");
+        }
+
+        [MenuItem(MENU_ROOT + "Scenes/Create HexReversi Scene")]
+        public static void CreateHexReversiScene()
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+            // ゲームマネージャー
+            GameObject gameObj = new GameObject("HexReversiGame");
+
+            // Controller（Modelは内部で作成される）
+            var controller = gameObj.AddComponent<HexReversiController>();
+
+            // View
+            var viewObj = new GameObject("View");
+            viewObj.transform.SetParent(gameObj.transform);
+            var view = viewObj.AddComponent<HexReversiView>();
+
+            // ボードの親オブジェクト
+            var boardParent = new GameObject("BoardParent");
+            boardParent.transform.SetParent(viewObj.transform);
+
+            // EventSystem
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            // シーンを保存
+            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
+            {
+                AssetDatabase.CreateFolder("Assets", "Scenes");
+            }
+
+            EditorSceneManager.SaveScene(scene, SCENES_PATH + "HexReversi.unity");
+            Debug.Log("[GameSetupUtility] HexReversi scene created!");
+        }
+
+        [MenuItem(MENU_ROOT + "Scenes/Create HexCheckers Scene")]
+        public static void CreateHexCheckersScene()
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+            // ゲームマネージャー
+            GameObject gameObj = new GameObject("HexCheckersGame");
+
+            // Controller（Modelは内部で作成される）
+            var controller = gameObj.AddComponent<HexCheckersController>();
+
+            // View
+            var viewObj = new GameObject("View");
+            viewObj.transform.SetParent(gameObj.transform);
+            var view = viewObj.AddComponent<HexCheckersView>();
+
+            // ボードの親オブジェクト
+            var boardParent = new GameObject("BoardParent");
+            boardParent.transform.SetParent(viewObj.transform);
+
+            // EventSystem
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            // シーンを保存
+            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
+            {
+                AssetDatabase.CreateFolder("Assets", "Scenes");
+            }
+
+            EditorSceneManager.SaveScene(scene, SCENES_PATH + "HexCheckers.unity");
+            Debug.Log("[GameSetupUtility] HexCheckers scene created!");
+        }
+
+        [MenuItem(MENU_ROOT + "Scenes/Create HexChess Scene")]
+        public static void CreateHexChessScene()
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+            // ゲームマネージャー
+            GameObject gameObj = new GameObject("HexChessGame");
+
+            // Controller（Modelは内部で作成される）
+            var controller = gameObj.AddComponent<HexChessController>();
+
+            // View
+            var viewObj = new GameObject("View");
+            viewObj.transform.SetParent(gameObj.transform);
+            var view = viewObj.AddComponent<HexChessView>();
+
+            // ボードの親オブジェクト
+            var boardParent = new GameObject("BoardParent");
+            boardParent.transform.SetParent(viewObj.transform);
+
+            // EventSystem
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            // シーンを保存
+            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
+            {
+                AssetDatabase.CreateFolder("Assets", "Scenes");
+            }
+
+            EditorSceneManager.SaveScene(scene, SCENES_PATH + "HexChess.unity");
+            Debug.Log("[GameSetupUtility] HexChess scene created!");
         }
 
         [MenuItem(MENU_ROOT + "Scenes/Create RoomDecoration Scene")]
@@ -191,10 +292,43 @@ namespace ShaderOp.Editor
             Debug.Log($"[GameSetupUtility] HexTile prefab created at {prefabPath}");
         }
 
+        [MenuItem(MENU_ROOT + "Prefabs/Create Player Piece Prefabs")]
+        public static void CreatePlayerPiecePrefabs()
+        {
+            // Prefabsフォルダを確認・作成
+            if (!AssetDatabase.IsValidFolder("Assets/Prefabs/Minigames"))
+            {
+                AssetDatabase.CreateFolder("Assets/Prefabs", "Minigames");
+            }
+
+            // Player1駒を作成（青色）
+            GameObject player1Piece = new GameObject("Player1Piece");
+            SpriteRenderer p1Renderer = player1Piece.AddComponent<SpriteRenderer>();
+            p1Renderer.sprite = CreateCircleSprite(Color.blue);
+            p1Renderer.sortingOrder = 1;
+
+            string p1Path = PREFABS_PATH + "Minigames/Player1Piece.prefab";
+            PrefabUtility.SaveAsPrefabAsset(player1Piece, p1Path);
+            Object.DestroyImmediate(player1Piece);
+            Debug.Log($"[GameSetupUtility] Player1Piece prefab created at {p1Path}");
+
+            // Player2駒を作成（赤色）
+            GameObject player2Piece = new GameObject("Player2Piece");
+            SpriteRenderer p2Renderer = player2Piece.AddComponent<SpriteRenderer>();
+            p2Renderer.sprite = CreateCircleSprite(Color.red);
+            p2Renderer.sortingOrder = 1;
+
+            string p2Path = PREFABS_PATH + "Minigames/Player2Piece.prefab";
+            PrefabUtility.SaveAsPrefabAsset(player2Piece, p2Path);
+            Object.DestroyImmediate(player2Piece);
+            Debug.Log($"[GameSetupUtility] Player2Piece prefab created at {p2Path}");
+        }
+
         [MenuItem(MENU_ROOT + "Prefabs/Create All Prefabs")]
         public static void CreateAllPrefabs()
         {
             CreateHexTilePrefab();
+            CreatePlayerPiecePrefabs();
             Debug.Log("[GameSetupUtility] All prefabs created successfully!");
         }
 
@@ -222,6 +356,43 @@ namespace ShaderOp.Editor
             return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f), 100f);
         }
 
+        /// <summary>
+        /// 円形スプライトを作成
+        /// </summary>
+        private static Sprite CreateCircleSprite(Color color)
+        {
+            int size = 32;
+            Texture2D texture = new Texture2D(size, size);
+            Color[] pixels = new Color[size * size];
+
+            int center = size / 2;
+            float radius = size / 2f - 1;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dx = x - center;
+                    float dy = y - center;
+                    float distance = Mathf.Sqrt(dx * dx + dy * dy);
+
+                    if (distance <= radius)
+                    {
+                        pixels[y * size + x] = color;
+                    }
+                    else
+                    {
+                        pixels[y * size + x] = Color.clear;
+                    }
+                }
+            }
+
+            texture.SetPixels(pixels);
+            texture.Apply();
+
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        }
+
         #endregion
 
         #region Validation
@@ -247,6 +418,24 @@ namespace ShaderOp.Editor
             if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(SCENES_PATH + "TicTacToeHex.unity"))
             {
                 Debug.LogWarning("[GameSetupUtility] TicTacToeHex scene not found!");
+                allValid = false;
+            }
+
+            if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(SCENES_PATH + "HexReversi.unity"))
+            {
+                Debug.LogWarning("[GameSetupUtility] HexReversi scene not found!");
+                allValid = false;
+            }
+
+            if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(SCENES_PATH + "HexCheckers.unity"))
+            {
+                Debug.LogWarning("[GameSetupUtility] HexCheckers scene not found!");
+                allValid = false;
+            }
+
+            if (!AssetDatabase.LoadAssetAtPath<SceneAsset>(SCENES_PATH + "HexChess.unity"))
+            {
+                Debug.LogWarning("[GameSetupUtility] HexChess scene not found!");
                 allValid = false;
             }
 

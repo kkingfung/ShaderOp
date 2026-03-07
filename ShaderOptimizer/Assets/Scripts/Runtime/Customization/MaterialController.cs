@@ -24,8 +24,8 @@ namespace ShaderOp.Customization
         /// <summary>元のマテリアル（リセット用）</summary>
         private Material? _originalMaterial;
 
-        /// <summary>シェーダープロパティキャッシュ</summary>
-        private Dictionary<string, int> _propertyCache = new();
+        /// <summary>シェーダープロパティキャッシュ（初期容量8で最適化）</summary>
+        private Dictionary<string, int> _propertyCache = new(8);
 
         // シェーダープロパティ名（Unity-Chan Toon Shader互換）
         private static class ShaderProperties

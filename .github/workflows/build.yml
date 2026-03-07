@@ -1,0 +1,356 @@
+name: Build
+
+# ビルドワークフロー - タグpushとmainブランチへのマージで実行
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Build version (e.g., 0.1.0)'
+        required: true
+        default: '0.1.0'
+      platforms:
+        description: 'Platforms to build (comma-separated: Android,iOS,WebGL,StandaloneWindows64,StandaloneLinux64)'
+        required: true
+        default: 'Android,WebGL,StandaloneWindows64'
+
+env:
+  UNITY_VERSION: 6000.0.30f1
+  PROJECT_PATH: ShaderOptimizer
+
+jobs:
+  # バージョン情報の設定
+  setup:
+    name: Setup Build Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      platforms: ${{ steps.platforms.outputs.platforms }}
+
+    steps:
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          else
+            echo "version=0.0.0-dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine platforms
+        id: platforms
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "platforms=${{ github.event.inputs.platforms }}" >> $GITHUB_OUTPUT
+          else
+            echo "platforms=Android,WebGL,StandaloneWindows64" >> $GITHUB_OUTPUT
+          fi
+
+  # Android ビルド
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    needs: setup
+    if: contains(needs.setup.outputs.platforms, 'Android')
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Git LFS Pull
+        run: |
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+          git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-Android-${{ hashFiles('ShaderOptimizer/Packages/manifest.json') }}
+          restore-keys: |
+            Library-Android-
+            Library-
+
+      # Androidビルド実行
+      - name: Build Android APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: Android
+          buildName: ShaderOp
+          buildsPath: builds
+          androidAppBundle: false
+          androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
+          versioning: Custom
+          version: ${{ needs.setup.outputs.version }}
+
+      # ビルド成果物のアップロード
+      - name: Upload Android build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Android-${{ needs.setup.outputs.version }}
+          path: builds/Android
+          retention-days: 90
+
+  # iOS ビルド
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    needs: setup
+    if: contains(needs.setup.outputs.platforms, 'iOS')
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Git LFS Pull
+        run: |
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+          git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-iOS-${{ hashFiles('ShaderOptimizer/Packages/manifest.json') }}
+          restore-keys: |
+            Library-iOS-
+            Library-
+
+      # iOSビルド実行（Xcodeプロジェクト生成）
+      - name: Build iOS Xcode Project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: iOS
+          buildName: ShaderOp
+          buildsPath: builds
+          versioning: Custom
+          version: ${{ needs.setup.outputs.version }}
+
+      # Xcodeプロジェクトのアップロード
+      - name: Upload iOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-iOS-${{ needs.setup.outputs.version }}
+          path: builds/iOS
+          retention-days: 90
+
+  # WebGL ビルド
+  build-webgl:
+    name: Build WebGL
+    runs-on: ubuntu-latest
+    needs: setup
+    if: contains(needs.setup.outputs.platforms, 'WebGL')
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Git LFS Pull
+        run: |
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+          git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-WebGL-${{ hashFiles('ShaderOptimizer/Packages/manifest.json') }}
+          restore-keys: |
+            Library-WebGL-
+            Library-
+
+      # WebGLビルド実行
+      - name: Build WebGL
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: WebGL
+          buildName: ShaderOp
+          buildsPath: builds
+          versioning: Custom
+          version: ${{ needs.setup.outputs.version }}
+
+      # WebGLビルドのアップロード
+      - name: Upload WebGL build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-WebGL-${{ needs.setup.outputs.version }}
+          path: builds/WebGL
+          retention-days: 90
+
+  # Windows Standalone ビルド
+  build-windows:
+    name: Build Windows
+    runs-on: ubuntu-latest
+    needs: setup
+    if: contains(needs.setup.outputs.platforms, 'StandaloneWindows64')
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Git LFS Pull
+        run: |
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+          git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-Windows-${{ hashFiles('ShaderOptimizer/Packages/manifest.json') }}
+          restore-keys: |
+            Library-Windows-
+            Library-
+
+      # Windowsビルド実行
+      - name: Build Windows
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: StandaloneWindows64
+          buildName: ShaderOp
+          buildsPath: builds
+          versioning: Custom
+          version: ${{ needs.setup.outputs.version }}
+
+      # Windowsビルドのアップロード
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Windows64-${{ needs.setup.outputs.version }}
+          path: builds/StandaloneWindows64
+          retention-days: 90
+
+  # Linux Standalone ビルド
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    needs: setup
+    if: contains(needs.setup.outputs.platforms, 'StandaloneLinux64')
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Git LFS Pull
+        run: |
+          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+          git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-Linux-${{ hashFiles('ShaderOptimizer/Packages/manifest.json') }}
+          restore-keys: |
+            Library-Linux-
+            Library-
+
+      # Linuxビルド実行
+      - name: Build Linux
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: StandaloneLinux64
+          buildName: ShaderOp
+          buildsPath: builds
+          versioning: Custom
+          version: ${{ needs.setup.outputs.version }}
+
+      # Linuxビルドのアップロード
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Linux64-${{ needs.setup.outputs.version }}
+          path: builds/StandaloneLinux64
+          retention-days: 90
+
+  # リリース作成（タグpush時のみ）
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [setup, build-android, build-webgl, build-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      # アーティファクトをZIP圧縮
+      - name: Zip artifacts
+        run: |
+          cd artifacts
+          for dir in Build-*; do
+            zip -r "${dir}.zip" "$dir"
+          done
+
+      # GitHubリリースの作成
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

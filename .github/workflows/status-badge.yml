@@ -1,0 +1,49 @@
+name: Update Status Badges
+
+# ステータスバッジ更新ワークフロー
+on:
+  workflow_run:
+    workflows: ["Run Tests", "Build", "Code Quality"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  update-badges:
+    name: Update README Badges
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate badge data
+        id: badges
+        run: |
+          echo "test_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+          echo "workflow_name=${{ github.event.workflow_run.name }}" >> $GITHUB_OUTPUT
+
+      - name: Create badges directory
+        run: mkdir -p .github/badges
+
+      - name: Update badge information
+        run: |
+          cat > .github/badges/workflow-status.json << EOF
+          {
+            "schemaVersion": 1,
+            "label": "${{ steps.badges.outputs.workflow_name }}",
+            "message": "${{ steps.badges.outputs.test_status }}",
+            "color": "${{ steps.badges.outputs.test_status == 'success' && 'green' || 'red' }}"
+          }
+          EOF
+
+      - name: Commit badge updates
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/badges/
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: Update workflow status badges"
+          git push
+        continue-on-error: true

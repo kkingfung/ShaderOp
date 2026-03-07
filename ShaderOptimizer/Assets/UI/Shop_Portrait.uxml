@@ -1,0 +1,138 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="portrait-container">
+        
+        <!-- ヘッダー (15%) -->
+        <ui:VisualElement name="Header" class="portrait-header">
+            <ui:Button name="BackButton" class="icon-button">
+                <ui:Label text="←" class="icon-text" />
+            </ui:Button>
+            <ui:Label text="Shop" class="title-text" />
+            <ui:VisualElement name="CurrencyDisplay" class="currency-display">
+                <ui:Label text="💰" class="currency-icon" />
+                <ui:Label name="CoinAmount" text="1,250" class="currency-amount" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- メインコンテンツ (70%) -->
+        <ui:ScrollView name="ShopContent" class="portrait-content" mode="Vertical">
+            
+            <!-- VIPバナー -->
+            <ui:VisualElement name="VIPBanner" class="vip-banner">
+                <ui:Label text="👑 VIP Membership" class="vip-title" />
+                <ui:Label text="Unlock exclusive items &amp; bonuses!" class="vip-subtitle" />
+                <ui:Button name="VIPButton" text="Subscribe" class="vip-button" />
+            </ui:VisualElement>
+            
+            <!-- Featured Carousel -->
+            <ui:VisualElement name="FeaturedSection" class="section">
+                <ui:Label text="Featured" class="section-title" />
+                <ui:ScrollView name="FeaturedCarousel" class="featured-carousel" mode="Horizontal">
+                    
+                    <ui:VisualElement name="FeaturedItem1" class="featured-card">
+                        <ui:VisualElement class="item-image">
+                            <ui:Label text="🎨" class="item-icon-large" />
+                        </ui:VisualElement>
+                        <ui:Label text="Rainbow Hair Pack" class="item-name" />
+                        <ui:Label text="500 Coins" class="item-price" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement name="FeaturedItem2" class="featured-card">
+                        <ui:VisualElement class="item-image">
+                            <ui:Label text="👗" class="item-icon-large" />
+                        </ui:VisualElement>
+                        <ui:Label text="Summer Outfit" class="item-name" />
+                        <ui:Label text="800 Coins" class="item-price" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement name="FeaturedItem3" class="featured-card">
+                        <ui:VisualElement class="item-image">
+                            <ui:Label text="✨" class="item-icon-large" />
+                        </ui:VisualElement>
+                        <ui:Label text="Sparkle Effect" class="item-name" />
+                        <ui:Label text="300 Coins" class="item-price" />
+                    </ui:VisualElement>
+                    
+                </ui:ScrollView>
+            </ui:VisualElement>
+            
+            <!-- カテゴリタブ -->
+            <ui:VisualElement name="CategoryTabs" class="shop-category-tabs">
+                <ui:Button name="TabAll" text="All" class="category-tab tab-active" />
+                <ui:Button name="TabHair" text="Hair" class="category-tab" />
+                <ui:Button name="TabClothes" text="Clothes" class="category-tab" />
+                <ui:Button name="TabAccessories" text="Acc." class="category-tab" />
+            </ui:VisualElement>
+            
+            <!-- アイテムグリッド (2列) -->
+            <ui:VisualElement name="ItemsGrid" class="grid-2-column">
+                
+                <!-- アイテムカード例 -->
+                <ui:Button name="ShopItem1" class="shop-item-card">
+                    <ui:VisualElement class="item-image-small">
+                        <ui:Label text="👒" class="item-icon" />
+                    </ui:VisualElement>
+                    <ui:Label text="Straw Hat" class="item-name-small" />
+                    <ui:Label text="200 💰" class="item-price-small" />
+                </ui:Button>
+                
+                <ui:Button name="ShopItem2" class="shop-item-card">
+                    <ui:VisualElement class="item-image-small">
+                        <ui:Label text="👓" class="item-icon" />
+                    </ui:VisualElement>
+                    <ui:Label text="Sunglasses" class="item-name-small" />
+                    <ui:Label text="150 💰" class="item-price-small" />
+                </ui:Button>
+                
+                <ui:Button name="ShopItem3" class="shop-item-card">
+                    <ui:VisualElement class="item-image-small">
+                        <ui:Label text="👕" class="item-icon" />
+                    </ui:VisualElement>
+                    <ui:Label text="T-Shirt" class="item-name-small" />
+                    <ui:Label text="300 💰" class="item-price-small" />
+                </ui:Button>
+                
+                <ui:Button name="ShopItem4" class="shop-item-card">
+                    <ui:VisualElement class="item-image-small">
+                        <ui:Label text="👠" class="item-icon" />
+                    </ui:VisualElement>
+                    <ui:Label text="Shoes" class="item-name-small" />
+                    <ui:Label text="400 💰" class="item-price-small" />
+                </ui:Button>
+                
+            </ui:VisualElement>
+            
+        </ui:ScrollView>
+        
+        <!-- フッター / Tab Bar (15%) -->
+        <ui:VisualElement name="Footer" class="portrait-footer tab-bar">
+            <ui:Button name="TabHome" class="tab-button">
+                <ui:Label text="🏠" class="tab-icon" />
+                <ui:Label text="Home" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabGames" class="tab-button">
+                <ui:Label text="🎮" class="tab-icon" />
+                <ui:Label text="Games" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabFriends" class="tab-button">
+                <ui:Label text="👥" class="tab-icon" />
+                <ui:Label text="Friends" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabShop" class="tab-button tab-active">
+                <ui:Label text="🛒" class="tab-icon" />
+                <ui:Label text="Shop" class="tab-label" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+</ui:UXML>

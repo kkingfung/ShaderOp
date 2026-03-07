@@ -21,6 +21,12 @@ namespace ShaderOp.Minigames.Games
         /// <summary>Model参照</summary>
         protected HexBoardGameModel? _model;
 
+        /// <summary>Viewプロパティ（派生クラスおよびテストからアクセス用）</summary>
+        public HexBoardGameView? View => _view;
+
+        /// <summary>Modelプロパティ（派生クラスおよびテストからアクセス用）</summary>
+        public HexBoardGameModel? Model => _model;
+
         /// <summary>選択中のタイル</summary>
         protected HexCoordinate? _selectedTile;
 
@@ -82,9 +88,22 @@ namespace ShaderOp.Minigames.Games
         }
 
         /// <summary>
-        /// ゲーム初期化（派生クラスで実装）
+        /// ゲーム初期化（派生クラスでオーバーライド可能）
         /// </summary>
-        protected abstract void InitializeGame();
+        protected virtual void InitializeGame()
+        {
+            // デフォルト実装: Modelを初期化してViewを更新
+            if (_model != null)
+            {
+                _model.Initialize();
+                _model.StartGame();
+            }
+
+            if (_model != null && _view != null)
+            {
+                _view.UpdateBoard(_model.Grid);
+            }
+        }
 
         /// <summary>
         /// タイルクリック処理（派生クラスでオーバーライド可能）
@@ -198,9 +217,32 @@ namespace ShaderOp.Minigames.Games
         }
 
         /// <summary>
-        /// 駒のビジュアル更新（派生クラスで実装）
+        /// 駒のビジュアル更新（派生クラスでオーバーライド可能）
         /// </summary>
-        protected abstract void UpdatePieceView(HexCoordinate coord, PieceType piece);
+        protected virtual void UpdatePieceView(HexCoordinate coord, PieceType piece)
+        {
+            // デフォルト実装: Viewで駒を表示（色のみ）
+            if (_view == null) return;
+
+            Color color = piece switch
+            {
+                PieceType.Player1 => _player1Color,
+                PieceType.Player2 => _player2Color,
+                PieceType.Player3 => Color.green,
+                PieceType.Player4 => Color.yellow,
+                _ => Color.white
+            };
+
+            _view.ShowPiece(coord, null!, color);
+        }
+
+        /// <summary>
+        /// 駒配置時の処理（派生クラスでオーバーライド可能）
+        /// </summary>
+        protected virtual void OnPiecePlaced(HexCoordinate coord, PieceType piece)
+        {
+            // デフォルト実装: 何もしない
+        }
 
         /// <summary>
         /// ゲームをリセット

@@ -1,0 +1,235 @@
+name: Dependency Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'ShaderOptimizer/Packages/manifest.json'
+      - 'automation/requirements.txt'
+      - '.github/workflows/dependency-scan.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'ShaderOptimizer/Packages/manifest.json'
+      - 'automation/requirements.txt'
+  schedule:
+    # 毎週月曜日 9:00 (JST) に自動実行
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  python-dependencies:
+    name: Python依存関係スキャン
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f automation/requirements.txt ]; then
+            pip install -r automation/requirements.txt
+          fi
+
+      - name: Run Safety check
+        run: |
+          pip install safety
+          safety check --json --output safety-report.json || true
+          cat safety-report.json
+
+      - name: Run pip-audit
+        run: |
+          pip install pip-audit
+          pip-audit --format json --output pip-audit-report.json || true
+          cat pip-audit-report.json
+
+      - name: Upload Python security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-security-reports
+          path: |
+            safety-report.json
+            pip-audit-report.json
+          retention-days: 30
+
+  unity-packages:
+    name: Unity パッケージスキャン
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse Unity manifest
+        id: parse-manifest
+        run: |
+          echo "=== Unity Package Dependencies ==="
+          if [ -f ShaderOptimizer/Packages/manifest.json ]; then
+            cat ShaderOptimizer/Packages/manifest.json
+
+            # 外部Git依存関係を抽出
+            echo ""
+            echo "=== External Git Dependencies ==="
+            grep -E '".*":\s*"https://github.com' ShaderOptimizer/Packages/manifest.json || echo "None found"
+          else
+            echo "manifest.json not found"
+            exit 1
+          fi
+
+      - name: Check for known vulnerable Unity packages
+        run: |
+          # Unity パッケージの既知の脆弱性をチェック
+          # Note: Unity公式パッケージは通常安全ですが、外部パッケージは要確認
+
+          echo "=== Checking Unity Package Versions ==="
+
+          # 古いバージョンの警告
+          MANIFEST="ShaderOptimizer/Packages/manifest.json"
+
+          # UniTask のバージョンチェック（GitHub依存）
+          if grep -q "com.cysharp.unitask" "$MANIFEST"; then
+            echo "✓ UniTask found (GitHub dependency)"
+            echo "  → Ensure using latest stable version from Cysharp/UniTask"
+          fi
+
+          # UniRx のバージョンチェック（GitHub依存）
+          if grep -q "com.neuecc.unirx" "$MANIFEST"; then
+            echo "✓ UniRx found (GitHub dependency)"
+            echo "  → Ensure using latest stable version from neuecc/UniRx"
+          fi
+
+          # URPのバージョンチェック
+          URP_VERSION=$(grep -oP '"com.unity.render-pipelines.universal":\s*"\K[0-9.]+' "$MANIFEST" || echo "not found")
+          echo "✓ URP version: $URP_VERSION"
+
+          if [ "$URP_VERSION" != "not found" ]; then
+            MAJOR_VERSION=$(echo "$URP_VERSION" | cut -d. -f1)
+            if [ "$MAJOR_VERSION" -lt 17 ]; then
+              echo "  ⚠️  WARNING: URP version is older than 17.x (Unity 6)"
+              echo "  → Consider upgrading to latest URP for security patches"
+            fi
+          fi
+
+      - name: Generate Unity package report
+        run: |
+          cat > unity-packages-report.md << 'EOF'
+          # Unity Package Security Report
+
+          **Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          ## Unity Package Dependencies
+
+          EOF
+
+          # manifest.json の内容を追加
+          echo '```json' >> unity-packages-report.md
+          cat ShaderOptimizer/Packages/manifest.json >> unity-packages-report.md
+          echo '```' >> unity-packages-report.md
+
+          echo "" >> unity-packages-report.md
+          echo "## Recommendations" >> unity-packages-report.md
+          echo "" >> unity-packages-report.md
+          echo "- ✅ Keep Unity packages up to date" >> unity-packages-report.md
+          echo "- ✅ Review GitHub-sourced packages regularly" >> unity-packages-report.md
+          echo "- ✅ Subscribe to security advisories for UniTask and UniRx" >> unity-packages-report.md
+
+          cat unity-packages-report.md
+
+      - name: Upload Unity package report
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-package-report
+          path: unity-packages-report.md
+          retention-days: 30
+
+  security-summary:
+    name: セキュリティサマリー
+    runs-on: ubuntu-latest
+    needs: [python-dependencies, unity-packages]
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: security-reports
+
+      - name: Generate summary
+        run: |
+          echo "# 🔒 Dependency Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Python Dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f security-reports/python-security-reports/safety-report.json ]; then
+            VULNS=$(jq '.vulnerabilities | length' security-reports/python-security-reports/safety-report.json 2>/dev/null || echo "0")
+            if [ "$VULNS" -gt 0 ]; then
+              echo "⚠️ **$VULNS vulnerabilities found by Safety**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ No vulnerabilities found by Safety" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ Safety report not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f security-reports/python-security-reports/pip-audit-report.json ]; then
+            AUDITS=$(jq '.dependencies | length' security-reports/python-security-reports/pip-audit-report.json 2>/dev/null || echo "0")
+            if [ "$AUDITS" -gt 0 ]; then
+              echo "⚠️ **$AUDITS issues found by pip-audit**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ No issues found by pip-audit" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "ℹ️ pip-audit report not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Unity Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f security-reports/unity-package-report/unity-packages-report.md ]; then
+            echo "✅ Unity package report generated" >> $GITHUB_STEP_SUMMARY
+            echo "See artifacts for full report" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ Unity package report not available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review all security reports in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "2. Update vulnerable dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "3. Test compatibility after updates" >> $GITHUB_STEP_SUMMARY
+          echo "4. Document any required workarounds" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for critical vulnerabilities
+        run: |
+          CRITICAL=0
+
+          # Safety レポートからクリティカル脆弱性を確認
+          if [ -f security-reports/python-security-reports/safety-report.json ]; then
+            CRITICAL=$(jq '[.vulnerabilities[] | select(.severity == "critical")] | length' security-reports/python-security-reports/safety-report.json 2>/dev/null || echo "0")
+          fi
+
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "::error::🚨 $CRITICAL critical vulnerabilities found! Please update dependencies immediately."
+            exit 1
+          else
+            echo "✅ No critical vulnerabilities detected"
+          fi

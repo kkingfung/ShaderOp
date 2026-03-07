@@ -1,6 +1,8 @@
 #nullable enable
 
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -51,6 +53,9 @@ namespace ShaderOp.Core
         /// <summary>現在の非同期操作</summary>
         private AsyncOperation? _currentOperation;
 
+        /// <summary>キャンセルトークンソース</summary>
+        private CancellationTokenSource? _cancellationTokenSource;
+
         private void Awake()
         {
             if (_instance == null)
@@ -65,9 +70,9 @@ namespace ShaderOp.Core
         }
 
         /// <summary>
-        /// シーンを非同期で読み込み
+        /// シーンを非同期で読み込み（UniTask版）
         /// </summary>
-        public void LoadSceneAsync(string sceneName, LoadSceneMode mode = LoadSceneMode.Single)
+        public async UniTask LoadSceneAsync(string sceneName, LoadSceneMode mode = LoadSceneMode.Single, CancellationToken cancellationToken = default)
         {
             if (IsLoading)
             {
@@ -75,13 +80,37 @@ namespace ShaderOp.Core
                 return;
             }
 
-            StartCoroutine(LoadSceneCoroutine(sceneName, mode));
+            // キャンセルトークンソースを作成（外部トークンとリンク）
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            try
+            {
+                await LoadSceneAsyncInternal(sceneName, mode, _cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.LogWarning($"[SceneLoader] Scene loading cancelled: {sceneName}");
+                OnLoadFailed?.Invoke(sceneName, "Loading cancelled");
+            }
+            finally
+            {
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+            }
         }
 
         /// <summary>
-        /// シーン読み込みコルーチン
+        /// シーンを非同期で読み込み（レガシーコルーチン互換版）
         /// </summary>
-        private System.Collections.IEnumerator LoadSceneCoroutine(string sceneName, LoadSceneMode mode)
+        public void LoadScene(string sceneName, LoadSceneMode mode = LoadSceneMode.Single)
+        {
+            LoadSceneAsync(sceneName, mode).Forget();
+        }
+
+        /// <summary>
+        /// シーン読み込み内部実装（UniTask版）
+        /// </summary>
+        private async UniTask LoadSceneAsyncInternal(string sceneName, LoadSceneMode mode, CancellationToken cancellationToken)
         {
             IsLoading = true;
             LoadProgress = 0f;
@@ -97,15 +126,18 @@ namespace ShaderOp.Core
                 Debug.LogError($"[SceneLoader] Failed to start loading scene: {sceneName}");
                 OnLoadFailed?.Invoke(sceneName, "Failed to start async operation");
                 IsLoading = false;
-                yield break;
+                return;
             }
 
             // 自動的にシーンをアクティブにしない（遷移効果のため）
             _currentOperation.allowSceneActivation = false;
 
-            // 進捗を監視
+            // 進捗を監視（UniTaskでゼロアロケーション）
             while (!_currentOperation.isDone)
             {
+                // キャンセルチェック
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // 0.9までは読み込み進捗、0.9-1.0は手動でアクティベーション待ち
                 float progress = Mathf.Clamp01(_currentOperation.progress / 0.9f);
                 LoadProgress = progress;
@@ -117,12 +149,13 @@ namespace ShaderOp.Core
                     LoadProgress = 1.0f;
                     OnProgressChanged?.Invoke(1.0f);
 
-                    // 少し待ってからアクティベーション
-                    yield return new WaitForSeconds(0.5f);
+                    // 少し待ってからアクティベーション（UniTask.Delay使用でゼロアロケーション）
+                    await UniTask.Delay(500, cancellationToken: cancellationToken);
                     _currentOperation.allowSceneActivation = true;
                 }
 
-                yield return null;
+                // 次フレームまで待機（ゼロアロケーション）
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             }
 
             Debug.Log($"[SceneLoader] Scene loaded: {sceneName}");
@@ -134,10 +167,13 @@ namespace ShaderOp.Core
         }
 
         /// <summary>
-        /// 現在の読み込みをキャンセル（不可能だがフラグをリセット）
+        /// 現在の読み込みをキャンセル
         /// </summary>
         public void CancelLoading()
         {
+            // キャンセルトークンをキャンセル
+            _cancellationTokenSource?.Cancel();
+
             if (_currentOperation != null)
             {
                 _currentOperation.allowSceneActivation = true;
@@ -176,36 +212,33 @@ namespace ShaderOp.Core
         }
 
         /// <summary>
-        /// シーンをアンロード
+        /// シーンをアンロード（UniTask版）
         /// </summary>
-        public void UnloadSceneAsync(string sceneName)
+        public async UniTask UnloadSceneAsync(string sceneName, CancellationToken cancellationToken = default)
         {
-            if (!IsLoading)
-            {
-                StartCoroutine(UnloadSceneCoroutine(sceneName));
-            }
-            else
+            if (IsLoading)
             {
                 Debug.LogWarning($"[SceneLoader] Cannot unload scene while loading: {sceneName}");
+                return;
             }
-        }
 
-        /// <summary>
-        /// シーンアンロードコルーチン
-        /// </summary>
-        private System.Collections.IEnumerator UnloadSceneCoroutine(string sceneName)
-        {
             Debug.Log($"[SceneLoader] Unloading scene: {sceneName}");
 
             AsyncOperation operation = SceneManager.UnloadSceneAsync(sceneName);
             if (operation != null)
             {
-                while (!operation.isDone)
-                {
-                    yield return null;
-                }
+                // UniTaskでゼロアロケーション待機
+                await operation.ToUniTask(cancellationToken: cancellationToken);
                 Debug.Log($"[SceneLoader] Scene unloaded: {sceneName}");
             }
+        }
+
+        /// <summary>
+        /// シーンをアンロード（レガシー互換版）
+        /// </summary>
+        public void UnloadScene(string sceneName)
+        {
+            UnloadSceneAsync(sceneName).Forget();
         }
     }
 }

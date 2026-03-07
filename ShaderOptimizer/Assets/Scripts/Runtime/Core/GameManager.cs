@@ -3,6 +3,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Cysharp.Threading.Tasks;
 
 namespace ShaderOp.Core
 {
@@ -64,7 +65,7 @@ namespace ShaderOp.Core
         public void LoadMainMenu()
         {
             ChangeMode(GameMode.MainMenu);
-            SceneLoader.Instance.LoadSceneAsync("MainMenu");
+            SceneLoader.Instance.LoadSceneAsync("MainMenu").Forget();
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace ShaderOp.Core
         public void LoadCharacterCustomization()
         {
             ChangeMode(GameMode.CharacterCustomization);
-            SceneLoader.Instance.LoadSceneAsync("MainCustomization");
+            SceneLoader.Instance.LoadSceneAsync("MainCustomization").Forget();
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace ShaderOp.Core
         public void LoadRoomDecoration()
         {
             ChangeMode(GameMode.RoomDecoration);
-            SceneLoader.Instance.LoadSceneAsync("RoomDecoration");
+            SceneLoader.Instance.LoadSceneAsync("RoomDecoration").Forget();
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace ShaderOp.Core
         public void LoadMinigame(string minigameName)
         {
             ChangeMode(GameMode.Minigame);
-            SceneLoader.Instance.LoadSceneAsync(minigameName);
+            SceneLoader.Instance.LoadSceneAsync(minigameName).Forget();
         }
 
         /// <summary>
@@ -100,6 +101,30 @@ namespace ShaderOp.Core
         public void LoadTicTacToeHex()
         {
             LoadMinigame("TicTacToeHex");
+        }
+
+        /// <summary>
+        /// Hex Reversiをロード
+        /// </summary>
+        public void LoadHexReversi()
+        {
+            LoadMinigame("HexReversi");
+        }
+
+        /// <summary>
+        /// Hex Checkersをロード
+        /// </summary>
+        public void LoadHexCheckers()
+        {
+            LoadMinigame("HexCheckers");
+        }
+
+        /// <summary>
+        /// Hex Chessをロード
+        /// </summary>
+        public void LoadHexChess()
+        {
+            LoadMinigame("HexChess");
         }
 
         /// <summary>

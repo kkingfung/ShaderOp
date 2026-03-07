@@ -1,0 +1,610 @@
+/* ============================================
+   ShaderOp Design System - USS Stylesheet
+   ============================================
+
+   プロジェクト: ShaderOp
+   用途: 統一されたUIデザインシステム
+   対象: モバイル & デスクトップ
+
+   セクション:
+   1. Design Tokens (Colors, Spacing, Typography)
+   2. Base Elements
+   3. Layout Containers
+   4. Interactive Components
+   5. Specialized Components
+   6. Responsive Utilities
+   7. Accessibility
+   ============================================ */
+
+/* ============================================
+   1. DESIGN TOKENS
+   ============================================ */
+
+/* カラーパレット */
+:root {
+    /* Primary Colors */
+    --color-primary: rgb(60, 100, 180);
+    --color-primary-hover: rgb(80, 120, 200);
+    --color-primary-pressed: rgb(40, 80, 160);
+    --color-primary-disabled: rgb(100, 120, 140);
+
+    /* Secondary Colors */
+    --color-secondary: rgb(180, 60, 120);
+    --color-secondary-hover: rgb(200, 80, 140);
+    --color-secondary-pressed: rgb(160, 40, 100);
+
+    /* Neutral Colors */
+    --color-background-dark: rgb(15, 15, 20);
+    --color-background-medium: rgb(25, 25, 35);
+    --color-background-light: rgb(40, 40, 50);
+    --color-surface: rgb(30, 30, 40);
+    --color-surface-hover: rgb(45, 45, 60);
+
+    /* Text Colors */
+    --color-text-primary: rgb(255, 255, 255);
+    --color-text-secondary: rgb(180, 180, 200);
+    --color-text-disabled: rgb(100, 100, 120);
+    --color-text-accent: rgb(100, 200, 255);
+
+    /* Status Colors */
+    --color-success: rgb(80, 200, 120);
+    --color-warning: rgb(255, 180, 60);
+    --color-error: rgb(220, 80, 80);
+    --color-info: rgb(100, 150, 255);
+
+    /* Spacing Scale (8px base) */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-xxl: 48px;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+
+    /* Typography */
+    --font-size-xs: 10px;
+    --font-size-sm: 12px;
+    --font-size-md: 14px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-size-xxl: 36px;
+
+    /* Animation */
+    --transition-fast: 0.15s;
+    --transition-normal: 0.25s;
+    --transition-slow: 0.4s;
+}
+
+/* ============================================
+   2. BASE ELEMENTS
+   ============================================ */
+
+/* Root Container */
+.root {
+    flex-grow: 1;
+    background-color: var(--color-background-dark);
+}
+
+/* Labels */
+Label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    -unity-text-align: middle-left;
+    margin: 0;
+    padding: var(--space-xs);
+}
+
+.label-title {
+    font-size: var(--font-size-xxl);
+    color: var(--color-text-primary);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.label-heading {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-primary);
+    -unity-font-style: bold;
+}
+
+.label-subheading {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+}
+
+.label-caption {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.label-accent {
+    color: var(--color-text-accent);
+}
+
+/* ============================================
+   3. LAYOUT CONTAINERS
+   ============================================ */
+
+/* Panel - 基本コンテナ */
+.panel {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-sm);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.panel-elevated {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin: var(--space-md);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Section - セクション区切り */
+.section {
+    margin-bottom: var(--space-lg);
+}
+
+.section-header {
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Grid Layouts */
+.grid-2col {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.grid-2col > * {
+    flex-basis: 48%;
+    flex-grow: 0;
+    margin: 1%;
+}
+
+.grid-3col {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.grid-3col > * {
+    flex-basis: 31%;
+    flex-grow: 0;
+    margin: 1%;
+}
+
+/* Flex Utilities */
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-center {
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-space-between {
+    justify-content: space-between;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+/* ============================================
+   4. INTERACTIVE COMPONENTS
+   ============================================ */
+
+/* Buttons */
+Button {
+    background-color: var(--color-primary);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    border-width: 0;
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-xs);
+    font-size: var(--font-size-md);
+    transition-duration: var(--transition-fast);
+    cursor: link;
+}
+
+Button:hover {
+    background-color: var(--color-primary-hover);
+    scale: 1.05;
+}
+
+Button:active {
+    background-color: var(--color-primary-pressed);
+    scale: 0.98;
+}
+
+Button:disabled {
+    background-color: var(--color-primary-disabled);
+    color: var(--color-text-disabled);
+    cursor: arrow;
+}
+
+/* Button Variants */
+.button-secondary {
+    background-color: var(--color-secondary);
+}
+
+.button-secondary:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+.button-secondary:active {
+    background-color: var(--color-secondary-pressed);
+}
+
+.button-outline {
+    background-color: transparent;
+    border-width: 2px;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.button-outline:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-primary);
+}
+
+.button-danger {
+    background-color: var(--color-error);
+}
+
+.button-danger:hover {
+    background-color: rgb(240, 100, 100);
+}
+
+.button-success {
+    background-color: var(--color-success);
+}
+
+.button-success:hover {
+    background-color: rgb(100, 220, 140);
+}
+
+/* Button Sizes */
+.button-sm {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-sm);
+}
+
+.button-lg {
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--font-size-lg);
+}
+
+/* Sliders */
+Slider {
+    margin: var(--space-sm) 0;
+}
+
+.slider-container {
+    flex-direction: row;
+    align-items: center;
+    margin: var(--space-sm) 0;
+}
+
+.slider-container > Label {
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+.slider-container > Slider {
+    flex-grow: 1;
+    margin-left: var(--space-md);
+}
+
+.slider-container > .slider-value {
+    min-width: 60px;
+    text-align: right;
+    margin-left: var(--space-sm);
+    color: var(--color-text-accent);
+}
+
+/* Slider Track */
+Slider .unity-base-slider__tracker {
+    background-color: var(--color-background-light);
+    border-radius: var(--radius-full);
+    height: 4px;
+}
+
+/* Slider Fill */
+Slider .unity-base-slider__dragger-border {
+    background-color: var(--color-primary);
+    border-radius: var(--radius-full);
+}
+
+/* Slider Handle */
+Slider .unity-base-slider__dragger {
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-text-primary);
+    border-radius: var(--radius-full);
+    border-width: 2px;
+    border-color: var(--color-primary);
+}
+
+Slider .unity-base-slider__dragger:hover {
+    scale: 1.2;
+}
+
+/* Toggle */
+Toggle {
+    margin: var(--space-sm) 0;
+}
+
+Toggle > Label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+}
+
+Toggle .unity-toggle__checkmark {
+    background-color: var(--color-background-light);
+    border-radius: var(--radius-sm);
+    border-width: 2px;
+    border-color: var(--color-primary);
+}
+
+Toggle:checked .unity-toggle__checkmark {
+    background-color: var(--color-primary);
+}
+
+/* TextField */
+TextField {
+    margin: var(--space-sm) 0;
+}
+
+TextField > Label {
+    min-width: 120px;
+}
+
+TextField .unity-text-field__input {
+    background-color: var(--color-background-light);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-sm);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.2);
+    padding: var(--space-sm);
+    font-size: var(--font-size-md);
+}
+
+TextField .unity-text-field__input:focus {
+    border-color: var(--color-primary);
+    border-width: 2px;
+}
+
+/* DropdownField */
+DropdownField {
+    margin: var(--space-sm) 0;
+}
+
+DropdownField > Label {
+    min-width: 120px;
+}
+
+DropdownField .unity-base-popup-field__input {
+    background-color: var(--color-background-light);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-sm);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.2);
+    padding: var(--space-sm);
+}
+
+DropdownField:hover .unity-base-popup-field__input {
+    background-color: var(--color-surface-hover);
+}
+
+/* ============================================
+   5. SPECIALIZED COMPONENTS
+   ============================================ */
+
+/* Color Picker Group */
+.color-picker-group {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin: var(--space-md) 0;
+}
+
+.color-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.3);
+    margin: var(--space-sm);
+}
+
+.rgb-sliders {
+    flex-grow: 1;
+}
+
+/* Card Component */
+.card {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin: var(--space-md);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.1);
+    transition-duration: var(--transition-normal);
+}
+
+.card:hover {
+    border-color: var(--color-primary);
+    scale: 1.02;
+}
+
+.card-header {
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.card-body {
+    margin: var(--space-md) 0;
+}
+
+.card-footer {
+    margin-top: var(--space-md);
+    padding-top: var(--space-sm);
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.2);
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+/* Badge/Tag */
+.badge {
+    background-color: var(--color-primary);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-full);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-xs);
+    margin: var(--space-xs);
+}
+
+.badge-success {
+    background-color: var(--color-success);
+}
+
+.badge-warning {
+    background-color: var(--color-warning);
+}
+
+.badge-error {
+    background-color: var(--color-error);
+}
+
+/* Divider */
+.divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: var(--space-md) 0;
+}
+
+.divider-thick {
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   6. RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Spacing Utilities */
+.m-0 { margin: 0; }
+.m-xs { margin: var(--space-xs); }
+.m-sm { margin: var(--space-sm); }
+.m-md { margin: var(--space-md); }
+.m-lg { margin: var(--space-lg); }
+.m-xl { margin: var(--space-xl); }
+
+.p-0 { padding: 0; }
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+
+/* Width/Height Utilities */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+.w-1-2 { width: 50%; }
+.w-1-3 { width: 33.333%; }
+.w-2-3 { width: 66.666%; }
+
+/* ============================================
+   7. ACCESSIBILITY
+   ============================================ */
+
+/* Focus States */
+*:focus {
+    border-color: var(--color-primary);
+    border-width: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    :root {
+        --color-background-dark: rgb(0, 0, 0);
+        --color-background-medium: rgb(20, 20, 20);
+        --color-text-primary: rgb(255, 255, 255);
+        --color-primary: rgb(100, 150, 255);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition-duration: 0s !important;
+    }
+}
+
+/* Touch Target Sizes (minimum 44x44px) */
+.touch-target {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+Button {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* ============================================
+   8. ANIMATION CLASSES
+   ============================================ */
+
+.fade-in {
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: var(--transition-normal);
+}
+
+.fade-in-active {
+    opacity: 1;
+}
+
+.slide-in-bottom {
+    translate: 0 100px;
+    transition-property: translate;
+    transition-duration: var(--transition-normal);
+}
+
+.slide-in-bottom-active {
+    translate: 0 0;
+}
+
+/* ============================================
+   END OF DESIGN SYSTEM
+   ============================================ */

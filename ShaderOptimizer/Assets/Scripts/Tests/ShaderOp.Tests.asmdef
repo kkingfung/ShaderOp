@@ -1,22 +1,25 @@
 {
-    "name": "ShaderOp.Tests.Editor",
-    "rootNamespace": "ShaderOp.Tests.Editor",
+    "name": "ShaderOp.Tests",
+    "rootNamespace": "ShaderOp.Tests",
     "references": [
+        "ShaderOp.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "ShaderOp.Runtime",
-        "ShaderOp.Editor"
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Jobs",
+        "Unity.Burst",
+        "UniTask",
+        "UniRx"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll"
     ],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],

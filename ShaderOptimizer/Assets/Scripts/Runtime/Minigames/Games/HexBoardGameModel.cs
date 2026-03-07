@@ -110,14 +110,31 @@ namespace ShaderOp.Minigames.Games
         }
 
         /// <summary>
+        /// 駒を配置（互換性メソッド - 派生クラスでオーバーライド可能）
+        /// </summary>
+        /// <remarks>
+        /// 一部のゲームでは選択→配置のパターンを使用するため、
+        /// このメソッドを提供します。デフォルトではExecuteMoveに委譲します。
+        /// </remarks>
+        public virtual bool PlacePiece(HexCoordinate coord)
+        {
+            // デフォルト実装: ExecuteMoveに委譲
+            return ExecuteMove(HexCoordinate.Zero, coord);
+        }
+
+        /// <summary>
         /// 勝利条件チェック（派生クラスで実装）
         /// </summary>
         protected abstract bool CheckWinCondition();
 
         /// <summary>
-        /// 引き分け条件チェック（派生クラスで実装）
+        /// 引き分け条件チェック（派生クラスでオーバーライド可能）
         /// </summary>
-        protected abstract bool CheckDrawCondition();
+        protected virtual bool CheckDrawCondition()
+        {
+            // デフォルト実装: 引き分けなし
+            return false;
+        }
 
         /// <summary>
         /// 次のターンへ
@@ -135,6 +152,14 @@ namespace ShaderOp.Minigames.Games
         {
             State = newState;
             OnGameStateChanged?.Invoke(newState);
+        }
+
+        /// <summary>
+        /// タイル更新を通知（派生クラスから呼び出し可能）
+        /// </summary>
+        protected void NotifyTileUpdated(HexCoordinate coord)
+        {
+            OnTileUpdated?.Invoke(coord);
         }
 
         /// <summary>

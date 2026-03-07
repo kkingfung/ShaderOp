@@ -1,0 +1,54 @@
+name: Asset Validation
+
+on:
+  pull_request:
+    paths:
+      - 'ShaderOptimizer/Assets/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'ShaderOptimizer/Assets/**'
+  workflow_dispatch:
+
+jobs:
+  validate-assets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Asset Validation
+        id: validation
+        run: |
+          # 検証実行（エラーがあっても継続）
+          python automation/validate_assets.py \
+            --project ShaderOptimizer \
+            --fail-on-warning || echo "validation_failed=true" >> $GITHUB_OUTPUT
+
+      - name: Upload Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asset-validation-report
+          path: validation_report.txt
+          retention-days: 30
+
+      - name: Fail if validation failed
+        if: steps.validation.outputs.validation_failed == 'true'
+        run: |
+          echo "❌ Asset validation failed. Check the validation report artifact for details."
+          exit 1
+
+      - name: Success Summary
+        if: success()
+        run: |
+          echo "# ✅ Asset Validation Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All assets passed validation checks!" >> $GITHUB_STEP_SUMMARY

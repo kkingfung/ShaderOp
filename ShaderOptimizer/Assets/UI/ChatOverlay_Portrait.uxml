@@ -1,0 +1,95 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    
+    <!-- チャットオーバーレイ（下から上にスライド） -->
+    <ui:VisualElement name="ChatOverlay" class="chat-overlay">
+        
+        <!-- ヘッダー (10%) -->
+        <ui:VisualElement name="ChatHeader" class="chat-header">
+            <ui:Label text="Chat" class="chat-title" />
+            <ui:Button name="MinimizeButton" class="icon-button">
+                <ui:Label text="▼" class="icon-text" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+        <!-- メッセージリスト (70%) -->
+        <ui:ScrollView name="MessageList" class="message-list" mode="Vertical">
+            
+            <!-- システムメッセージ例 -->
+            <ui:VisualElement name="SystemMessage1" class="message-container system-message">
+                <ui:Label text="Game started!" class="message-text" />
+                <ui:Label text="12:30" class="message-time" />
+            </ui:VisualElement>
+            
+            <!-- 相手のメッセージ例 -->
+            <ui:VisualElement name="OpponentMessage1" class="message-container opponent-message">
+                <ui:VisualElement class="message-header">
+                    <ui:VisualElement class="message-avatar">
+                        <ui:Label text="👤" class="avatar-icon-small" />
+                    </ui:VisualElement>
+                    <ui:Label text="Opponent" class="sender-name" />
+                </ui:VisualElement>
+                <ui:VisualElement class="message-bubble opponent-bubble">
+                    <ui:Label text="Good luck!" class="message-text" />
+                </ui:VisualElement>
+                <ui:Label text="12:31" class="message-time" />
+            </ui:VisualElement>
+            
+            <!-- 自分のメッセージ例 -->
+            <ui:VisualElement name="MyMessage1" class="message-container my-message">
+                <ui:VisualElement class="message-header">
+                    <ui:Label text="You" class="sender-name" />
+                    <ui:VisualElement class="message-avatar">
+                        <ui:Label text="🔴" class="avatar-icon-small" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="message-bubble my-bubble">
+                    <ui:Label text="Thanks! You too!" class="message-text" />
+                </ui:VisualElement>
+                <ui:Label text="12:31" class="message-time" />
+            </ui:VisualElement>
+            
+        </ui:ScrollView>
+        
+        <!-- スタンプパネル (10%, 初期状態で非表示) -->
+        <ui:VisualElement name="StampPanel" class="stamp-panel" style="display: none;">
+            <ui:VisualElement class="stamp-grid">
+                <ui:Button name="Stamp1" class="stamp-button">
+                    <ui:Label text="👍" class="stamp-icon" />
+                </ui:Button>
+                <ui:Button name="Stamp2" class="stamp-button">
+                    <ui:Label text="😊" class="stamp-icon" />
+                </ui:Button>
+                <ui:Button name="Stamp3" class="stamp-button">
+                    <ui:Label text="😮" class="stamp-icon" />
+                </ui:Button>
+                <ui:Button name="Stamp4" class="stamp-button">
+                    <ui:Label text="😭" class="stamp-icon" />
+                </ui:Button>
+                <ui:Button name="Stamp5" class="stamp-button">
+                    <ui:Label text="🎉" class="stamp-icon" />
+                </ui:Button>
+                <ui:Button name="Stamp6" class="stamp-button">
+                    <ui:Label text="💪" class="stamp-icon" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- 入力エリア (10%) -->
+        <ui:VisualElement name="InputArea" class="chat-input-area">
+            <ui:Button name="StampButton" class="input-icon-button">
+                <ui:Label text="😊" class="icon-text" />
+            </ui:Button>
+            <ui:TextField name="MessageInput" placeholder-text="Type a message..." class="message-input" />
+            <ui:Button name="SendButton" class="send-button">
+                <ui:Label text="➤" class="icon-text" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+</ui:UXML>

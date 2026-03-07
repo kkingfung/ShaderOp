@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # PostgreSQLデータベース
+  postgres:
+    image: postgres:16-alpine
+    container_name: shaderop-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: shaderop_db
+      POSTGRES_USER: shaderop_user
+      POSTGRES_PASSWORD: shaderop_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - shaderop-network
+
+  # Redis（セッション・キャッシュ）
+  redis:
+    image: redis:7-alpine
+    container_name: shaderop-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - shaderop-network
+    command: redis-server --appendonly yes
+
+  # Node.js APIサーバー
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shaderop-api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: shaderop_db
+      DB_USER: shaderop_user
+      DB_PASSWORD: shaderop_password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    networks:
+      - shaderop-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  shaderop-network:
+    driver: bridge

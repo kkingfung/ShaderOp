@@ -1,0 +1,19 @@
+# Python自動化スクリプトの依存関係
+#
+# インストール:
+#   pip install -r requirements.txt
+#
+# セキュリティスキャン:
+#   safety check
+#   pip-audit
+
+# コアライブラリ
+# （現在、標準ライブラリのみを使用しているため外部依存なし）
+
+# 開発・テストツール（オプション）
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+
+# セキュリティスキャンツール（CI/CD用）
+# safety>=2.3.0
+# pip-audit>=2.6.0

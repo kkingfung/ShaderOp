@@ -1,0 +1,440 @@
+/* ============================================
+   Responsive Layouts - USS Stylesheet
+   ============================================
+
+   プロジェクト: ShaderOp
+   用途: レスポンシブデザインユーティリティ
+   対象: モバイル (720x1280) ～ デスクトップ (1920x1080)
+
+   セクション:
+   1. Breakpoints & Media Queries
+   2. Flexible Grid System
+   3. Container Queries
+   4. Responsive Typography
+   5. Adaptive Spacing
+   6. Orientation-Specific Layouts
+   7. Safe Area Insets (モバイル)
+   ============================================ */
+
+/* ============================================
+   1. BREAKPOINTS & MEDIA QUERIES
+   ============================================ */
+
+/* Unity UI Toolkit Media Query サポート
+   注: Unity 2023.2+ では @media クエリが限定的にサポート
+   主にprefers-reduced-motion, prefers-contrast のみ
+   画面サイズベースのブレイクポイントはC#で制御推奨 */
+
+:root {
+    /* Breakpoint定義（C#から参照） */
+    --breakpoint-mobile: 720px;
+    --breakpoint-tablet: 1024px;
+    --breakpoint-desktop: 1920px;
+
+    /* コンテナサイズ */
+    --container-mobile: 100%;
+    --container-tablet: 90%;
+    --container-desktop: 1200px;
+
+    /* カラム数 */
+    --columns-mobile: 1;
+    --columns-tablet: 2;
+    --columns-desktop: 3;
+}
+
+/* ============================================
+   2. FLEXIBLE GRID SYSTEM
+   ============================================ */
+
+/* 12カラムグリッドシステム */
+.grid-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* グリッドギャップ */
+.grid-gap-none { gap: 0; }
+.grid-gap-xs { gap: var(--space-xs); }
+.grid-gap-sm { gap: var(--space-sm); }
+.grid-gap-md { gap: var(--space-md); }
+.grid-gap-lg { gap: var(--space-lg); }
+.grid-gap-xl { gap: var(--space-xl); }
+
+/* カラム幅（12カラムベース） */
+.col-1 { width: 8.333%; flex-shrink: 0; }
+.col-2 { width: 16.666%; flex-shrink: 0; }
+.col-3 { width: 25%; flex-shrink: 0; }
+.col-4 { width: 33.333%; flex-shrink: 0; }
+.col-5 { width: 41.666%; flex-shrink: 0; }
+.col-6 { width: 50%; flex-shrink: 0; }
+.col-7 { width: 58.333%; flex-shrink: 0; }
+.col-8 { width: 66.666%; flex-shrink: 0; }
+.col-9 { width: 75%; flex-shrink: 0; }
+.col-10 { width: 83.333%; flex-shrink: 0; }
+.col-11 { width: 91.666%; flex-shrink: 0; }
+.col-12 { width: 100%; flex-shrink: 0; }
+
+/* 自動カラム（等幅分割） */
+.col-auto {
+    flex: 1 1 0;
+}
+
+/* モバイル専用カラム（C#で切り替え） */
+.col-mobile-12 { width: 100%; }
+.col-mobile-6 { width: 50%; }
+
+/* タブレット専用カラム */
+.col-tablet-6 { width: 50%; }
+.col-tablet-4 { width: 33.333%; }
+.col-tablet-3 { width: 25%; }
+
+/* デスクトップ専用カラム */
+.col-desktop-4 { width: 33.333%; }
+.col-desktop-3 { width: 25%; }
+.col-desktop-2 { width: 16.666%; }
+
+/* ============================================
+   3. CONTAINER QUERIES
+   ============================================ */
+
+/* レスポンシブコンテナ（中央寄せ） */
+.container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+}
+
+/* モバイルコンテナ（全幅） */
+.container-mobile {
+    width: 100%;
+    max-width: 720px;
+}
+
+/* タブレットコンテナ */
+.container-tablet {
+    width: 90%;
+    max-width: 1024px;
+}
+
+/* デスクトップコンテナ */
+.container-desktop {
+    width: 80%;
+    max-width: 1920px;
+}
+
+/* フルード（流動的）コンテナ */
+.container-fluid {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ============================================
+   4. RESPONSIVE TYPOGRAPHY
+   ============================================ */
+
+/* レスポンシブフォントサイズ（vw単位使用不可のためC#制御推奨） */
+.text-responsive-sm {
+    font-size: var(--font-size-sm);
+}
+
+.text-responsive-md {
+    font-size: var(--font-size-md);
+}
+
+.text-responsive-lg {
+    font-size: var(--font-size-lg);
+}
+
+.text-responsive-xl {
+    font-size: var(--font-size-xl);
+}
+
+/* モバイル: 小さめフォント */
+.text-mobile {
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+}
+
+/* タブレット: 中サイズフォント */
+.text-tablet {
+    font-size: var(--font-size-md);
+    line-height: 1.6;
+}
+
+/* デスクトップ: 標準フォント */
+.text-desktop {
+    font-size: var(--font-size-lg);
+    line-height: 1.75;
+}
+
+/* テキスト切り詰め */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-wrap {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* ============================================
+   5. ADAPTIVE SPACING
+   ============================================ */
+
+/* レスポンシブマージン（モバイル優先） */
+.m-responsive-sm {
+    margin: var(--space-xs);
+}
+
+.m-responsive-md {
+    margin: var(--space-sm);
+}
+
+.m-responsive-lg {
+    margin: var(--space-md);
+}
+
+/* レスポンシブパディング */
+.p-responsive-sm {
+    padding: var(--space-xs);
+}
+
+.p-responsive-md {
+    padding: var(--space-sm);
+}
+
+.p-responsive-lg {
+    padding: var(--space-md);
+}
+
+/* モバイル: 小さめスペーシング */
+.spacing-mobile {
+    padding: var(--space-sm);
+    margin: var(--space-xs);
+}
+
+/* タブレット: 中サイズスペーシング */
+.spacing-tablet {
+    padding: var(--space-md);
+    margin: var(--space-sm);
+}
+
+/* デスクトップ: 大きめスペーシング */
+.spacing-desktop {
+    padding: var(--space-lg);
+    margin: var(--space-md);
+}
+
+/* ============================================
+   6. ORIENTATION-SPECIFIC LAYOUTS
+   ============================================ */
+
+/* ポートレート（縦向き）レイアウト */
+.layout-portrait {
+    flex-direction: column;
+}
+
+.layout-portrait > .panel {
+    width: 100%;
+    margin-bottom: var(--space-md);
+}
+
+/* ランドスケープ（横向き）レイアウト */
+.layout-landscape {
+    flex-direction: row;
+}
+
+.layout-landscape > .panel {
+    width: 50%;
+    margin-right: var(--space-md);
+}
+
+/* 最後の要素にこのクラスを追加してマージンを削除 */
+.layout-landscape > .panel-last {
+    margin-right: 0;
+}
+
+/* スタックレイアウト（モバイル縦向き） */
+.stack-mobile {
+    flex-direction: column;
+}
+
+.stack-mobile > * {
+    width: 100%;
+    margin-bottom: var(--space-sm);
+}
+
+/* サイドバイサイドレイアウト（タブレット/デスクトップ） */
+.side-by-side {
+    flex-direction: row;
+}
+
+.side-by-side > * {
+    flex: 1 1 0;
+    margin-right: var(--space-md);
+}
+
+/* 最後の要素にこのクラスを追加してマージンを削除 */
+.side-by-side > .last-item {
+    margin-right: 0;
+}
+
+/* ============================================
+   7. SAFE AREA INSETS (モバイル)
+   ============================================ */
+
+/* iOS Safe Area対応（ノッチ/ホームバー回避） */
+.safe-area-top {
+    padding-top: max(var(--space-md), env(safe-area-inset-top, 0));
+}
+
+.safe-area-bottom {
+    padding-bottom: max(var(--space-md), env(safe-area-inset-bottom, 0));
+}
+
+.safe-area-left {
+    padding-left: max(var(--space-md), env(safe-area-inset-left, 0));
+}
+
+.safe-area-right {
+    padding-right: max(var(--space-md), env(safe-area-inset-right, 0));
+}
+
+.safe-area-all {
+    padding-top: max(var(--space-md), env(safe-area-inset-top, 0));
+    padding-bottom: max(var(--space-md), env(safe-area-inset-bottom, 0));
+    padding-left: max(var(--space-md), env(safe-area-inset-left, 0));
+    padding-right: max(var(--space-md), env(safe-area-inset-right, 0));
+}
+
+/* ============================================
+   8. FLEX UTILITIES (レスポンシブ対応)
+   ============================================ */
+
+/* Flex方向 */
+.flex-row-mobile { flex-direction: row; }
+.flex-column-mobile { flex-direction: column; }
+.flex-row-tablet { flex-direction: row; }
+.flex-column-tablet { flex-direction: column; }
+
+/* Flex wrap */
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+
+/* Justify content */
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.justify-evenly { justify-content: space-evenly; }
+
+/* Align items */
+.align-start { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.align-stretch { align-items: stretch; }
+
+/* Align self */
+.self-start { align-self: flex-start; }
+.self-center { align-self: center; }
+.self-end { align-self: flex-end; }
+.self-stretch { align-self: stretch; }
+
+/* ============================================
+   9. DISPLAY UTILITIES
+   ============================================ */
+
+/* 表示/非表示制御 */
+.d-none { display: none; }
+.d-flex { display: flex; }
+
+/* モバイル専用表示/非表示（C#制御） */
+.d-mobile-none { display: none; }
+.d-mobile-flex { display: flex; }
+
+/* タブレット専用 */
+.d-tablet-none { display: none; }
+.d-tablet-flex { display: flex; }
+
+/* デスクトップ専用 */
+.d-desktop-none { display: none; }
+.d-desktop-flex { display: flex; }
+
+/* ============================================
+   10. ASPECT RATIO UTILITIES
+   ============================================ */
+
+/* アスペクト比維持コンテナ */
+.aspect-ratio-16-9 {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 9/16 * 100% */
+}
+
+.aspect-ratio-4-3 {
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%; /* 3/4 * 100% */
+}
+
+.aspect-ratio-1-1 {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+}
+
+.aspect-ratio-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================
+   11. OVERFLOW UTILITIES
+   ============================================ */
+
+.overflow-auto { overflow: auto; }
+.overflow-hidden { overflow: hidden; }
+.overflow-visible { overflow: visible; }
+.overflow-scroll { overflow: scroll; }
+
+/* スクロールバーのスタイリング（Unity UI Toolkit） */
+.scrollview-custom ScrollView {
+    --unity-scrollbar-width: 8px;
+}
+
+.scrollview-custom .unity-scroller {
+    background-color: var(--color-background-light);
+    border-radius: var(--radius-sm);
+}
+
+.scrollview-custom .unity-scroller__slider {
+    background-color: var(--color-primary);
+    border-radius: var(--radius-sm);
+}
+
+/* ============================================
+   12. Z-INDEX LAYERS
+   ============================================ */
+
+/* レイヤー管理（UI階層制御） */
+.z-base { z-index: 0; }
+.z-dropdown { z-index: 1000; }
+.z-sticky { z-index: 1020; }
+.z-modal { z-index: 1050; }
+.z-popover { z-index: 1060; }
+.z-tooltip { z-index: 1070; }
+.z-notification { z-index: 1080; }
+
+/* ============================================
+   END OF RESPONSIVE LAYOUTS
+   ============================================ */

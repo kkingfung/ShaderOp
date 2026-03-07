@@ -1,0 +1,123 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="portrait-container">
+        
+        <!-- ヘッダー (10%) -->
+        <ui:VisualElement name="Header" class="portrait-header">
+            <ui:Button name="BackButton" class="icon-button">
+                <ui:Label text="←" class="icon-text" />
+            </ui:Button>
+            <ui:Label text="Avatar Customization" class="title-text" />
+            <ui:Button name="SaveButton" class="icon-button">
+                <ui:Label text="✓" class="icon-text" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+        <!-- 3Dプレビュー (50%) -->
+        <ui:VisualElement name="AvatarPreview" class="avatar-preview-area">
+            <ui:VisualElement name="PreviewPlaceholder" class="preview-placeholder">
+                <ui:Label text="Avatar Preview" class="placeholder-text" />
+                <ui:Label text="(3D Camera RenderTexture)" class="placeholder-subtitle" />
+            </ui:VisualElement>
+            
+            <!-- プレビューコントロール -->
+            <ui:VisualElement name="PreviewControls" class="preview-controls">
+                <ui:Button name="RotateLeftButton" class="preview-button">
+                    <ui:Label text="↶" class="preview-icon" />
+                </ui:Button>
+                <ui:Button name="ResetCameraButton" class="preview-button">
+                    <ui:Label text="◎" class="preview-icon" />
+                </ui:Button>
+                <ui:Button name="RotateRightButton" class="preview-button">
+                    <ui:Label text="↷" class="preview-icon" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- カスタマイズカテゴリタブ (5%) -->
+        <ui:VisualElement name="CategoryTabs" class="category-tabs">
+            <ui:Button name="TabFace" text="Face" class="category-tab tab-active" />
+            <ui:Button name="TabHair" text="Hair" class="category-tab" />
+            <ui:Button name="TabClothes" text="Clothes" class="category-tab" />
+            <ui:Button name="TabAccessories" text="Acc." class="category-tab" />
+        </ui:VisualElement>
+        
+        <!-- カスタマイズオプション (35%) -->
+        <ui:ScrollView name="CustomizationOptions" class="customization-options" mode="Vertical">
+            
+            <!-- Face Category -->
+            <ui:VisualElement name="FaceOptions" class="options-panel">
+                
+                <ui:VisualElement name="SkinToneControl" class="option-row">
+                    <ui:Label text="Skin Tone" class="option-label" />
+                    <ui:VisualElement class="arrow-control">
+                        <ui:Button name="SkinTonePrev" text="◀" class="arrow-button" />
+                        <ui:Label name="SkinToneValue" text="1" class="option-value" />
+                        <ui:Button name="SkinToneNext" text="▶" class="arrow-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+                <ui:VisualElement name="FaceTypeControl" class="option-row">
+                    <ui:Label text="Face Type" class="option-label" />
+                    <ui:VisualElement class="arrow-control">
+                        <ui:Button name="FaceTypePrev" text="◀" class="arrow-button" />
+                        <ui:Label name="FaceTypeValue" text="0" class="option-value" />
+                        <ui:Button name="FaceTypeNext" text="▶" class="arrow-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+                <ui:VisualElement name="EyeColorControl" class="option-row">
+                    <ui:Label text="Eye Color" class="option-label" />
+                    <ui:VisualElement class="arrow-control">
+                        <ui:Button name="EyeColorPrev" text="◀" class="arrow-button" />
+                        <ui:Label name="EyeColorValue" text="1" class="option-value" />
+                        <ui:Button name="EyeColorNext" text="▶" class="arrow-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+            </ui:VisualElement>
+            
+            <!-- Hair Category (初期状態で非表示) -->
+            <ui:VisualElement name="HairOptions" class="options-panel" style="display: none;">
+                
+                <ui:VisualElement name="HairstyleControl" class="option-row">
+                    <ui:Label text="Hairstyle" class="option-label" />
+                    <ui:VisualElement class="arrow-control">
+                        <ui:Button name="HairstylePrev" text="◀" class="arrow-button" />
+                        <ui:Label name="HairstyleValue" text="0" class="option-value" />
+                        <ui:Button name="HairstyleNext" text="▶" class="arrow-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+                <ui:VisualElement name="HairColorControl" class="option-row">
+                    <ui:Label text="Hair Color" class="option-label" />
+                    <ui:VisualElement class="arrow-control">
+                        <ui:Button name="HairColorPrev" text="◀" class="arrow-button" />
+                        <ui:Label name="HairColorValue" text="1" class="option-value" />
+                        <ui:Button name="HairColorNext" text="▶" class="arrow-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+            </ui:VisualElement>
+            
+            <!-- Clothes Category (初期状態で非表示) -->
+            <ui:VisualElement name="ClothesOptions" class="options-panel" style="display: none;">
+                <ui:Label text="Coming Soon..." class="placeholder-text" />
+            </ui:VisualElement>
+            
+            <!-- Accessories Category (初期状態で非表示) -->
+            <ui:VisualElement name="AccessoriesOptions" class="options-panel" style="display: none;">
+                <ui:Label text="Coming Soon..." class="placeholder-text" />
+            </ui:VisualElement>
+            
+        </ui:ScrollView>
+        
+    </ui:VisualElement>
+</ui:UXML>

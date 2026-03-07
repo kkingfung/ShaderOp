@@ -30,14 +30,11 @@ namespace ShaderOp.Minigames.Games
 
         protected override void Start()
         {
-            // Model と View を自動検出
-            Model = GetComponentInChildren<HexReversiModel>();
-            View = GetComponentInChildren<HexReversiView>();
+            // Model を作成
+            _model = new HexReversiModel();
 
-            if (Model == null)
-            {
-                Model = gameObject.AddComponent<HexReversiModel>();
-            }
+            // View を自動検出
+            _view = GetComponentInChildren<HexReversiView>();
 
             base.Start();
 

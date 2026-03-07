@@ -1,0 +1,56 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/ResponsiveLayouts.uss?fileID=7433441132597879392&amp;guid=2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d&amp;type=3#ResponsiveLayouts" />
+
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="portrait-root">
+
+        <!-- ヘッダー -->
+        <ui:VisualElement name="Header" class="header">
+            <ui:Label text="ShaderOp" class="title" />
+            <ui:Label text="Welcome Back!" class="subtitle" />
+        </ui:VisualElement>
+
+        <!-- ログインフォーム -->
+        <ui:ScrollView name="LoginForm" class="form-container">
+
+            <!-- メールアドレス -->
+            <ui:VisualElement class="form-field">
+                <ui:Label text="Email" class="form-label" />
+                <ui:TextField name="EmailField" placeholder-text="email@example.com" class="form-input" />
+            </ui:VisualElement>
+
+            <!-- パスワード -->
+            <ui:VisualElement class="form-field">
+                <ui:Label text="Password" class="form-label" />
+                <ui:TextField name="PasswordField" placeholder-text="********" password="true" class="form-input" />
+            </ui:VisualElement>
+
+            <!-- エラーメッセージ -->
+            <ui:Label name="ErrorLabel" text="" class="error-message" style="display: none;" />
+
+            <!-- ログインボタン -->
+            <ui:Button name="LoginButton" text="Login" class="primary-button" />
+
+            <!-- サインアップボタン -->
+            <ui:Button name="SignUpButton" text="Sign Up" class="secondary-button" />
+
+            <!-- 匿名ログインボタン -->
+            <ui:Button name="GuestButton" text="Continue as Guest" class="text-button" />
+
+            <!-- パスワードリセットリンク -->
+            <ui:Button name="ForgotPasswordButton" text="Forgot Password?" class="text-button text-button-small" />
+
+        </ui:ScrollView>
+
+        <!-- フッター -->
+        <ui:VisualElement name="Footer" class="footer">
+            <ui:Label text="Version 0.1.0" class="footer-text" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>

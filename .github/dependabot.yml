@@ -1,0 +1,59 @@
+# Dependabot 設定
+#
+# 依存関係の自動更新とセキュリティアラート
+# https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  # GitHub Actions の依存関係を更新
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    reviewers:
+      - "ShaderOp-Team"
+    assignees:
+      - "ShaderOp-Team"
+
+  # Python 依存関係を更新
+  - package-ecosystem: "pip"
+    directory: "/automation"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    reviewers:
+      - "ShaderOp-Team"
+    assignees:
+      - "ShaderOp-Team"
+    # セキュリティアップデートは即座に適用
+    open-pull-requests-limit: 10
+    # セキュリティアップデートの優先度設定
+    versioning-strategy: increase
+
+  # Unity Packages (npm形式でも管理されている場合)
+  # Note: Unity Package Manager は package-lock.json を使わないため、
+  # 現状では手動更新が必要
+  # - package-ecosystem: "npm"
+  #   directory: "/ShaderOptimizer/Packages"
+  #   schedule:
+  #     interval: "monthly"
+  #   labels:
+  #     - "dependencies"
+  #     - "unity-packages"

@@ -4,7 +4,14 @@
     "references": [
         "Unity.Mathematics",
         "Unity.Burst",
-        "Unity.RenderPipelines.Universal.Runtime"
+        "Unity.Collections",
+        "Unity.Jobs",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.TextMeshPro",
+        "UniTask",
+        "UniRx",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

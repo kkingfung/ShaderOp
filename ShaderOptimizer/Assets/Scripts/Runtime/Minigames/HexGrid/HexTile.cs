@@ -26,23 +26,82 @@ namespace ShaderOp.Minigames.HexGrid
         /// <summary>タイルの座標</summary>
         public HexCoordinate Coordinate { get; private set; }
 
-        /// <summary>タイル上のゲーム駒</summary>
-        public PieceType Piece { get; set; }
+        /// <summary>タイル上のゲーム駒（プライベートフィールド）</summary>
+        private PieceType _piece;
+
+        /// <summary>タイル上のゲーム駒（プロパティ）</summary>
+        public PieceType Piece
+        {
+            get => _piece;
+            set
+            {
+                if (_piece != value)
+                {
+                    _piece = value;
+                    NotifyStateChanged();
+                }
+            }
+        }
 
         /// <summary>タイルが空いているか</summary>
         public bool IsEmpty => Piece == PieceType.None;
 
+        /// <summary>タイルが有効か（プレイ可能、プライベートフィールド）</summary>
+        private bool _isValid;
+
         /// <summary>タイルが有効か（プレイ可能）</summary>
-        public bool IsValid { get; set; }
+        public bool IsValid
+        {
+            get => _isValid;
+            set
+            {
+                if (_isValid != value)
+                {
+                    _isValid = value;
+                    NotifyStateChanged();
+                }
+            }
+        }
 
         /// <summary>タイルのワールド座標</summary>
         public Vector3 WorldPosition { get; private set; }
 
+        /// <summary>タイルのハイライト状態（プライベートフィールド）</summary>
+        private bool _isHighlighted;
+
         /// <summary>タイルのハイライト状態</summary>
-        public bool IsHighlighted { get; set; }
+        public bool IsHighlighted
+        {
+            get => _isHighlighted;
+            set
+            {
+                if (_isHighlighted != value)
+                {
+                    _isHighlighted = value;
+                    NotifyStateChanged();
+                }
+            }
+        }
+
+        /// <summary>タイルの選択状態（プライベートフィールド）</summary>
+        private bool _isSelected;
 
         /// <summary>タイルの選択状態</summary>
-        public bool IsSelected { get; set; }
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    NotifyStateChanged();
+                }
+            }
+        }
+
+        /// <summary>タイルの状態が変更されたときのイベント</summary>
+        public event Action? OnStateChanged;
 
         /// <summary>
         /// コンストラクタ
@@ -51,10 +110,18 @@ namespace ShaderOp.Minigames.HexGrid
         {
             Coordinate = coordinate;
             WorldPosition = worldPosition;
-            Piece = PieceType.None;
-            IsValid = true;
-            IsHighlighted = false;
-            IsSelected = false;
+            _piece = PieceType.None;
+            _isValid = true;
+            _isHighlighted = false;
+            _isSelected = false;
+        }
+
+        /// <summary>
+        /// 状態変更を通知（パフォーマンス最適化）
+        /// </summary>
+        private void NotifyStateChanged()
+        {
+            OnStateChanged?.Invoke();
         }
 
         /// <summary>

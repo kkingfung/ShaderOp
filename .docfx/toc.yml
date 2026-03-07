@@ -1,0 +1,29 @@
+- name: Home
+  href: index.md
+- name: API Reference
+  href: api/
+  homepage: api/index.md
+- name: Documentation
+  items:
+    - name: Getting Started
+      href: ../docs/GETTING_STARTED.md
+    - name: Best Practices
+      href: ../docs/BEST_PRACTICES.md
+    - name: Implementation Status
+      href: ../docs/IMPLEMENTATION_STATUS.md
+    - name: Architecture
+      href: ../docs/ARCHITECTURE.md
+    - name: Performance
+      href: ../docs/PERFORMANCE.md
+- name: Tutorials
+  items:
+    - name: Create Toon Shader
+      href: ../docs/tutorials/01_CREATE_TOON_SHADER.md
+    - name: Hex Grid Usage
+      href: ../docs/tutorials/02_HEX_GRID_USAGE.md
+    - name: Burst Optimization
+      href: ../docs/tutorials/03_BURST_OPTIMIZATION.md
+- name: Troubleshooting
+  href: ../TROUBLESHOOTING.md
+- name: GitHub
+  href: https://github.com/your-repo/ShaderOp

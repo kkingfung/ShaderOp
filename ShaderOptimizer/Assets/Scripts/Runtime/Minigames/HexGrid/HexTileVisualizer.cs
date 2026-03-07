@@ -58,12 +58,34 @@ namespace ShaderOp.Minigames.HexGrid
         /// </summary>
         public void SetTile(HexTile tile)
         {
+            // 既存のタイルのイベント購読を解除
+            if (_tile != null)
+            {
+                _tile.OnStateChanged -= OnTileStateChanged;
+            }
+
             _tile = tile;
+
+            // 新しいタイルのイベントを購読
+            if (_tile != null)
+            {
+                _tile.OnStateChanged += OnTileStateChanged;
+            }
+
+            // 初回のみビジュアルを更新
             UpdateVisuals();
         }
 
         /// <summary>
-        /// ビジュアルを更新
+        /// タイルの状態が変更されたときのコールバック（イベント駆動）
+        /// </summary>
+        private void OnTileStateChanged()
+        {
+            UpdateVisuals();
+        }
+
+        /// <summary>
+        /// ビジュアルを更新（Update()から呼ばず、イベント駆動型に変更）
         /// </summary>
         public void UpdateVisuals()
         {
@@ -143,10 +165,13 @@ namespace ShaderOp.Minigames.HexGrid
             // ホバーエフェクトを解除する場合はここに実装
         }
 
-        private void Update()
+        private void OnDestroy()
         {
-            // 毎フレームビジュアルを更新（必要に応じて最適化）
-            UpdateVisuals();
+            // イベント購読解除
+            if (_tile != null)
+            {
+                _tile.OnStateChanged -= OnTileStateChanged;
+            }
         }
     }
 }

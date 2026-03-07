@@ -97,3 +97,35 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# セキュリティ: 機密情報を含むファイル
+.env
+.env.*
+*.env
+credentials.json
+*.key
+*.pem
+*.p12
+*.keystore
+*.jks
+*_secret*
+*_private*
+unity-license.ulf
+service-account*.json
+
+# セキュリティログファイル
+logs/
+security_events.log
+security_events.jsonl
+*.jsonl
+
+# ビルド・レポートファイル
+build_info.json
+*_report.json
+*_report.md
+validation_report.txt
+shader_profile_report.json
+
+# CI/CD一時ファイル
+unity-build.log
+*.log.meta

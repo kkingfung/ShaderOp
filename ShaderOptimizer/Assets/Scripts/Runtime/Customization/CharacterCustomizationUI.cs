@@ -60,7 +60,7 @@ namespace ShaderOp.Customization
         {
             if (_customizer == null)
             {
-                _customizer = FindObjectOfType<CharacterCustomizer>();
+                _customizer = FindFirstObjectByType<CharacterCustomizer>();
             }
 
             SetupUIListeners();

@@ -1,0 +1,89 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+       editor-extension-mode="False">
+
+    <!-- スタイルシート読み込み -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss" />
+    <Style src="project://database/Assets/UI/Styles/AccessibilityUtils.uss" />
+    <Style src="project://database/Assets/UI/Styles/ResponsiveLayouts.uss" />
+
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="root flex-center safe-area-all">
+
+        <!-- タイトルセクション -->
+        <ui:VisualElement name="TitleSection" class="flex-column flex-center m-xl">
+            <ui:Label text="ShaderOp" class="label-title text-high-contrast animate-fade-in" />
+            <ui:Label text="Shader Development Project" class="label-subheading text-medium-contrast" />
+        </ui:VisualElement>
+
+        <!-- メインメニューコンテンツ -->
+        <ui:VisualElement name="MenuContent" class="container-tablet flex-column flex-center">
+
+            <!-- カスタマイズセクション -->
+            <ui:VisualElement name="CustomizationSection" class="section w-full">
+                <ui:VisualElement class="section-header">
+                    <ui:Label text="Customization" class="label-heading text-high-contrast" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="flex-column">
+                    <ui:Button name="CharacterCustomizationButton"
+                              text="Character Customization"
+                              class="button-lg touch-target-lg m-sm bg-accessible-primary" />
+
+                    <ui:Button name="RoomDecorationButton"
+                              text="Room Decoration"
+                              class="button-lg touch-target-lg m-sm" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="divider" />
+
+            <!-- ミニゲームセクション -->
+            <ui:VisualElement name="MinigamesSection" class="section w-full">
+                <ui:VisualElement class="section-header">
+                    <ui:Label text="Mini Games" class="label-heading text-high-contrast" />
+                    <ui:Label text="Choose your hex board game" class="label-caption text-medium-contrast" />
+                </ui:VisualElement>
+
+                <!-- ゲームボタングリッド (2x2) -->
+                <ui:VisualElement class="grid-container grid-2col grid-gap-md">
+                    <ui:Button name="TicTacToeButton"
+                              text="Tic-Tac-Toe Hex"
+                              class="button-lg touch-target-lg bg-accessible-info" />
+
+                    <ui:Button name="HexReversiButton"
+                              text="Hex Reversi"
+                              class="button-lg touch-target-lg bg-accessible-success" />
+
+                    <ui:Button name="HexCheckersButton"
+                              text="Hex Checkers"
+                              class="button-lg touch-target-lg bg-accessible-warning" />
+
+                    <ui:Button name="HexChessButton"
+                              text="Hex Chess"
+                              class="button-lg touch-target-lg bg-accessible-error" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="divider" />
+
+            <!-- システムボタン -->
+            <ui:VisualElement name="SystemSection" class="flex-row justify-center m-lg">
+                <ui:Button name="SettingsButton"
+                          text="Settings"
+                          class="button-outline touch-target-lg m-sm" />
+
+                <ui:Button name="QuitButton"
+                          text="Quit"
+                          class="button-danger touch-target-lg m-sm" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- フッター情報 -->
+        <ui:VisualElement name="Footer" class="flex-column flex-center m-lg">
+            <ui:Label text="Version 1.0.0" class="label-caption text-medium-contrast" />
+            <ui:Label text="© 2026 ShaderOp Project" class="label-caption text-medium-contrast" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

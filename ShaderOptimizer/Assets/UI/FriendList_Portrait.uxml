@@ -1,0 +1,181 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    
+    <!-- ルートコンテナ -->
+    <ui:VisualElement name="Root" class="portrait-container">
+        
+        <!-- ヘッダー (15%) -->
+        <ui:VisualElement name="Header" class="portrait-header">
+            <ui:Button name="BackButton" class="icon-button">
+                <ui:Label text="←" class="icon-text" />
+            </ui:Button>
+            <ui:Label text="Friends" class="title-text" />
+            <ui:Button name="AddFriendButton" class="icon-button">
+                <ui:Label text="+" class="icon-text" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+        <!-- タブ切り替え (5%) -->
+        <ui:VisualElement name="FriendTabs" class="friend-tabs">
+            <ui:Button name="TabOnline" text="Online (3)" class="friend-tab tab-active" />
+            <ui:Button name="TabAll" text="All (12)" class="friend-tab" />
+            <ui:Button name="TabRequests" text="Requests (2)" class="friend-tab" />
+        </ui:VisualElement>
+        
+        <!-- メインコンテンツ (65%) -->
+        <ui:ScrollView name="FriendListContent" class="portrait-content" mode="Vertical">
+            
+            <!-- オンラインフレンドリスト -->
+            <ui:VisualElement name="OnlineFriends" class="friend-list-section">
+                
+                <!-- フレンドアイテム例 1 -->
+                <ui:VisualElement name="Friend1" class="friend-item">
+                    <ui:VisualElement class="friend-avatar">
+                        <ui:Label text="👤" class="avatar-icon" />
+                        <ui:VisualElement class="online-indicator" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-info">
+                        <ui:Label text="Alice" class="friend-name" />
+                        <ui:Label text="Playing Hex Reversi" class="friend-status online-status" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-actions">
+                        <ui:Button name="InviteButton1" class="action-button">
+                            <ui:Label text="🎮" class="action-icon" />
+                        </ui:Button>
+                        <ui:Button name="ChatButton1" class="action-button">
+                            <ui:Label text="💬" class="action-icon" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+                <!-- フレンドアイテム例 2 -->
+                <ui:VisualElement name="Friend2" class="friend-item">
+                    <ui:VisualElement class="friend-avatar">
+                        <ui:Label text="👤" class="avatar-icon" />
+                        <ui:VisualElement class="online-indicator" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-info">
+                        <ui:Label text="Bob" class="friend-name" />
+                        <ui:Label text="In Main Menu" class="friend-status online-status" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-actions">
+                        <ui:Button name="InviteButton2" class="action-button">
+                            <ui:Label text="🎮" class="action-icon" />
+                        </ui:Button>
+                        <ui:Button name="ChatButton2" class="action-button">
+                            <ui:Label text="💬" class="action-icon" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+                <!-- フレンドアイテム例 3 -->
+                <ui:VisualElement name="Friend3" class="friend-item">
+                    <ui:VisualElement class="friend-avatar">
+                        <ui:Label text="👤" class="avatar-icon" />
+                        <ui:VisualElement class="online-indicator" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-info">
+                        <ui:Label text="Charlie" class="friend-name" />
+                        <ui:Label text="Customizing Avatar" class="friend-status online-status" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-actions">
+                        <ui:Button name="InviteButton3" class="action-button">
+                            <ui:Label text="🎮" class="action-icon" />
+                        </ui:Button>
+                        <ui:Button name="ChatButton3" class="action-button">
+                            <ui:Label text="💬" class="action-icon" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+            </ui:VisualElement>
+            
+            <!-- すべてのフレンドリスト (初期状態で非表示) -->
+            <ui:VisualElement name="AllFriends" class="friend-list-section" style="display: none;">
+                <ui:Label text="All friends will be displayed here..." class="placeholder-text" />
+            </ui:VisualElement>
+            
+            <!-- フレンドリクエスト (初期状態で非表示) -->
+            <ui:VisualElement name="FriendRequests" class="friend-list-section" style="display: none;">
+                
+                <!-- リクエストアイテム例 -->
+                <ui:VisualElement name="Request1" class="friend-request-item">
+                    <ui:VisualElement class="friend-avatar">
+                        <ui:Label text="👤" class="avatar-icon" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-info">
+                        <ui:Label text="Diana" class="friend-name" />
+                        <ui:Label text="Wants to be friends" class="request-message" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="request-actions">
+                        <ui:Button name="AcceptButton1" class="accept-button">
+                            <ui:Label text="✓" class="action-icon" />
+                        </ui:Button>
+                        <ui:Button name="DeclineButton1" class="decline-button">
+                            <ui:Label text="✕" class="action-icon" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+                <ui:VisualElement name="Request2" class="friend-request-item">
+                    <ui:VisualElement class="friend-avatar">
+                        <ui:Label text="👤" class="avatar-icon" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="friend-info">
+                        <ui:Label text="Eve" class="friend-name" />
+                        <ui:Label text="Wants to be friends" class="request-message" />
+                    </ui:VisualElement>
+                    
+                    <ui:VisualElement class="request-actions">
+                        <ui:Button name="AcceptButton2" class="accept-button">
+                            <ui:Label text="✓" class="action-icon" />
+                        </ui:Button>
+                        <ui:Button name="DeclineButton2" class="decline-button">
+                            <ui:Label text="✕" class="action-icon" />
+                        </ui:Button>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                
+            </ui:VisualElement>
+            
+        </ui:ScrollView>
+        
+        <!-- フッター / Tab Bar (15%) -->
+        <ui:VisualElement name="Footer" class="portrait-footer tab-bar">
+            <ui:Button name="TabHome" class="tab-button">
+                <ui:Label text="🏠" class="tab-icon" />
+                <ui:Label text="Home" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabGames" class="tab-button">
+                <ui:Label text="🎮" class="tab-icon" />
+                <ui:Label text="Games" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabFriends" class="tab-button tab-active">
+                <ui:Label text="👥" class="tab-icon" />
+                <ui:Label text="Friends" class="tab-label" />
+            </ui:Button>
+            
+            <ui:Button name="TabShop" class="tab-button">
+                <ui:Label text="🛒" class="tab-icon" />
+                <ui:Label text="Shop" class="tab-label" />
+            </ui:Button>
+        </ui:VisualElement>
+        
+    </ui:VisualElement>
+</ui:UXML>

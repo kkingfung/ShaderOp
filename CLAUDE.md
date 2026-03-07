@@ -1,10 +1,14 @@
-# ShaderOp - Unity Shader開発プロジェクト
+# ShaderOp - オンラインソーシャルモバイルゲーム
 
 ## プロジェクト概要
 
-Unity向けのシェーダー開発と自動化ツールプロジェクト。キャラクターカスタマイズ系モバイルゲーム向け。
+**縦画面向けオンラインソーシャルモバイルゲーム**（Cocone系）
 
-**技術スタック**: Unity Shader Graph, HLSL, C# (UniTask/UniRx), Python, Jenkins
+- **ジャンル**: ヘックスボードゲーム集 + アバターカスタマイズ + チャット
+- **画面向き**: Portrait（縦画面）専用
+- **特徴**: リアルタイムマルチプレイ、フレンド機能、ガチャ・収集要素
+
+**技術スタック**: Unity UI Toolkit, URP, C# (UniTask/UniRx), WebSocket/Photon, Python, Jenkins
 
 ## コーディング規約
 

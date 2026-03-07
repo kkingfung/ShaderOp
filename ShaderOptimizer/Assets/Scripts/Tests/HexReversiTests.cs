@@ -71,7 +71,7 @@ namespace ShaderOp.Tests
         public void Initialize_GameStateIsPlaying()
         {
             Assert.IsNotNull(_model);
-            Assert.AreEqual(GameState.Playing, _model!.GameState);
+            Assert.AreEqual(GameState.Playing, _model!.State);
         }
 
         #endregion
@@ -262,29 +262,30 @@ namespace ShaderOp.Tests
 
         #region イベントテスト
 
-        [Test]
-        public void PlacePiece_TriggersOnPiecePlacedEvent()
-        {
-            Assert.IsNotNull(_model);
-
-            bool eventTriggered = false;
-            HexCoordinate? eventCoord = null;
-            PieceType? eventPiece = null;
-
-            _model!.OnPiecePlaced += (coord, piece) =>
-            {
-                eventTriggered = true;
-                eventCoord = coord;
-                eventPiece = piece;
-            };
-
-            HexCoordinate validMove = new HexCoordinate(-1, 0);
-            _model.PlacePiece(validMove);
-
-            Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(validMove, eventCoord);
-            Assert.AreEqual(PieceType.Player1, eventPiece);
-        }
+        // OnPiecePlacedイベントは削除されました（コントローラー側で処理）
+        // [Test]
+        // public void PlacePiece_TriggersOnPiecePlacedEvent()
+        // {
+        //     Assert.IsNotNull(_model);
+        //
+        //     bool eventTriggered = false;
+        //     HexCoordinate? eventCoord = null;
+        //     PieceType? eventPiece = null;
+        //
+        //     _model!.OnPiecePlaced += (coord, piece) =>
+        //     {
+        //         eventTriggered = true;
+        //         eventCoord = coord;
+        //         eventPiece = piece;
+        //     };
+        //
+        //     HexCoordinate validMove = new HexCoordinate(-1, 0);
+        //     _model.PlacePiece(validMove);
+        //
+        //     Assert.IsTrue(eventTriggered);
+        //     Assert.AreEqual(validMove, eventCoord);
+        //     Assert.AreEqual(PieceType.Player1, eventPiece);
+        // }
 
         [Test]
         public void GameOver_TriggersOnGameStateChangedEvent()
@@ -338,11 +339,11 @@ namespace ShaderOp.Tests
             _model!.PlacePiece(move1);
 
             // リセット
-            _model.ResetGame();
+            _model.Reset();
 
             // 初期状態に戻っているか確認
             Assert.AreEqual(PieceType.Player1, _model.CurrentPlayer);
-            Assert.AreEqual(GameState.Playing, _model.GameState);
+            Assert.AreEqual(GameState.Playing, _model.State);
 
             (int player1Count, int player2Count) = _model.GetPieceCounts();
             Assert.AreEqual(2, player1Count);
@@ -379,7 +380,7 @@ namespace ShaderOp.Tests
 
             // ゲームオーバー状態でも GetValidMoves は現在のプレイヤーの有効手を返すが、
             // GameState が GameOver の場合は配置できない
-            Assert.AreEqual(GameState.GameOver, _model.GameState);
+            Assert.AreEqual(GameState.GameOver, _model.State);
         }
 
         #endregion

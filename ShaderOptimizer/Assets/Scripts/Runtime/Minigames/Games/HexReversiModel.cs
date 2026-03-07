@@ -30,8 +30,8 @@ namespace ShaderOp.Minigames.Games
             // 初期配置（中央4マスに交互配置）
             SetupInitialPieces();
 
-            CurrentPlayer = PieceType.Player1;
-            GameState = GameState.Playing;
+            CurrentPlayerIndex = 0; // Player1
+            SetGameState(GameState.Playing);
 
             Debug.Log("[HexReversiModel] Game initialized with hexagon grid");
         }
@@ -105,7 +105,7 @@ namespace ShaderOp.Minigames.Games
                     FlipPiecesInDirection(coord, direction, CurrentPlayer);
                 }
 
-                OnPiecePlaced?.Invoke(coord, CurrentPlayer);
+                // OnPiecePlaced イベントは削除（コントローラー側で処理）
 
                 // 勝敗判定
                 if (CheckWinCondition())
@@ -115,13 +115,13 @@ namespace ShaderOp.Minigames.Games
                 }
 
                 // ターン交代
-                SwitchTurn();
+                NextTurn();
 
                 // 次のプレイヤーが置ける場所がない場合はスキップ
                 if (!HasValidMoves(CurrentPlayer))
                 {
                     Debug.Log($"[HexReversiModel] {CurrentPlayer} has no valid moves, skipping turn");
-                    SwitchTurn();
+                    NextTurn();
 
                     // 両者とも置けない場合はゲーム終了
                     if (!HasValidMoves(CurrentPlayer))
@@ -204,19 +204,20 @@ namespace ShaderOp.Minigames.Games
         /// </summary>
         private bool HasValidMoves(PieceType player)
         {
-            PieceType previousPlayer = CurrentPlayer;
-            CurrentPlayer = player;
+            int previousPlayerIndex = CurrentPlayerIndex;
+            // 一時的にプレイヤーを変更して有効手をチェック
+            CurrentPlayerIndex = player == PieceType.Player1 ? 0 : 1;
 
             foreach (HexTile tile in Grid.AllTiles)
             {
                 if (IsValidMove(HexCoordinate.Zero, tile.Coordinate))
                 {
-                    CurrentPlayer = previousPlayer;
+                    CurrentPlayerIndex = previousPlayerIndex;
                     return true;
                 }
             }
 
-            CurrentPlayer = previousPlayer;
+            CurrentPlayerIndex = previousPlayerIndex;
             return false;
         }
 

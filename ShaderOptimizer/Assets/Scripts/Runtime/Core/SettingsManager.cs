@@ -188,7 +188,7 @@ namespace ShaderOp.Core
 
             QualitySettings.shadows = _settings.ShadowQuality;
             QualitySettings.antiAliasing = _settings.AntiAliasing;
-            QualitySettings.masterTextureLimit = _settings.TextureQuality;
+            QualitySettings.globalTextureMipmapLimit = _settings.TextureQuality;
         }
 
         /// <summary>
