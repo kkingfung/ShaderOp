@@ -3,7 +3,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
+#if TEXTMESHPRO_PRESENT
 using TMPro;
+#endif
 using ShaderOp.Minigames.Games;
 
 namespace ShaderOp.Editor
@@ -176,6 +178,7 @@ namespace ShaderOp.Editor
             // ゲーム結果表示（初期非表示）
             GameObject gameResult = CreateTextElement(uiPanel, "GameResult", "Player 1 Wins!", new Vector2(0, 0), new Vector2(600, 100));
             gameResult.SetActive(false);
+#if TEXTMESHPRO_PRESENT
             TextMeshProUGUI gameResultText = gameResult.GetComponent<TextMeshProUGUI>();
             if (gameResultText != null)
             {
@@ -183,6 +186,7 @@ namespace ShaderOp.Editor
                 gameResultText.fontStyle = FontStyles.Bold;
                 gameResultText.color = Color.yellow;
             }
+#endif
 
             // ヒントトグル
             GameObject hintToggle = CreateToggle(uiPanel, "ShowHintsToggle", "Show Hints", new Vector2(-200, -50));
@@ -198,10 +202,12 @@ namespace ShaderOp.Editor
             if (controller != null)
             {
                 var serializedObject = new SerializedObject(controller);
+#if TEXTMESHPRO_PRESENT
                 serializedObject.FindProperty("_player1ScoreText").objectReferenceValue = player1Score.GetComponent<TextMeshProUGUI>();
                 serializedObject.FindProperty("_player2ScoreText").objectReferenceValue = player2Score.GetComponent<TextMeshProUGUI>();
                 serializedObject.FindProperty("_turnIndicatorText").objectReferenceValue = turnIndicator.GetComponent<TextMeshProUGUI>();
                 serializedObject.FindProperty("_gameResultText").objectReferenceValue = gameResult.GetComponent<TextMeshProUGUI>();
+#endif
                 serializedObject.FindProperty("_showHintsToggle").objectReferenceValue = hintToggle.GetComponent<Toggle>();
                 serializedObject.FindProperty("_resetButton").objectReferenceValue = resetButton.GetComponent<Button>();
                 serializedObject.FindProperty("_backToMenuButton").objectReferenceValue = backButton.GetComponent<Button>();
@@ -244,11 +250,13 @@ namespace ShaderOp.Editor
             rectTransform.anchoredPosition = position;
             rectTransform.sizeDelta = size;
 
+#if TEXTMESHPRO_PRESENT
             TextMeshProUGUI textMesh = textObj.AddComponent<TextMeshProUGUI>();
             textMesh.text = text;
             textMesh.fontSize = 36;
             textMesh.color = Color.white;
             textMesh.alignment = TextAlignmentOptions.Center;
+#endif
 
             return textObj;
         }
@@ -280,11 +288,13 @@ namespace ShaderOp.Editor
             textRect.offsetMin = Vector2.zero;
             textRect.offsetMax = Vector2.zero;
 
+#if TEXTMESHPRO_PRESENT
             TextMeshProUGUI textMesh = textObj.AddComponent<TextMeshProUGUI>();
             textMesh.text = text;
             textMesh.fontSize = 28;
             textMesh.color = Color.white;
             textMesh.alignment = TextAlignmentOptions.Center;
+#endif
 
             return buttonObj;
         }
@@ -345,11 +355,13 @@ namespace ShaderOp.Editor
             labelRect.anchoredPosition = new Vector2(50, 0);
             labelRect.sizeDelta = new Vector2(-50, 0);
 
+#if TEXTMESHPRO_PRESENT
             TextMeshProUGUI labelTextMesh = labelObj.AddComponent<TextMeshProUGUI>();
             labelTextMesh.text = labelText;
             labelTextMesh.fontSize = 28;
             labelTextMesh.color = Color.white;
             labelTextMesh.alignment = TextAlignmentOptions.Left;
+#endif
 
             return toggleObj;
         }

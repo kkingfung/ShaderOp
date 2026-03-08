@@ -430,7 +430,7 @@ namespace ShaderOp.Minigames.Games
         private void ShowStats()
         {
             Debug.Log($"FPS: {1.0f / Time.deltaTime:F1}");
-            Debug.Log($"Batches: {UnityEngine.Rendering.DebugManager.instance}");
+            // Debug.Log($"Batches: {UnityEngine.Rendering.DebugManager.instance}"); // DebugManager is not available in this Unity version
             Debug.Log($"Active GameObjects: {FindObjectsOfType<GameObject>().Length}");
         }
     }
