@@ -161,49 +161,49 @@
 
 ---
 
-## 🎮 Phase 3: Additional Minigames (計画中)
+## 🎮 Phase 3: Additional Minigames (進行中)
 
-**目標期間**: 2026-03-11 - 2026-03-31
-**ステータス**: 0%
+**目標期間**: 2026-03-09 - 2026-03-31
+**ステータス**: 35% 🔄
 
 ### 3.1 Hex Checkers (チェッカー)
 
 **優先度**: 🟡 中
 
 #### Features
-- [ ] 8×8 Hexグリッド
-- [ ] 駒の斜め移動
-- [ ] ジャンプ（駒を飛び越える）
-- [ ] キング化（端に到達）
-- [ ] 連続ジャンプ
-- [ ] 勝敗判定（相手の駒を全滅）
+- [x] 8×8 Hexグリッド ✅
+- [x] 駒の斜め移動 ✅
+- [x] ジャンプ（駒を飛び越える） ✅
+- [x] キング化（端に到達） ✅
+- [x] 連続ジャンプ ✅
+- [x] 勝敗判定（相手の駒を全滅） ✅
 
 #### Tasks
-- [ ] HexCheckersModel.cs
-- [ ] HexCheckersView.cs
-- [ ] HexCheckersController.cs
-- [ ] Unit Tests (10+)
-- [ ] Scene setup
+- [x] HexCheckersModel.cs ✅ (540 lines)
+- [x] HexCheckersView.cs ✅ (147 lines)
+- [x] HexCheckersController.cs ✅ (362 lines)
+- [x] Unit Tests (10+) ✅ (HexCheckersTests.cs)
+- [x] Scene setup ✅ (HexCheckersSceneSetup.cs)
 
 ### 3.2 Hex Chess (簡易チェス)
 
 **優先度**: 🟢 低
 
 #### Features
-- [ ] 11×11 Hexグリッド
-- [ ] 6種類の駒（King, Queen, Rook, Bishop, Knight, Pawn）
-- [ ] Hex版移動ルール
-- [ ] チェック/チェックメイト判定
+- [x] 11×11 Hexグリッド ✅
+- [x] 6種類の駒（King, Queen, Rook, Bishop, Knight, Pawn） ✅
+- [x] Hex版移動ルール ✅
+- [x] チェック/チェックメイト判定 ✅
 - [ ] AI対戦モード（オプション）
 
 #### Tasks
-- [ ] HexChessModel.cs
-- [ ] HexChessView.cs
-- [ ] HexChessController.cs
-- [ ] PieceType enum拡張
-- [ ] Move validation logic
-- [ ] Unit Tests (20+)
-- [ ] Scene setup
+- [x] HexChessModel.cs ✅ (607 lines)
+- [x] HexChessView.cs ✅ (198 lines)
+- [x] HexChessController.cs ✅ (315 lines)
+- [x] PieceType enum拡張 ✅
+- [x] Move validation logic ✅
+- [x] Unit Tests (20+) ✅ (HexChessTests.cs)
+- [x] Scene setup ✅ (HexChessSceneSetup.cs)
 
 ### 3.3 その他ミニゲーム（MINIGAME_DESIGNS.md参照）
 
@@ -361,8 +361,8 @@
 | Phase | Status | Progress | Target Date |
 |-------|--------|----------|-------------|
 | Phase 1: Code Foundation + Firebase + Shaders | ✅ Complete | 100% | 2026-03-07 |
-| Phase 2: Asset Integration | 🔄 In Progress | 75% | 2026-03-10 |
-| Phase 3: Additional Minigames | ⏳ Planned | 0% | 2026-03-31 |
+| Phase 2: Asset Integration | ✅ Complete | 75% | 2026-03-08 |
+| Phase 3: Additional Minigames | 🔄 In Progress | 35% | 2026-03-31 |
 | Phase 4: Performance & Polish | ⏳ Planned | 0% | 2026-04-15 |
 | Phase 5: Testing & Bug Fixes | ⏳ Planned | 0% | 2026-04-30 |
 | Phase 6: Mobile Port | ⏳ Optional | 0% | 2026-05-31 |
