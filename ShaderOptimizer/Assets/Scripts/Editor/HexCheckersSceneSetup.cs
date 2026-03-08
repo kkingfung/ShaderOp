@@ -83,66 +83,45 @@ namespace ShaderOp.Editor
         }
 
         /// <summary>
-        /// ゲームコントローラーを作成
+        /// ゲームコントローラーとビューを作成
         /// </summary>
         private static GameObject CreateGameController()
         {
+            // Controller GameObject作成
             GameObject controllerObj = new GameObject("HexCheckersController");
             HexCheckersController controller = controllerObj.AddComponent<HexCheckersController>();
 
-            // Prefab参照を設定
-            GameObject? hexTilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PREFAB_PATH);
-            GameObject? piecePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PIECE_PREFAB_PATH);
-            Material? tileMaterial = AssetDatabase.LoadAssetAtPath<Material>(TILE_MATERIAL_PATH);
-            Material? player1Material = AssetDatabase.LoadAssetAtPath<Material>(PLAYER1_MATERIAL_PATH);
-            Material? player2Material = AssetDatabase.LoadAssetAtPath<Material>(PLAYER2_MATERIAL_PATH);
+            // View GameObject作成
+            GameObject viewObj = new GameObject("HexCheckersView");
+            viewObj.transform.SetParent(controllerObj.transform);
+            HexCheckersView view = viewObj.AddComponent<HexCheckersView>();
 
-            if (hexTilePrefab != null)
-            {
-                var serializedObject = new SerializedObject(controller);
-                serializedObject.FindProperty("_hexTilePrefab").objectReferenceValue = hexTilePrefab;
-                serializedObject.ApplyModifiedProperties();
-            }
-            else
+            // BoardParent作成
+            GameObject boardParent = new GameObject("Board");
+            boardParent.transform.SetParent(viewObj.transform);
+
+            // Prefabをロード
+            GameObject? hexTilePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PREFAB_PATH);
+
+            if (hexTilePrefab == null)
             {
                 Debug.LogWarning($"[HexCheckersSceneSetup] HexTile prefab not found at {PREFAB_PATH}");
             }
 
-            if (piecePrefab != null)
-            {
-                var serializedObject = new SerializedObject(controller);
-                serializedObject.FindProperty("_gamePiecePrefab").objectReferenceValue = piecePrefab;
-                serializedObject.ApplyModifiedProperties();
-            }
-            else
-            {
-                Debug.LogWarning($"[HexCheckersSceneSetup] GamePiece prefab not found at {PIECE_PREFAB_PATH}");
-            }
+            // ViewにPrefab参照を設定
+            var viewSerializedObject = new SerializedObject(view);
+            viewSerializedObject.FindProperty("_tilePrefab").objectReferenceValue = hexTilePrefab;
+            viewSerializedObject.FindProperty("_boardParent").objectReferenceValue = boardParent.transform;
+            viewSerializedObject.ApplyModifiedProperties();
 
-            if (tileMaterial != null)
-            {
-                var serializedObject = new SerializedObject(controller);
-                serializedObject.FindProperty("_hexTileMaterial").objectReferenceValue = tileMaterial;
-                serializedObject.ApplyModifiedProperties();
-            }
-
-            if (player1Material != null)
-            {
-                var serializedObject = new SerializedObject(controller);
-                serializedObject.FindProperty("_player1PieceMaterial").objectReferenceValue = player1Material;
-                serializedObject.ApplyModifiedProperties();
-            }
-
-            if (player2Material != null)
-            {
-                var serializedObject = new SerializedObject(controller);
-                serializedObject.FindProperty("_player2PieceMaterial").objectReferenceValue = player2Material;
-                serializedObject.ApplyModifiedProperties();
-            }
+            // ControllerにView参照を設定
+            var controllerSerializedObject = new SerializedObject(controller);
+            controllerSerializedObject.FindProperty("_view").objectReferenceValue = view;
+            controllerSerializedObject.ApplyModifiedProperties();
 
             Undo.RegisterCreatedObjectUndo(controllerObj, "Create HexCheckers Controller");
 
-            Debug.Log("[HexCheckersSceneSetup] Game controller created");
+            Debug.Log("[HexCheckersSceneSetup] Game controller and view created");
             return controllerObj;
         }
 
@@ -203,14 +182,12 @@ namespace ShaderOp.Editor
             {
                 var serializedObject = new SerializedObject(controller);
 #if TEXTMESHPRO_PRESENT
-                serializedObject.FindProperty("_player1CountText").objectReferenceValue = player1Count.GetComponent<TextMeshProUGUI>();
-                serializedObject.FindProperty("_player2CountText").objectReferenceValue = player2Count.GetComponent<TextMeshProUGUI>();
-                serializedObject.FindProperty("_turnIndicatorText").objectReferenceValue = turnIndicator.GetComponent<TextMeshProUGUI>();
-                serializedObject.FindProperty("_statusMessageText").objectReferenceValue = statusMessage.GetComponent<TextMeshProUGUI>();
-                serializedObject.FindProperty("_gameResultText").objectReferenceValue = gameResult.GetComponent<TextMeshProUGUI>();
+                serializedObject.FindProperty("_player1ScoreText").objectReferenceValue = player1Count.GetComponent<TextMeshProUGUI>();
+                serializedObject.FindProperty("_player2ScoreText").objectReferenceValue = player2Count.GetComponent<TextMeshProUGUI>();
+                serializedObject.FindProperty("_currentPlayerText").objectReferenceValue = turnIndicator.GetComponent<TextMeshProUGUI>();
+                serializedObject.FindProperty("_statusText").objectReferenceValue = statusMessage.GetComponent<TextMeshProUGUI>();
 #endif
                 serializedObject.FindProperty("_resetButton").objectReferenceValue = resetButton.GetComponent<Button>();
-                serializedObject.FindProperty("_backToMenuButton").objectReferenceValue = backButton.GetComponent<Button>();
                 serializedObject.ApplyModifiedProperties();
             }
 
