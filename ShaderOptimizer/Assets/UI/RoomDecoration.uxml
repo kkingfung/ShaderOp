@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/RoomDecoration.uss?fileID=7433441132597879392&amp;guid=b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6&amp;type=3#RoomDecoration" />
+
+    <ui:VisualElement name="RoomDecorationPanel" class="panel">
+        <!-- タイトル -->
+        <ui:Label text="Room Decoration Showcase" class="title" />
+        <ui:Label text="Cloth Shader Demo: Cotton / Silk / Denim / Leather" class="subtitle" />
+
+        <!-- Curtain Color Control -->
+        <ui:VisualElement class="control-row">
+            <ui:Label text="Curtain Color (Silk Shader)" class="control-label" />
+            <ui:VisualElement class="arrow-controls">
+                <ui:Button name="CurtainColorPrev" text="&lt;" class="arrow-button" />
+                <ui:Label name="CurtainColorValue" text="Gold" class="value-label" />
+                <ui:Button name="CurtainColorNext" text="&gt;" class="arrow-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Rug Color Control -->
+        <ui:VisualElement class="control-row">
+            <ui:Label text="Rug Color (Cotton Shader)" class="control-label" />
+            <ui:VisualElement class="arrow-controls">
+                <ui:Button name="RugColorPrev" text="&lt;" class="arrow-button" />
+                <ui:Label name="RugColorValue" text="Beige" class="value-label" />
+                <ui:Button name="RugColorNext" text="&gt;" class="arrow-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Cushion Color Control -->
+        <ui:VisualElement class="control-row">
+            <ui:Label text="Cushion Color (Denim Shader)" class="control-label" />
+            <ui:VisualElement class="arrow-controls">
+                <ui:Button name="CushionColorPrev" text="&lt;" class="arrow-button" />
+                <ui:Label name="CushionColorValue" text="Blue Denim" class="value-label" />
+                <ui:Button name="CushionColorNext" text="&gt;" class="arrow-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Info Label -->
+        <ui:Label text="[Tips] Right-click drag to rotate camera, scroll to zoom" class="info-label" />
+
+        <!-- Action Buttons -->
+        <ui:VisualElement class="button-row">
+            <ui:Button name="ResetButton" text="Reset to Default" class="action-button" />
+            <ui:Button name="BackButton" text="Back to Menu" class="action-button back-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

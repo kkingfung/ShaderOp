@@ -1,0 +1,316 @@
+===============================================
+RoomDecoration Scene - 3D Structure Diagram
+===============================================
+
+Scene Hierarchy:
+================
+
+RoomDecoration.unity
+│
+├── GameBootstrap
+│   └── (Initializes ServiceLocator, SceneLoader)
+│
+├── Main Camera
+│   ├── Camera Component
+│   ├── AudioListener
+│   └── OrbitCameraController
+│       ├── Target: CameraTarget (Room center)
+│       ├── Initial Distance: 15
+│       ├── Auto Rotate: True
+│       └── InputManager integration
+│
+├── Directional Light (Main)
+│   ├── Rotation: (50, -30, 0)
+│   ├── Intensity: 1.2
+│   └── Color: Warm White (1, 0.95, 0.9)
+│
+├── PointLight1 (Ambiance)
+│   ├── Position: (-10, 3, 10)
+│   ├── Intensity: 0.8
+│   ├── Range: 15
+│   └── Color: Warm (1, 0.9, 0.8)
+│
+├── PointLight2 (Ambiance)
+│   ├── Position: (10, 3, -10)
+│   ├── Intensity: 0.7
+│   ├── Range: 12
+│   └── Color: Cool (0.9, 0.95, 1)
+│
+├── Room (Parent Container)
+│   │
+│   ├── Floor
+│   │   ├── Type: Plane
+│   │   ├── Position: (0, 0, 0)
+│   │   ├── Scale: (5, 1, 5) → 50x50 units
+│   │   └── Material: Default (or custom floor)
+│   │
+│   ├── WallNorth
+│   │   ├── Type: Cube (stretched thin)
+│   │   ├── Position: (0, 2.5, 25)
+│   │   ├── Scale: (50, 5, 1)
+│   │   └── Material: Default wall
+│   │
+│   ├── WallSouth
+│   │   ├── Type: Cube
+│   │   ├── Position: (0, 2.5, -25)
+│   │   ├── Scale: (50, 5, 1)
+│   │   └── Material: Default wall
+│   │
+│   ├── WallEast
+│   │   ├── Type: Cube
+│   │   ├── Position: (25, 2.5, 0)
+│   │   ├── Scale: (1, 5, 50)
+│   │   └── Material: Default wall
+│   │
+│   ├── WallWest
+│   │   ├── Type: Cube
+│   │   ├── Position: (-25, 2.5, 0)
+│   │   ├── Scale: (1, 5, 50)
+│   │   └── Material: Default wall
+│   │
+│   ├── CurtainLeft *** SILK SHADER ***
+│   │   ├── Type: Quad (vertical)
+│   │   ├── Position: (-10, 2.5, 24)
+│   │   ├── Scale: (3, 4, 0.1)
+│   │   ├── Material: MAT_Silk_New
+│   │   └── Feature: Anisotropic reflection, High smoothness
+│   │
+│   ├── CurtainRight *** SILK SHADER ***
+│   │   ├── Type: Quad (vertical)
+│   │   ├── Position: (10, 2.5, 24)
+│   │   ├── Scale: (3, 4, 0.1)
+│   │   ├── Material: MAT_Silk_New
+│   │   └── Feature: Anisotropic reflection, High smoothness
+│   │
+│   ├── Rug *** COTTON SHADER ***
+│   │   ├── Type: Plane
+│   │   ├── Position: (0, 0.05, 5)
+│   │   ├── Scale: (1.5, 1, 2) → 15x20 units
+│   │   ├── Material: MAT_Cotton_New
+│   │   └── Feature: Matte, Diffuse reflection
+│   │
+│   ├── Cushion1 *** DENIM SHADER ***
+│   │   ├── Type: Cube
+│   │   ├── Position: (-3, 0.5, 5)
+│   │   ├── Scale: (1.5, 1, 1.5)
+│   │   ├── Material: MAT_Denim_New
+│   │   └── Feature: Multi-layer blend, Pattern
+│   │
+│   ├── Cushion2 *** DENIM SHADER ***
+│   │   ├── Type: Cube
+│   │   ├── Position: (0, 0.5, 5)
+│   │   ├── Scale: (1.5, 1, 1.5)
+│   │   ├── Material: MAT_Denim_New
+│   │   └── Feature: Multi-layer blend, Pattern
+│   │
+│   ├── Cushion3 *** DENIM SHADER ***
+│   │   ├── Type: Cube
+│   │   ├── Position: (3, 0.5, 5)
+│   │   ├── Scale: (1.5, 1, 1.5)
+│   │   ├── Material: MAT_Denim_New
+│   │   └── Feature: Multi-layer blend, Pattern
+│   │
+│   ├── Table (Supporting object)
+│   │   ├── Type: Cube
+│   │   ├── Position: (0, 1, -5)
+│   │   ├── Scale: (4, 2, 3)
+│   │   └── Material: Default wood
+│   │
+│   ├── TableCloth *** LEATHER SHADER ***
+│   │   ├── Type: Plane
+│   │   ├── Position: (0, 2.05, -5)
+│   │   ├── Scale: (0.5, 1, 0.4)
+│   │   ├── Material: MAT_Leather_New
+│   │   └── Feature: Leather texture, Moderate reflection
+│   │
+│   ├── CameraTarget
+│   │   ├── Position: (0, 2, 0)
+│   │   └── (Used by OrbitCameraController)
+│   │
+│   └── FurnitureContainer
+│       └── (Placeholder for future furniture)
+│
+└── RoomDecorationUI
+    ├── UIDocument
+    │   ├── Visual Tree Asset: RoomDecoration.uxml
+    │   └── Panel Settings: Default
+    │
+    └── RoomDecoratorController
+        ├── Curtain References: CurtainLeft, CurtainRight
+        ├── Rug Reference: Rug
+        ├── Cushion References: Cushion1, Cushion2, Cushion3
+        ├── TableCloth Reference: TableCloth
+        ├── Material References:
+        │   ├── Cotton: MAT_Cotton_New
+        │   ├── Silk: MAT_Silk_New
+        │   ├── Denim: MAT_Denim_New
+        │   └── Leather: MAT_Leather_New
+        └── OrbitCamera Reference: Main Camera
+
+
+===============================================
+UI Layout (Portrait 9:16)
+===============================================
+
+Screen Layout:
+┌─────────────────────────┐
+│                         │
+│     3D Room View        │ 60% (Top)
+│   (Camera viewport)     │
+│                         │
+│   [Curtains visible]    │
+│   [Rug in center]       │
+│   [Cushions on rug]     │
+│   [Table with cloth]    │
+│                         │
+├─────────────────────────┤
+│ Room Decoration         │
+│ Cloth Shader Demo       │ 40% (Bottom)
+│                         │
+│ Curtain (Silk)   [<][>] │
+│ Rug (Cotton)     [<][>] │
+│ Cushion (Denim)  [<][>] │
+│                         │
+│ [Tips: R-click rotate]  │
+│                         │
+│ [Reset] [Back to Menu]  │
+└─────────────────────────┘
+
+
+===============================================
+Camera View Angle
+===============================================
+
+Top-Down View:
+                North (Z+25)
+                    │
+                [Curtains]
+                    │
+    West ─────────(0,0)───────── East
+    (-25)         │              (25)
+                [Rug]
+             [Cushions]
+                  │
+              [Table]
+           [TableCloth]
+                  │
+                South (Z-25)
+
+        Camera Position:
+        (0, 3, -15)
+        Looking at: (0, 2, 0)
+
+
+Side View (Looking East):
+
+              4m │  [Curtain]
+                 │
+              2m │  [Camera]  [Rug] [Cushions] [Table]
+                 │            [TableCloth]
+              0m └──────────────────────────────────
+                   -15      0      5        -5
+                          (Z axis)
+
+
+===============================================
+Material Shader Properties
+===============================================
+
+MAT_Silk_New (Satin Shader):
+├── Base Color: User-selected (8 presets)
+├── Smoothness: 0.9
+├── Anisotropy: 0.7
+├── Normal Map: Optional
+└── Emission: None
+
+MAT_Cotton_New (Cotton Shader):
+├── Base Color: User-selected (8 presets)
+├── Smoothness: 0.2
+├── Normal Map: Optional
+└── Emission: None
+
+MAT_Denim_New (Layered Shader):
+├── Base Color: User-selected (8 presets)
+├── Layer 1: Base pattern
+├── Layer 2: Overlay pattern
+├── Blend Mode: Multiply
+└── Normal Map: Optional
+
+MAT_Leather_New (Satin Shader):
+├── Base Color: Brown (fixed)
+├── Smoothness: 0.6
+├── Normal Map: Optional
+└── Emission: None
+
+
+===============================================
+Data Flow
+===============================================
+
+User Input:
+    ↓
+UI Toolkit (Arrow Buttons)
+    ↓
+RoomDecoratorController
+    ↓
+Material Instancing (new Material())
+    ↓
+Renderer.material assignment
+    ↓
+Shader applies color
+    ↓
+Visual update in 3D scene
+
+
+Camera Input:
+    ↓
+InputManager (OnMouseDrag, OnMouseScroll)
+    ↓
+OrbitCameraController
+    ↓
+Transform.position/rotation update
+    ↓
+Camera view changes
+
+
+Scene Transition:
+    ↓
+RoomDecoratorController.OnBackClicked()
+    ↓
+ServiceLocator.Get<ISceneLoaderService>()
+    ↓
+await LoadMainMenuAsync()
+    ↓
+MainMenu scene loaded
+
+
+===============================================
+Performance Breakdown
+===============================================
+
+Geometry:
+├── Floor: 2 tris (Plane)
+├── Walls (x4): 48 tris (Cubes)
+├── Curtains (x2): 4 tris (Quads)
+├── Rug: 2 tris (Plane)
+├── Cushions (x3): 36 tris (Cubes)
+├── Table: 12 tris (Cube)
+├── TableCloth: 2 tris (Plane)
+└── Total: ~106 tris (primitives only)
+
+Lighting:
+├── Directional Light: 1
+├── Point Lights: 2
+└── Total: 3 lights
+
+Draw Calls:
+├── Estimated: 10-15 (4 materials + UI)
+└── Batching: Possible with same materials
+
+Memory:
+├── Textures: Minimal (procedural shaders)
+├── Materials: 4 base + instances
+└── Meshes: Unity primitives (shared)
+
+
+===============================================
