@@ -200,7 +200,7 @@ namespace ShaderOp.Editor
             }
 
             // MainMenuControllerコンポーネント確認
-            var controller = uiRoot.GetComponent<ShaderOp.UI.MainMenuController>();
+            var controller = uiRoot.GetComponent<ShaderOp.Core.MainMenuController>();
             if (controller == null)
             {
                 Debug.LogError("❌ MainMenuControllerコンポーネントが見つかりません");

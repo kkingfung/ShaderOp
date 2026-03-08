@@ -217,7 +217,7 @@ namespace ShaderOp.Editor
             }
 
             // MainMenuControllerを追加
-            var controller = uiRoot.AddComponent<ShaderOp.UI.MainMenuController>();
+            var controller = uiRoot.AddComponent<ShaderOp.Core.MainMenuController>();
             Debug.Log("[MainMenuSceneSetup] ✅ MainMenuControllerを追加");
 
             // Panel Settings (オプション)

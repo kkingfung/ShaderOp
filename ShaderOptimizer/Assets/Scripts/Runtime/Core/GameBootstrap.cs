@@ -3,7 +3,6 @@
 using UnityEngine;
 using ShaderOp.Core.Services;
 using ShaderOp.Core.Services.Online;
-using ShaderOp.Online.Services;
 
 namespace ShaderOp.Core
 {
