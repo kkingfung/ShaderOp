@@ -41,9 +41,9 @@
 ## 🔄 Phase 2: Asset Integration & Scene Building (進行中)
 
 **目標期間**: 2026-02-24 - 2026-03-10
-**ステータス**: 0% (準備完了)
+**ステータス**: 40% ✨
 
-### 2.1 Unity Scene Setup
+### 2.1 Unity Scene Setup ✅
 
 **優先度**: 🔴 高
 
@@ -61,36 +61,59 @@
   - [ ] Lighting設定
   - [ ] 3Dキャラクターモデル配置（プレースホルダー）
 
-- [ ] RoomDecoration シーン構築
-  - [ ] 床・壁メッシュ配置
-  - [ ] RoomDecorator配置
-  - [ ] Camera/Lighting設定
-  - [ ] UI配置
+- [x] RoomDecoration シーン構築 ✅
+  - [x] GameBootstrap配置
+  - [x] サービス初期化設定
+  - [ ] 床・壁メッシュ配置（保留）
+  - [ ] RoomDecorator配置（保留）
 
-- [ ] TicTacToeHex シーン構築
-  - [ ] HexTileプレハブ配置
-  - [ ] MVC Components配線
-  - [ ] UI配置（ターン表示、リセットボタン）
-  - [ ] Camera設定
+- [x] TicTacToeHex シーン完全実装 ✅ **垂直スライス完成**
+  - [x] HexTileプレハブ配置（3x3グリッド）
+  - [x] MVC Components配線
+  - [x] HexTileShaderController統合
+  - [x] GamePieceShaderAnimator統合
+  - [x] UI配置（ターン表示、リセットボタン）
+  - [x] Camera設定
+  - [x] ワンクリックセットアップツール
+  - [x] 自動検証ツール
 
-- [ ] HexReversi シーン構築 🆕
-  - [ ] HexTileプレハブ配置
-  - [ ] MVC Components配線
-  - [ ] UI配置（スコア、ヒントボタン）
-  - [ ] Camera設定
+- [x] HexReversi シーン完全実装 ✅ **大規模実証**
+  - [x] HexTileプレハブ配置（37タイル、半径3グリッド）
+  - [x] MVC Components配線
+  - [x] シェーダー統合（5状態+グロー）
+  - [x] 有効手ヒント表示
+  - [x] UI配置（スコア、ヒントトグル、リセット）
+  - [x] Camera設定
+  - [x] ワンクリックセットアップツール
+  - [x] 性能検証ツール
 
-### 2.2 Prefab Creation
+- [x] HexCheckers/HexChess シーン基本設定 ✅
+  - [x] GameBootstrap配置
+  - [ ] ゲームロジック実装（Phase 3へ延期）
+
+### 2.2 Prefab & Material Creation ✅
 
 **優先度**: 🔴 高
 
 #### Tasks
-- [ ] HexTile Prefab
-  - [ ] Hexagon sprite設定
-  - [ ] HexTileVisualizer追加
-  - [ ] Material設定（通常/ハイライト/選択）
-  - [ ] Collider設定
+- [x] HexTile Prefab ✅
+  - [x] HexTileVisualizer追加
+  - [x] Material設定（Idle/Hover/Selected）
+  - [x] HexTileShaderController統合
+  - [x] Collider設定
 
-- [ ] UI Prefabs
+- [x] Player Piece Prefabs ✅
+  - [x] Player1Piece.prefab（GamePieceShaderAnimator）
+  - [x] Player2Piece.prefab（GamePieceShaderAnimator）
+  - [x] MAT_Player1Piece/MAT_Player2Piece
+
+- [x] Cloth Materials ✅
+  - [x] MAT_Cotton_New（FabricCotton shader）
+  - [x] MAT_Silk_New（FabricSatin shader）
+  - [x] MAT_Denim_New（FabricLayered shader）
+  - [x] MAT_Leather_New（FabricSatin shader）
+
+- [ ] UI Prefabs（延期）
   - [ ] LoadingScreen Panel
   - [ ] CustomizationUI Panel
   - [ ] MinigameUI Panel
