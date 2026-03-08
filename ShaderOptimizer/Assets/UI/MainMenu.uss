@@ -1,0 +1,204 @@
+/* MainMenu.uss - メインメニュー画面スタイルシート (縦画面専用) */
+
+/* ==================== ルートコンテナ ==================== */
+#MainMenuRoot {
+    flex-grow: 1;
+    background-color: rgb(15, 20, 30);
+    justify-content: space-between;
+    padding: 20px;
+}
+
+/* ==================== ヘッダーセクション (15%) ==================== */
+#HeaderSection {
+    height: 15%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(30, 40, 60, 0.8);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+#GameTitle {
+    font-size: 48px;
+    color: rgb(100, 200, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 5px;
+}
+
+#Subtitle {
+    font-size: 18px;
+    color: rgb(180, 200, 220);
+    -unity-text-align: middle-center;
+}
+
+/* ==================== コンテンツセクション (70%) ==================== */
+#ContentSection {
+    height: 70%;
+    justify-content: flex-start;
+    background-color: rgba(20, 30, 45, 0.9);
+    border-radius: 15px;
+    padding: 30px 20px;
+    overflow: hidden;
+}
+
+/* セクションラベル */
+#ContentSection > Label {
+    font-size: 24px;
+    color: rgb(200, 220, 240);
+    -unity-font-style: bold;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    -unity-text-align: middle-left;
+}
+
+/* ==================== メニューボタン共通 ==================== */
+.menu-button {
+    height: 60px;
+    margin: 8px 0;
+    border-radius: 10px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    background-color: rgb(40, 80, 120);
+    border-width: 2px;
+    border-color: rgb(60, 120, 180);
+    color: rgb(255, 255, 255);
+    transition-duration: 0.2s;
+}
+
+.menu-button:hover {
+    background-color: rgb(60, 100, 140);
+    border-color: rgb(100, 160, 220);
+    scale: 1.02;
+}
+
+.menu-button:active {
+    background-color: rgb(30, 60, 100);
+    scale: 0.98;
+}
+
+/* 無効化されたボタン (Coming Soon) */
+.menu-button-disabled {
+    height: 60px;
+    margin: 8px 0;
+    border-radius: 10px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    background-color: rgb(30, 35, 45);
+    border-width: 2px;
+    border-color: rgb(50, 55, 65);
+    color: rgb(100, 110, 120);
+}
+
+/* ==================== 特定ボタン ==================== */
+#PlayTicTacToeBtn {
+    background-color: rgb(60, 120, 80);
+    border-color: rgb(80, 160, 100);
+}
+
+#PlayTicTacToeBtn:hover {
+    background-color: rgb(80, 140, 100);
+    border-color: rgb(120, 200, 140);
+}
+
+#PlayHexReversiBtn {
+    background-color: rgb(120, 60, 120);
+    border-color: rgb(160, 80, 160);
+}
+
+#PlayHexReversiBtn:hover {
+    background-color: rgb(140, 80, 140);
+    border-color: rgb(200, 120, 200);
+}
+
+#RoomDecorationBtn {
+    background-color: rgb(180, 100, 60);
+    border-color: rgb(220, 140, 80);
+}
+
+#RoomDecorationBtn:hover {
+    background-color: rgb(200, 120, 80);
+    border-color: rgb(255, 180, 120);
+}
+
+/* ==================== フッターセクション (15%) ==================== */
+#FooterSection {
+    height: 15%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(25, 30, 40, 0.8);
+    border-radius: 15px;
+    margin-top: 20px;
+    padding: 15px;
+}
+
+#VersionLabel {
+    font-size: 14px;
+    color: rgb(150, 160, 180);
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+}
+
+#SettingsBtn {
+    height: 45px;
+    width: 80%;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 18px;
+    background-color: rgb(60, 70, 90);
+    border-width: 2px;
+    border-color: rgb(80, 90, 120);
+    color: rgb(255, 255, 255);
+}
+
+#SettingsBtn:hover {
+    background-color: rgb(80, 90, 110);
+    border-color: rgb(120, 130, 160);
+}
+
+#QuitBtn {
+    height: 45px;
+    width: 80%;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 18px;
+    background-color: rgb(100, 40, 40);
+    border-width: 2px;
+    border-color: rgb(140, 60, 60);
+    color: rgb(255, 255, 255);
+}
+
+#QuitBtn:hover {
+    background-color: rgb(120, 60, 60);
+    border-color: rgb(180, 80, 80);
+}
+
+/* ==================== レスポンシブ調整 (Safe Area対応) ==================== */
+@media (max-height: 1920px) {
+    #GameTitle {
+        font-size: 44px;
+    }
+    
+    .menu-button,
+    .menu-button-disabled {
+        height: 55px;
+        font-size: 18px;
+    }
+}
+
+@media (max-height: 1600px) {
+    #GameTitle {
+        font-size: 40px;
+    }
+    
+    #Subtitle {
+        font-size: 16px;
+    }
+    
+    .menu-button,
+    .menu-button-disabled {
+        height: 50px;
+        font-size: 16px;
+    }
+}

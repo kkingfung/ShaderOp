@@ -1,88 +1,39 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
-       editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="MainMenu.uss" />
 
-    <!-- スタイルシート読み込み -->
-    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss" />
-    <Style src="project://database/Assets/UI/Styles/AccessibilityUtils.uss" />
-    <Style src="project://database/Assets/UI/Styles/ResponsiveLayouts.uss" />
+    <!-- Root Container -->
+    <ui:VisualElement name="MainMenuRoot" class="main-menu-root">
 
-    <!-- ルートコンテナ -->
-    <ui:VisualElement name="Root" class="root flex-center safe-area-all">
-
-        <!-- タイトルセクション -->
-        <ui:VisualElement name="TitleSection" class="flex-column flex-center m-xl">
-            <ui:Label text="ShaderOp" class="label-title text-high-contrast animate-fade-in" />
-            <ui:Label text="Shader Development Project" class="label-subheading text-medium-contrast" />
+        <!-- Header Section (15%) -->
+        <ui:VisualElement name="HeaderSection" class="header-section">
+            <ui:Label name="GameTitle" text="ShaderOp" class="title-text" />
+            <ui:Label name="Subtitle" text="Hex Board Games Collection" class="subtitle-text" />
         </ui:VisualElement>
 
-        <!-- メインメニューコンテンツ -->
-        <ui:VisualElement name="MenuContent" class="container-tablet flex-column flex-center">
+        <!-- Content Section (70%) -->
+        <ui:VisualElement name="ContentSection" class="content-section">
 
-            <!-- カスタマイズセクション -->
-            <ui:VisualElement name="CustomizationSection" class="section w-full">
-                <ui:VisualElement class="section-header">
-                    <ui:Label text="Customization" class="label-heading text-high-contrast" />
-                </ui:VisualElement>
+            <!-- Minigames Category -->
+            <ui:Label text="Play Minigames" class="category-label" />
+            <ui:Button name="PlayTicTacToeBtn" text="Tic-Tac-Toe Hex (3x3)" class="menu-button" />
+            <ui:Button name="PlayHexReversiBtn" text="Hex Reversi (37 tiles)" class="menu-button" />
+            <ui:Button name="PlayHexCheckersBtn" text="Hex Checkers (Coming Soon)" class="menu-button menu-button-disabled" />
+            <ui:Button name="PlayHexChessBtn" text="Hex Chess (Coming Soon)" class="menu-button menu-button-disabled" />
 
-                <ui:VisualElement class="flex-column">
-                    <ui:Button name="CharacterCustomizationButton"
-                              text="Character Customization"
-                              class="button-lg touch-target-lg m-sm bg-accessible-primary" />
-
-                    <ui:Button name="RoomDecorationButton"
-                              text="Room Decoration"
-                              class="button-lg touch-target-lg m-sm" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-
-            <ui:VisualElement class="divider" />
-
-            <!-- ミニゲームセクション -->
-            <ui:VisualElement name="MinigamesSection" class="section w-full">
-                <ui:VisualElement class="section-header">
-                    <ui:Label text="Mini Games" class="label-heading text-high-contrast" />
-                    <ui:Label text="Choose your hex board game" class="label-caption text-medium-contrast" />
-                </ui:VisualElement>
-
-                <!-- ゲームボタングリッド (2x2) -->
-                <ui:VisualElement class="grid-container grid-2col grid-gap-md">
-                    <ui:Button name="TicTacToeButton"
-                              text="Tic-Tac-Toe Hex"
-                              class="button-lg touch-target-lg bg-accessible-info" />
-
-                    <ui:Button name="HexReversiButton"
-                              text="Hex Reversi"
-                              class="button-lg touch-target-lg bg-accessible-success" />
-
-                    <ui:Button name="HexCheckersButton"
-                              text="Hex Checkers"
-                              class="button-lg touch-target-lg bg-accessible-warning" />
-
-                    <ui:Button name="HexChessButton"
-                              text="Hex Chess"
-                              class="button-lg touch-target-lg bg-accessible-error" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-
-            <ui:VisualElement class="divider" />
-
-            <!-- システムボタン -->
-            <ui:VisualElement name="SystemSection" class="flex-row justify-center m-lg">
-                <ui:Button name="SettingsButton"
-                          text="Settings"
-                          class="button-outline touch-target-lg m-sm" />
-
-                <ui:Button name="QuitButton"
-                          text="Quit"
-                          class="button-danger touch-target-lg m-sm" />
-            </ui:VisualElement>
+            <!-- Customization Category -->
+            <ui:Label text="Customize" class="category-label" />
+            <ui:Button name="RoomDecorationBtn" text="Room Decoration" class="menu-button" />
+            <ui:Button name="CharacterCustomizationBtn" text="Character (Coming Soon)" class="menu-button menu-button-disabled" />
 
         </ui:VisualElement>
 
-        <!-- フッター情報 -->
-        <ui:VisualElement name="Footer" class="flex-column flex-center m-lg">
-            <ui:Label text="Version 1.0.0" class="label-caption text-medium-contrast" />
-            <ui:Label text="© 2026 ShaderOp Project" class="label-caption text-medium-contrast" />
+        <!-- Footer Section (15%) -->
+        <ui:VisualElement name="FooterSection" class="footer-section">
+            <ui:Label name="VersionLabel" text="v0.2.0 - Phase 2 (55%)" class="version-text" />
+            <ui:VisualElement class="footer-buttons">
+                <ui:Button name="SettingsBtn" text="Settings" class="footer-button" />
+                <ui:Button name="QuitBtn" text="Quit" class="footer-button" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
     </ui:VisualElement>
