@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using ShaderOp.Core.Services;
 
 namespace ShaderOp.Minigames.HexGrid
 {
@@ -10,7 +11,7 @@ namespace ShaderOp.Minigames.HexGrid
     /// </summary>
     /// <remarks>
     /// HexGridデータをUnityシーン上に表示します
-    /// タイルプレハブをインスタンス化して配置
+    /// ObjectPoolServiceを使用してHexTileVisualizerを効率的に管理
     /// </remarks>
     public class HexGridVisualizer : MonoBehaviour
     {
@@ -26,6 +27,22 @@ namespace ShaderOp.Minigames.HexGrid
         /// <summary>タイルのビジュアライザー</summary>
         private Dictionary<HexCoordinate, HexTileVisualizer> _tileVisualizers = new();
 
+        /// <summary>オブジェクトプールサービス</summary>
+        private IObjectPoolService? _poolService;
+
+        /// <summary>
+        /// 初期化（ServiceLocatorからプールサービスを取得）
+        /// </summary>
+        private void Awake()
+        {
+            _poolService = ServiceLocator.Instance.Get<IObjectPoolService>();
+
+            if (_poolService == null)
+            {
+                Debug.LogWarning("[HexGridVisualizer] IObjectPoolService not found. Pooling will be disabled (fallback to Instantiate).");
+            }
+        }
+
         /// <summary>
         /// HexGridを設定して表示
         /// </summary>
@@ -36,7 +53,7 @@ namespace ShaderOp.Minigames.HexGrid
         }
 
         /// <summary>
-        /// ビジュアルを生成
+        /// ビジュアルを生成（オブジェクトプールを使用）
         /// </summary>
         private void GenerateVisuals()
         {
@@ -46,42 +63,72 @@ namespace ShaderOp.Minigames.HexGrid
                 return;
             }
 
-            // 既存のタイルをクリア
+            // 既存のタイルをクリア（プールに返却）
             ClearVisuals();
 
-            // すべてのタイルをインスタンス化
+            // すべてのタイルを生成（プールから取得またはInstantiate）
             foreach (HexTile tile in _grid.AllTiles)
             {
-                GameObject tileObject = Instantiate(_tilePrefab, transform);
-                tileObject.transform.position = tile.WorldPosition;
-                tileObject.name = $"HexTile_{tile.Coordinate.Q}_{tile.Coordinate.R}";
+                HexTileVisualizer? visualizer = null;
+                GameObject? tileObject = null;
 
-                // HexTileVisualizerを取得または追加
-                HexTileVisualizer? visualizer = tileObject.GetComponent<HexTileVisualizer>();
-                if (visualizer == null)
+                // オブジェクトプールが利用可能な場合はプールから取得
+                if (_poolService != null)
                 {
-                    visualizer = tileObject.AddComponent<HexTileVisualizer>();
+                    visualizer = _poolService.Get<HexTileVisualizer>(tile.WorldPosition, Quaternion.identity);
+                    tileObject = visualizer.gameObject;
+                }
+                else
+                {
+                    // フォールバック: 通常のInstantiate
+                    tileObject = Instantiate(_tilePrefab, transform);
+                    tileObject.transform.position = tile.WorldPosition;
+
+                    visualizer = tileObject.GetComponent<HexTileVisualizer>();
+                    if (visualizer == null)
+                    {
+                        visualizer = tileObject.AddComponent<HexTileVisualizer>();
+                    }
                 }
 
+                tileObject.name = $"HexTile_{tile.Coordinate.Q}_{tile.Coordinate.R}";
+                tileObject.transform.SetParent(transform);
+
+                // タイルデータをビジュアライザーに設定
                 visualizer.SetTile(tile);
 
                 _tileObjects[tile.Coordinate] = tileObject;
                 _tileVisualizers[tile.Coordinate] = visualizer;
             }
 
-            Debug.Log($"[HexGridVisualizer] Generated {_tileObjects.Count} tile visuals");
+            Debug.Log($"[HexGridVisualizer] Generated {_tileObjects.Count} tile visuals (Pooling: {_poolService != null})");
         }
 
         /// <summary>
-        /// すべてのビジュアルをクリア
+        /// すべてのビジュアルをクリア（プールに返却）
         /// </summary>
         public void ClearVisuals()
         {
-            foreach (GameObject tileObject in _tileObjects.Values)
+            // オブジェクトプールが利用可能な場合はプールに返却
+            if (_poolService != null)
             {
-                if (tileObject != null)
+                foreach (var visualizer in _tileVisualizers.Values)
                 {
-                    Destroy(tileObject);
+                    if (visualizer != null)
+                    {
+                        _poolService.Return(visualizer);
+                    }
+                }
+            }
+            else
+            {
+                // フォールバック: 通常のDestroy
+                foreach (GameObject tileObject in _tileObjects.Values)
+                {
+                    if (tileObject != null)
+                    {
+                        Destroy(tileObject);
+                    }
                 }
             }
 

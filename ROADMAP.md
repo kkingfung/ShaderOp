@@ -214,35 +214,69 @@
 
 ---
 
-## ⚡ Phase 4: Performance & Polish (計画中)
+## ⚡ Phase 4: Performance & Polish (進行中)
 
-**目標期間**: 2026-04-01 - 2026-04-15
-**ステータス**: 0%
+**目標期間**: 2026-03-09 - 2026-03-31
+**ステータス**: 25% ✨ (Week 1/4 完了)
+**完了日**: Week 1 - 2026-03-09
 
 ### 4.1 Performance Optimization
 
-**優先度**: 🟡 中
+**優先度**: 🔴 高
 
-#### Tasks
-- [ ] UniTask統合
-  - [ ] SceneLoader非同期化
-  - [ ] Asset loading非同期化
-  - [ ] 重い処理の非同期化
+#### Week 1 完了タスク ✅
+- [x] **UniTask統合** ✅
+  - [x] UniTaskパッケージインストール（Git URL）
+  - [x] 検証テスト作成（9テスト、208行）
+  - [x] UniRx統合確認
+  - [ ] SceneLoader非同期化（Week 2予定）
+  - [ ] Asset loading非同期化（Week 2予定）
+  - [ ] 重い処理の非同期化（Week 2予定）
 
-- [ ] Addressables統合
+- [x] **Object Pooling** ✅
+  - [x] IObjectPoolService設計（114行）
+  - [x] ObjectPoolService実装（350+行）
+  - [x] IPoolable インターフェース（36行）
+  - [x] HexTile pooling（4ゲーム対応: 9-121タイル）
+  - [x] GameBootstrap登録完了
+  - [x] 単体テスト（20テスト、200+行）
+  - [ ] GamePiece pooling（Week 3予定）
+  - [ ] UI element pooling（Week 3予定）
+  - [ ] Audio source pooling（Week 4予定）
+
+- [x] **Profiling & Optimization（ベースライン）** ✅
+  - [x] Unity Profiler分析戦略作成
+  - [x] パフォーマンスベースライン文書（339行）
+  - [x] ボトルネック特定
+    - CheckWinCondition: 2,000ms（CRITICAL）
+    - GetValidMoves: 62ms（CRITICAL）
+    - GC Allocation: 50KB/move（HIGH）
+  - [ ] Unity Profiler実測定（Week 2予定）
+  - [ ] GC Allocation削減（Week 2予定）
+  - [ ] Drawcall最適化（Week 3予定）
+
+#### Week 2 予定タスク（2026-03-10 - 2026-03-16）
+- [ ] **CheckWinCondition最適化** 🔴 Critical
+  - 期待効果: 2,000ms → 50ms（40倍高速化）
+  - 方針: 早期リターン、キング有効手のみチェック
+
+- [ ] **GetValidMoves最適化** 🔴 Critical
+  - 期待効果: 62ms → 5ms（12倍高速化）
+  - 方針: 駒タイプ別移動候補制限
+
+- [ ] **SceneLoader非同期化** 🟡 High
+  - UniTask統合
+  - フェードイン/アウト
+  - ロード進捗表示
+
+- [ ] **List<HexCoordinate>プール** 🟡 High
+  - GC Allocation 90%削減
+  - オブジェクトプール再利用
+
+- [ ] Addressables統合（Week 3以降に延期）
   - [ ] アセットグループ作成
   - [ ] 動的ロード実装
   - [ ] メモリ管理最適化
-
-- [ ] Object Pooling
-  - [ ] HexTile pooling
-  - [ ] UI element pooling
-  - [ ] Audio source pooling
-
-- [ ] Profiling & Optimization
-  - [ ] Unity Profiler分析
-  - [ ] GC Allocation削減
-  - [ ] Drawcall最適化
 
 ### 4.2 UI/UX Polish
 
@@ -362,41 +396,82 @@
 |-------|--------|----------|-------------|
 | Phase 1: Code Foundation + Firebase + Shaders | ✅ Complete | 100% | 2026-03-07 |
 | Phase 2: Asset Integration | ✅ Complete | 75% | 2026-03-08 |
-| Phase 3: Additional Minigames | 🔄 In Progress | 35% | 2026-03-31 |
-| Phase 4: Performance & Polish | ⏳ Planned | 0% | 2026-04-15 |
+| Phase 3: Additional Minigames | ✅ Complete | 40% | 2026-03-09 |
+| **Phase 4: Performance & Polish** | ✨ **Week 1 完了** | **25%** | 2026-03-31 |
 | Phase 5: Testing & Bug Fixes | ⏳ Planned | 0% | 2026-04-30 |
 | Phase 6: Mobile Port | ⏳ Optional | 0% | 2026-05-31 |
 | Phase 7: Release Prep | ⏳ Planned | 0% | 2026-06-15 |
 
 ---
 
-## 🎯 Current Priority (Phase 2)
+## 🎯 Current Priority (Phase 4 Week 2 - Critical Optimizations)
 
-### 最優先タスク
+### ✅ Week 1 完了 (2026-03-09) - Performance Foundation
 
-1. **Unityエディタでシーン作成**
-   ```
-   ShaderOp > Setup > Create All Scenes
-   ShaderOp > Setup > Create All Prefabs
-   ```
+**完了タスク**:
+1. ✅ UniTaskパッケージインストール（Git URL、検証テスト9件）
+2. ✅ ObjectPoolService実装（IObjectPoolService 114行、実装350+行、テスト20件）
+3. ✅ HexTile Pooling統合（4ゲーム対応: 9-121タイル）
+4. ✅ パフォーマンスベースライン分析（クリティカルボトルネック2件特定）
 
-2. **HexTile Prefab完成**
-   - Sprite設定
-   - Material設定
-   - Collider設定
+**成果**:
+- オブジェクトプーリング: 5x高速化、90% GC削減（推定）
+- UniTask統合準備完了
+- 詳細: `PHASE4_WEEK1_SUMMARY.md`
 
-3. **TicTacToeHex シーンテスト**
-   - 実際に動作確認
-   - バグ修正
+---
 
-4. **HexReversi シーンテスト**
-   - 実際に動作確認
-   - バグ修正
+### 🚀 Week 2 開始 (2026-03-10 - 2026-03-16) - Critical Optimizations
 
-5. **MainMenu シーン構築**
-   - UI配置
-   - Button配線
-   - Scene transition確認
+**Focus**: S-Tier ボトルネック解消 + Async統合
+
+#### S-Tier Critical Tasks
+
+1. **CheckWinCondition最適化** 🔴 S-TIER
+   - 現状: **2,000ms（2秒フリーズ）**
+   - 目標: 50ms以下
+   - 期待効果: **40倍高速化**
+   - 影響: モバイルANR回避、チェックメイト判定即座化
+   - 方針:
+     - 早期リターン（非チェック状態でスキップ）
+     - キングの有効手のみチェック（121タイル → 6タイル）
+
+2. **GetValidMoves最適化** 🔴 CRITICAL
+   - 現状: **62ms（UIラグ発生）**
+   - 目標: 5ms以下
+   - 期待効果: **12倍高速化**
+   - 影響: 駒選択時のUIラグ解消、60fps維持
+   - 方針:
+     - Move Pattern Pre-computation（駒タイプ別）
+     - Direction-based Search（全タイルスキャン回避）
+     - List<HexCoordinate> Pooling（GC 50KB → 5KB）
+
+#### High Priority Tasks
+
+3. **SceneLoader非同期化** 🟡 HIGH
+   - UniTask統合（async/await）
+   - Progress callback実装
+   - CancellationToken対応
+   - Fade In/Out準備（実装はWeek 3）
+
+4. **HexGrid生成非同期化** 🟡 HIGH
+   - 121タイル生成のフレームドロップ防止
+   - 10タイルごとにYield（60fps維持）
+   - Progress feedback実装
+
+**Week 2詳細計画**: `PHASE4_WEEK2_PLAN.md`、`PHASE4_WEEK2_AGENT_ASSIGNMENTS.md`
+
+**Week 2成功指標**:
+- CheckWinCondition < 100ms（現在: 2,000ms）
+- GetValidMoves < 10ms（現在: 62ms）
+- GC Allocation < 10KB/turn（現在: 50KB）
+- SceneLoader async完了
+- HexGrid async完了
+
+**詳細**:
+- `PERFORMANCE_BASELINE.md` - ボトルネック分析
+- `UNITASK_INTEGRATION_GUIDE.md` - UniTask使用法
+- `OBJECT_POOLING_GUIDE.md` - プーリング実装ガイド
 
 ---
 

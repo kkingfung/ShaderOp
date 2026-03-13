@@ -26,6 +26,19 @@ namespace ShaderOp.Core
         [Tooltip("Firebase認証サービスを有効化")]
         [SerializeField] private bool _enableFirebaseAuth = true;
 
+        [Tooltip("オブジェクトプールサービスを有効化")]
+        [SerializeField] private bool _enableObjectPoolService = true;
+
+        [Header("Object Pool Prefabs (Optional)")]
+        [Tooltip("HexTileVisualizerプレハブ（ミニゲーム用）")]
+        [SerializeField] private ShaderOp.Minigames.HexGrid.HexTileVisualizer? _hexTilePrefab;
+
+        [Tooltip("Player1Pieceプレハブ（ゲーム駒）")]
+        [SerializeField] private UnityEngine.Component? _player1PiecePrefab;
+
+        [Tooltip("Player2Pieceプレハブ（ゲーム駒）")]
+        [SerializeField] private UnityEngine.Component? _player2PiecePrefab;
+
         /// <summary>初期化済みフラグ</summary>
         private static bool _isInitialized = false;
 
@@ -86,7 +99,51 @@ namespace ShaderOp.Core
             ServiceLocator.Instance.Register<ISceneLoaderService>(sceneLoaderService);
             Debug.Log("[GameBootstrap] SceneLoaderService registered.");
 
+            // 6. オブジェクトプールサービス
+            if (_enableObjectPoolService)
+            {
+                var poolService = gameObject.AddComponent<ObjectPoolService>();
+                ServiceLocator.Instance.Register<IObjectPoolService>(poolService);
+                Debug.Log("[GameBootstrap] ObjectPoolService registered.");
+
+                // プールの登録（prefabが設定されている場合のみ）
+                RegisterObjectPools(poolService);
+            }
+
             Debug.Log($"[GameBootstrap] {CountRegisteredServices()} services registered successfully.");
+        }
+
+        /// <summary>
+        /// オブジェクトプールを登録
+        /// </summary>
+        private void RegisterObjectPools(IObjectPoolService poolService)
+        {
+            // HexTileVisualizerプール登録（HexChessが121タイルなので最大200に設定）
+            if (_hexTilePrefab != null)
+            {
+                poolService.RegisterPool(_hexTilePrefab, defaultCapacity: 64, maxSize: 200);
+                poolService.Prewarm<ShaderOp.Minigames.HexGrid.HexTileVisualizer>(64);
+                Debug.Log("[GameBootstrap] HexTileVisualizer pool registered and prewarmed (64 tiles)");
+            }
+            else
+            {
+                Debug.LogWarning("[GameBootstrap] HexTilePrefab is not assigned. Pool will be registered later.");
+            }
+
+            // Player1Pieceプール登録（Component型として登録）
+            // 注意: 実際のコンポーネント型がわからないため、prefab設定後に各ゲームで個別登録することを推奨
+            // if (_player1PiecePrefab != null)
+            // {
+            //     poolService.RegisterPool(_player1PiecePrefab, defaultCapacity: 32, maxSize: 100);
+            //     Debug.Log("[GameBootstrap] Player1Piece pool registered");
+            // }
+
+            // Player2Pieceプール登録（Component型として登録）
+            // if (_player2PiecePrefab != null)
+            // {
+            //     poolService.RegisterPool(_player2PiecePrefab, defaultCapacity: 32, maxSize: 100);
+            //     Debug.Log("[GameBootstrap] Player2Piece pool registered");
+            // }
         }
 
         /// <summary>
@@ -100,6 +157,7 @@ namespace ShaderOp.Core
             if (ServiceLocator.Instance.IsRegistered<IFirebaseAuthService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<IHttpClientService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<ISceneLoaderService>()) count++;
+            if (ServiceLocator.Instance.IsRegistered<IObjectPoolService>()) count++;
             return count;
         }
 

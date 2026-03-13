@@ -1,7 +1,7 @@
 # Phase 3: Additional Minigames - Progress Summary
 
 **最終更新**: 2026-03-09
-**ステータス**: 35% Complete 🔄
+**ステータス**: 40% Complete 🔄
 **目標期間**: 2026-03-09 - 2026-03-31
 
 ---
@@ -11,9 +11,11 @@
 | カテゴリ | 完了率 | ステータス |
 |---------|--------|--------------|
 | **HexCheckers Implementation** | 100% | ✅ 完了 |
+| **HexCheckers Scene Build** | 100% | ✅ 完了 |
 | **HexChess Implementation** | 100% | ✅ 完了 |
+| **HexChess Scene Build** | 100% | ✅ 完了 |
 | **Other Minigames** | 0% | ⏳ 未着手 |
-| **Overall Phase 3** | **35%** | 🔄 進行中 |
+| **Overall Phase 3** | **40%** | 🔄 進行中 |
 
 ---
 
@@ -69,6 +71,26 @@
   - Reset/Back to Menuボタン
 - Prefab/Material参照設定
 - TextMesh Pro条件付きコンパイル対応
+
+#### Scene Build ✅
+**Assets/Scenes/HexCheckers.unity** (2026-03-09構築・検証済み)
+- ✅ MenuItem経由で自動構築成功
+- ✅ MVC階層構造検証完了
+  - HexCheckersController (root)
+    - HexCheckersView (child)
+      - Board (child of View)
+- ✅ UI階層構造検証完了
+  - Canvas/UIPanel配下に7要素作成
+  - Player1Count/Player2Count/TurnIndicator/StatusMessage
+  - GameResult (inactive)/ResetButton/BackButton
+- ✅ コンポーネント配線検証完了
+  - View._tilePrefab → "HexTile" ✓
+  - View._boardParent → Board Transform ✓
+  - Controller._view → HexCheckersView ✓
+  - Controller._resetButton → ResetButton ✓
+- ✅ カメラ設定検証完了
+  - Position: (0, 12, -6), Rotation: (60, 0, 0), FOV: 50°
+- ✅ シーン保存完了
 
 #### Tests ✅
 **HexCheckersTests.cs**
@@ -137,6 +159,26 @@
 - Prefab/Material参照設定
 - TextMesh Pro条件付きコンパイル対応
 
+#### Scene Build ✅
+**Assets/Scenes/HexChess.unity** (2026-03-09構築・検証済み)
+- ✅ MenuItem経由で自動構築成功
+- ✅ MVC階層構造検証完了
+  - HexChessController (root)
+    - HexChessView (child)
+      - Board (child of View)
+- ✅ UI階層構造検証完了
+  - Canvas/UIPanel配下に7要素作成
+  - Player1Name/Player2Name/TurnIndicator/CheckIndicator
+  - GameResult (inactive)/ResetButton/BackButton
+- ✅ コンポーネント配線検証完了
+  - View._tilePrefab → "HexTile" ✓
+  - View._boardParent → Board Transform ✓
+  - Controller._view → HexChessView ✓
+  - Controller._resetButton → ResetButton ✓
+- ✅ カメラ設定検証完了
+  - Position: (0, 15, -8), Rotation: (60, 0, 0), FOV: 55°
+- ✅ シーン保存完了
+
 #### Tests ✅
 **HexChessTests.cs**
 - グリッド生成テスト
@@ -155,6 +197,7 @@
    - 2つの新規自動セットアップツール
    - Quick Test機能（Asset検証）
    - ワンクリックシーン構築
+   - **実環境検証完了**: 両ツール共に正常動作確認済み
 
 2. **完全なMVC実装**
    - HexCheckers: 1049 lines (Model: 540, Controller: 362, View: 147)
@@ -184,7 +227,8 @@
 | **Editor Scripts** | 2 | 0 | 2 |
 | **Runtime Scripts** | 0 | 6 | 6 |
 | **Test Scripts** | 0 | 2 | 2 |
-| **合計** | **2** | **8** | **10** |
+| **Scene Files** | 2 | 0 | 2 |
+| **合計** | **4** | **8** | **12** |
 
 ### コード行数
 | コンポーネント | 行数 |
@@ -238,13 +282,15 @@
 - [ ] HexConnectFourTests.cs（ユニットテスト）
 - [ ] Scene構築とテスト
 
-#### オプション2: 既存ゲームのシーン構築
+#### ~~オプション2: 既存ゲームのシーン構築~~ ✅ 完了
 **理由**: Scene Setup toolsが完成したので実際にシーンを構築してテスト
 
 **タスク**:
-- [ ] HexCheckersシーン構築（MenuItem実行）
-- [ ] HexChessシーン構築（MenuItem実行）
-- [ ] Play Modeテストと検証
+- [x] HexCheckersシーン構築（MenuItem実行） ✅
+- [x] HexChessシーン構築（MenuItem実行） ✅
+- [x] シーン階層構造検証 ✅
+- [x] コンポーネント配線検証 ✅
+- [ ] Play Modeテストと検証 （次回タスク）
 - [ ] バグ修正（あれば）
 
 #### オプション3: Phase 4移行準備
@@ -259,22 +305,22 @@
 
 ## 📝 推奨アクション
 
-**次のステップ**: **オプション2（既存ゲームのシーン構築とテスト）**
+**次のステップ**: **Play Modeテストとバグ修正**
 
 **理由**:
-1. Scene Setup toolsが完成したばかり
-2. 実際にシーンを構築して動作確認が必要
-3. バグや改善点の発見に最適なタイミング
-4. ユーザーに実際にプレイ可能なゲームを提供できる
+1. Scene Setup toolsによる自動構築が完了 ✅
+2. シーン階層構造とコンポーネント配線が検証済み ✅
+3. 実際のPlay Modeでの動作確認が必要
+4. タイル生成、駒配置、ゲームロジックの統合テスト
 
 **具体的な手順**:
-1. Unityエディタで `ShaderOp > Setup > HexCheckers Complete Scene` 実行
+1. ~~Unityエディタで `ShaderOp > Setup > HexCheckers Complete Scene` 実行~~ ✅ 完了
 2. HexCheckersシーンでPlay Modeテスト
 3. 発見したバグを修正
-4. Unityエディタで `ShaderOp > Setup > HexChess Complete Scene` 実行
+4. ~~Unityエディタで `ShaderOp > Setup > HexChess Complete Scene` 実行~~ ✅ 完了
 5. HexChessシーンでPlay Modeテスト
 6. 発見したバグを修正
-7. Phase 3進捗レポート作成
+7. Phase 3進捗レポート最終更新
 
 ---
 
@@ -297,8 +343,13 @@
 - ✅ ユニットテスト完備
 - ✅ 自動化ツール完備
 
+**シーン構築完了** (2026-03-09):
+- ✅ HexCheckers.unity シーン構築・検証完了
+- ✅ HexChess.unity シーン構築・検証完了
+- ✅ Scene Setup Tools実環境検証完了
+
 **次のマイルストーン**:
-- 🎯 実際のシーン構築とテスト
+- 🎯 Play Modeテスト（タイル生成、ゲームロジック統合確認）
 - 🎯 追加ミニゲーム実装（オプション）
 - 🎯 Phase 4（Performance & Polish）への移行
 
@@ -306,5 +357,5 @@
 
 **実装者**: Claude Code (Anthropic)
 **完了日**: 2026-03-09
-**バージョン**: Phase 3 - 35% Complete
-**次回アクション**: HexCheckers/HexChessシーン構築とPlay Modeテスト
+**バージョン**: Phase 3 - 40% Complete
+**次回アクション**: Play Modeテスト（HexCheckers/HexChess実機動作確認）

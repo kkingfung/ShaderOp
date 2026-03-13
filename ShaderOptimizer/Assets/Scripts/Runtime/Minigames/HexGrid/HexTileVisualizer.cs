@@ -1,6 +1,7 @@
 #nullable enable
 
 using UnityEngine;
+using ShaderOp.Core;
 
 namespace ShaderOp.Minigames.HexGrid
 {
@@ -10,9 +11,10 @@ namespace ShaderOp.Minigames.HexGrid
     /// <remarks>
     /// HexTileデータとUnity GameObjectを接続します
     /// タイルの状態に応じてマテリアルとスプライトを更新
+    /// IPoolableインターフェースを実装してオブジェクトプールに対応
     /// </remarks>
     [RequireComponent(typeof(SpriteRenderer))]
-    public class HexTileVisualizer : MonoBehaviour
+    public class HexTileVisualizer : MonoBehaviour, IPoolable
     {
         /// <summary>対応するHexTile</summary>
         private HexTile? _tile;
@@ -173,5 +175,75 @@ namespace ShaderOp.Minigames.HexGrid
                 _tile.OnStateChanged -= OnTileStateChanged;
             }
         }
+
+        #region IPoolable Implementation
+
+        /// <summary>
+        /// プールで生成された時に呼ばれる（初回のみ）
+        /// </summary>
+        public void OnCreated()
+        {
+            // 初期化処理は既にAwake()で実行されている
+            Debug.Log($"[HexTileVisualizer] OnCreated: {gameObject.name}");
+        }
+
+        /// <summary>
+        /// プールから取得された時に呼ばれる
+        /// </summary>
+        public void OnGetFromPool()
+        {
+            // タイルの状態をリセット（次の使用に備える）
+            if (_tile != null)
+            {
+                _tile.OnStateChanged -= OnTileStateChanged;
+                _tile = null;
+            }
+
+            // ビジュアルを初期状態に戻す
+            if (_pieceSpriteRenderer != null)
+            {
+                _pieceSpriteRenderer.sprite = null;
+                _pieceSpriteRenderer.enabled = false;
+            }
+
+            if (_spriteRenderer != null && _normalMaterial != null)
+            {
+                _spriteRenderer.material = _normalMaterial;
+            }
+
+            Debug.Log($"[HexTileVisualizer] OnGetFromPool: {gameObject.name}");
+        }
+
+        /// <summary>
+        /// プールに返却された時に呼ばれる
+        /// </summary>
+        public void OnReleaseToPool()
+        {
+            // タイルのイベント購読を解除
+            if (_tile != null)
+            {
+                _tile.OnStateChanged -= OnTileStateChanged;
+                _tile = null;
+            }
+
+            Debug.Log($"[HexTileVisualizer] OnReleaseToPool: {gameObject.name}");
+        }
+
+        /// <summary>
+        /// プールから破棄される時に呼ばれる
+        /// </summary>
+        public void OnDestroyed()
+        {
+            // クリーンアップ処理
+            if (_tile != null)
+            {
+                _tile.OnStateChanged -= OnTileStateChanged;
+                _tile = null;
+            }
+
+            Debug.Log($"[HexTileVisualizer] OnDestroyed: {gameObject.name}");
+        }
+
+        #endregion
     }
 }
