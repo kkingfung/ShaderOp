@@ -29,6 +29,13 @@ namespace ShaderOp.Core
         [Tooltip("オブジェクトプールサービスを有効化")]
         [SerializeField] private bool _enableObjectPoolService = true;
 
+        [Header("Network Service Prefabs (Phase 5)")]
+        [Tooltip("PhotonNetworkServiceプレハブ")]
+        [SerializeField] private GameObject? _networkServicePrefab;
+
+        [Tooltip("PhotonGameSyncServiceプレハブ")]
+        [SerializeField] private GameObject? _gameSyncServicePrefab;
+
         [Header("Object Pool Prefabs (Optional)")]
         [Tooltip("HexTileVisualizerプレハブ（ミニゲーム用）")]
         [SerializeField] private ShaderOp.Minigames.HexGrid.HexTileVisualizer? _hexTilePrefab;
@@ -65,12 +72,10 @@ namespace ShaderOp.Core
         {
             Debug.Log("[GameBootstrap] Initializing services...");
 
-            // 1. ネットワークサービス
+            // 1. ネットワークサービス（Phase 5）
             if (_enableNetworkService)
             {
-                var networkService = gameObject.AddComponent<PhotonNetworkService>();
-                ServiceLocator.Instance.Register<INetworkService>(networkService);
-                Debug.Log("[GameBootstrap] NetworkService registered.");
+                RegisterNetworkServices();
             }
 
             // 2. セーブデータサービス
@@ -147,12 +152,65 @@ namespace ShaderOp.Core
         }
 
         /// <summary>
+        /// ネットワークサービスを登録（Phase 5 Week 1）
+        /// </summary>
+        private void RegisterNetworkServices()
+        {
+            // PhotonNetworkService登録
+            if (_networkServicePrefab != null)
+            {
+                GameObject networkServiceObj = Instantiate(_networkServicePrefab);
+                DontDestroyOnLoad(networkServiceObj);
+                networkServiceObj.name = "PhotonNetworkService"; // インスタンス名をクリーンに
+
+                var networkService = networkServiceObj.GetComponent<PhotonNetworkService>();
+                if (networkService != null)
+                {
+                    ServiceLocator.Instance.Register<INetworkService>(networkService);
+                    Debug.Log("[GameBootstrap] INetworkService (Photon) registered.");
+                }
+                else
+                {
+                    Debug.LogError("[GameBootstrap] PhotonNetworkServiceコンポーネントが見つかりません");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameBootstrap] NetworkServicePrefabが設定されていません（オフラインモードで動作）");
+            }
+
+            // PhotonGameSyncService登録
+            if (_gameSyncServicePrefab != null)
+            {
+                GameObject gameSyncServiceObj = Instantiate(_gameSyncServicePrefab);
+                DontDestroyOnLoad(gameSyncServiceObj);
+                gameSyncServiceObj.name = "PhotonGameSyncService"; // インスタンス名をクリーンに
+
+                var gameSyncService = gameSyncServiceObj.GetComponent<PhotonGameSyncService>();
+                if (gameSyncService != null)
+                {
+                    ServiceLocator.Instance.Register<IGameSyncService>(gameSyncService);
+                    Debug.Log("[GameBootstrap] IGameSyncService (Photon) registered.");
+                }
+                else
+                {
+                    Debug.LogError("[GameBootstrap] PhotonGameSyncServiceコンポーネントが見つかりません");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameBootstrap] GameSyncServicePrefabが設定されていません（オフラインモードで動作）");
+            }
+        }
+
+        /// <summary>
         /// 登録されたサービス数を取得
         /// </summary>
         private int CountRegisteredServices()
         {
             int count = 0;
             if (ServiceLocator.Instance.IsRegistered<INetworkService>()) count++;
+            if (ServiceLocator.Instance.IsRegistered<IGameSyncService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<ISaveDataService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<IFirebaseAuthService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<IHttpClientService>()) count++;
