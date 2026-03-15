@@ -1,0 +1,3 @@
+# Screenshot Guide
+
+Document created.

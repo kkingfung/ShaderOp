@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "description": "ShaderOp モバイルビルド設定テンプレート",
+  "platform": "Android",
+  "buildType": "Development",
+  "version": "0.4.0",
+  "scriptingBackend": "IL2CPP",
+  "apiLevel": "Android10",
+  "architecture": "ARM64",
+  "compressionMethod": "LZ4",
+  "managedStripping": "Medium",
+  "optimizations": {
+    "graphicsAPI": "OpenGLES3",
+    "textureCompression": "ASTC",
+    "scriptOptimization": "Speed"
+  },
+  "scenes": [
+    "Assets/Scenes/MainMenu.unity",
+    "Assets/Scenes/MainCustomization.unity",
+    "Assets/Scenes/HexChess.unity",
+    "Assets/Scenes/HexCheckers.unity",
+    "Assets/Scenes/HexReversi.unity",
+    "Assets/Scenes/TicTacToeHex.unity"
+  ],
+  "playerSettings": {
+    "companyName": "ShaderOp",
+    "productName": "ShaderOp",
+    "defaultIcon": "Assets/Textures/Icon/app_icon.png",
+    "targetDevices": ["phone", "tablet"],
+    "orientation": "Portrait"
+  },
+  "android": {
+    "minSdkVersion": 29,
+    "targetSdkVersion": 33,
+    "installLocation": "Auto",
+    "splashScreenScale": "ScaleToFit",
+    "renderOutsideSafeArea": false,
+    "chromeosInputEmulation": true
+  },
+  "ios": {
+    "targetDevice": "iPhoneAndiPad",
+    "targetOSVersion": "13.0",
+    "requiresFullScreen": true,
+    "statusBarHidden": false,
+    "statusBarStyle": "Default"
+  },
+  "buildOptions": {
+    "enableHeadlessMode": false,
+    "allowDebugging": true,
+    "connectWithProfiler": true,
+    "buildScriptsOnly": false,
+    "forceEnableAssertions": false
+  }
+}
