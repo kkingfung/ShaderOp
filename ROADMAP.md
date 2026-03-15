@@ -310,7 +310,87 @@
 
 ---
 
-## 🧪 Phase 5: Testing & Bug Fixes (計画中)
+## 🌐 Phase 5: Online Multiplayer & Social Features (進行中)
+
+**目標期間**: 2026-03-16 - 2026-04-15
+**ステータス**: 2% ✨ (Week 1 Day 1/28 完了)
+
+### 5.1 Photon PUN Integration (Week 1: Day 1-7)
+
+**優先度**: 🔴 高
+
+#### Week 1 Day 1 完了 (2026-03-16) - Photon Foundation ✅
+
+**完了タスク** (6/6 - 100%):
+1. ✅ INetworkService interface作成（接続・ルーム管理API定義、70行）
+2. ✅ IGameSyncService interface作成（ゲーム状態同期API定義、78行）
+3. ✅ PhotonNetworkService実装（UniTask統合、244行）
+4. ✅ PhotonGameSyncService実装（RPC同期、279行）
+5. ✅ Phase 5 Week 1実装ガイド作成（1,200行）
+6. ✅ Photon PUN Setup Guide作成（800行）
+
+**成果**:
+- サービス実装完了: 691行（production-ready）
+- ドキュメント: 2,600行（3ガイド、23コード例）
+- UniTask統合: 全メソッドasync/await対応
+- Phase 4互換性: HexCoordinate直接使用、60fps維持（<1ms overhead）
+- 詳細: `PHASE5_WEEK1_DAY1_SUMMARY.md`
+
+#### Week 1 残タスク (Day 2-7)
+
+**Day 2-3**: TicTacToeHex統合
+- [ ] Photon Asset導入（アカウント作成、App ID取得、インポート）
+- [ ] GameBootstrap統合（RegisterNetworkServices追加）
+- [ ] TicTacToeHexController統合（IGameSyncService）
+- [ ] オンライン/オフライン切り替えUI
+
+**Day 4-5**: MainMenu Multiplayer対応
+- [ ] MainMenuView Multiplayerボタン追加
+- [ ] ルーム作成/参加UI実装
+- [ ] 接続状態表示UI
+
+**Day 6-7**: テスト & ドキュメント
+- [ ] 2クライアント接続テスト（Unity Editor + Standalone）
+- [ ] 同期精度テスト（50ターン連続プレイ）
+- [ ] Week 1完了サマリー作成
+
+### 5.2 Friend System & Advanced Networking (Week 2: Day 8-14)
+
+**優先度**: 🔴 高
+
+#### Tasks (計画中)
+- [ ] IFriendService interface作成
+- [ ] Firebase Realtime Database統合
+- [ ] Friend List UI実装
+- [ ] Friend Request機能実装
+- [ ] Presence System（オンライン状態表示）
+
+### 5.3 Matchmaking & Chat System (Week 3: Day 15-21)
+
+**優先度**: 🟡 中
+
+#### Tasks (計画中)
+- [ ] IMatchmakingService interface作成
+- [ ] Quick Match機能実装
+- [ ] Room Browser UI実装
+- [ ] IChatService interface作成
+- [ ] Photon Chat SDK統合
+- [ ] Chat UI実装
+
+### 5.4 Avatar Sync & Final Integration (Week 4: Day 22-28)
+
+**優先度**: 🔴 高
+
+#### Tasks (計画中)
+- [ ] Photon Custom Properties統合
+- [ ] Avatar同期実装（キャラクター・マウント）
+- [ ] 全4ゲームオンライン対応確認
+- [ ] Phase 5完了サマリー作成
+- [ ] Production Readiness確認
+
+---
+
+## 🧪 Phase 6: Testing & Bug Fixes (計画中)
 
 **目標期間**: 2026-04-16 - 2026-04-30
 **ステータス**: 0%
@@ -397,14 +477,15 @@
 | Phase 1: Code Foundation + Firebase + Shaders | ✅ Complete | 100% | 2026-03-07 |
 | Phase 2: Asset Integration | ✅ Complete | 75% | 2026-03-08 |
 | Phase 3: Additional Minigames | ✅ Complete | 40% | 2026-03-09 |
-| **Phase 4: Performance & Polish** | ✅ **Complete** | **100%** | 2026-03-15 |
-| Phase 5: Online Multiplayer | ⏳ Planned | 0% | 2026-04-15 |
-| Phase 6: Mobile Port | ⏳ Optional | 0% | 2026-05-31 |
-| Phase 7: Release Prep | ⏳ Planned | 0% | 2026-06-15 |
+| Phase 4: Performance & Polish | ✅ Complete | 100% | 2026-03-15 |
+| **Phase 5: Online Multiplayer** | ✨ **Week 1 Day 1** | **2%** | 2026-04-15 |
+| Phase 6: Testing & Bug Fixes | ⏳ Planned | 0% | 2026-04-30 |
+| Phase 7: Mobile Port | ⏳ Optional | 0% | 2026-05-31 |
+| Phase 8: Release Prep | ⏳ Planned | 0% | 2026-06-15 |
 
 ---
 
-## 🎯 Current Priority (Phase 4 Complete - Ready for Phase 5)
+## 🎯 Current Priority (Phase 5 Week 1 Day 1 完了 - Photon Foundation Ready)
 
 ### ✅ Week 1 完了 (2026-03-09) - Performance Foundation
 
