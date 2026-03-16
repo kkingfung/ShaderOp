@@ -11,7 +11,9 @@
         "UniTask",
         "UniRx",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "PhotonUnityNetworking",
+        "PhotonRealtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
