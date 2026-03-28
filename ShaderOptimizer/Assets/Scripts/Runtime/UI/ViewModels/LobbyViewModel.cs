@@ -53,7 +53,7 @@ namespace ShaderOp.UI.ViewModels
         public ReactiveProperty<string> JoinCode { get; } = new("");
 
         /// <summary>プレイヤーリスト（ObservableCollectionでUI自動更新）</summary>
-        public ObservableCollection<LobbyPlayerInfo> PlayerList { get; } = new();
+        public ReactiveCollection<LobbyPlayerInfo> PlayerList { get; } = new();
 
         /// <summary>ローカルプレイヤーの準備完了状態</summary>
         public ReactiveProperty<bool> LocalPlayerReady { get; } = new(false);

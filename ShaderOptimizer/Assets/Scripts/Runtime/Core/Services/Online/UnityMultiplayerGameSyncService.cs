@@ -2,9 +2,9 @@
 
 using System;
 using Cysharp.Threading.Tasks;
-using Unity.Services.Multiplayer;
 using UnityEngine;
-using ShaderOp.Runtime.Minigames.HexGrid;
+using ShaderOp.Core.Services;
+using ShaderOp.Minigames.HexGrid;
 
 namespace ShaderOp.Runtime.Core.Services.Online
 {
@@ -12,7 +12,13 @@ namespace ShaderOp.Runtime.Core.Services.Online
     /// Unity Multiplayer Services Wire Protocolを使用したゲーム同期サービス
     /// </summary>
     /// <remarks>
-    /// ターンベースヘックスボードゲームのリアルタイム同期を実装。
+    /// **重要**: Wire Protocolメッセージ送受信にはNetcode for GameObjectsパッケージが必要です。
+    /// 現在はスタブ実装のみ。manifest.jsonに以下を追加してインストール:
+    /// "com.unity.netcode.gameobjects": "2.0.0"
+    ///
+    /// Netcodeインストール後、CustomMessagingManagerを使用して以下を実装:
+    /// - SendMoveAsync(): NetworkManager.CustomMessagingManager.SendNamedMessage()
+    /// - RegisterMessageHandlers(): NetworkManager.CustomMessagingManager.RegisterNamedMessageHandler()
     ///
     /// Wire Protocolメッセージタイプ:
     /// - MSG_MOVE (1): 駒の移動 (16 bytes: fromQ, fromR, toQ, toR)
@@ -20,9 +26,6 @@ namespace ShaderOp.Runtime.Core.Services.Online
     /// - MSG_GAME_END (3): ゲーム終了 (4 bytes: winnerId)
     /// - MSG_TURN_PASS (4): ターンパス (4 bytes: nextPlayerId)
     /// - MSG_RESET (5): ゲームリセット (0 bytes)
-    ///
-    /// バイナリシリアライゼーションを使用してパフォーマンスを最適化。
-    /// 移動メッセージは16バイト（JSONの100+バイトと比較）。
     /// </remarks>
     public class UnityMultiplayerGameSyncService : MonoBehaviour, IGameSyncService
     {
@@ -40,20 +43,28 @@ namespace ShaderOp.Runtime.Core.Services.Online
 
         private INetworkService? _networkService;
         private IPlayerIdService? _playerIdService;
-        private ISession? _currentSession;
         private int _currentTurnPlayerId = 0;
         private bool _isSyncEnabled;
+        private string _gameType = "HexGame";
 
         #endregion
 
         #region IGameSyncService Properties
 
-        public bool IsSyncEnabled => _isSyncEnabled && _currentSession != null;
+        public bool IsSyncEnabled => _isSyncEnabled && _networkService != null && _networkService.IsInRoom;
 
         public bool IsMyTurn =>
             IsSyncEnabled &&
             _playerIdService != null &&
             _currentTurnPlayerId == _playerIdService.LocalGameId;
+
+        public int CurrentPlayerId => _currentTurnPlayerId;
+
+        public string GameType
+        {
+            get => _gameType;
+            set => _gameType = value;
+        }
 
         #endregion
 
@@ -62,8 +73,8 @@ namespace ShaderOp.Runtime.Core.Services.Online
         public event Action<HexCoordinate, HexCoordinate>? OnMoveReceived;
         public event Action? OnGameStarted;
         public event Action<int>? OnGameEnded;
-        public event Action? OnGameReset;
         public event Action<int>? OnTurnChanged;
+        public event Action? OnResetRequested;
 
         #endregion
 
@@ -88,8 +99,8 @@ namespace ShaderOp.Runtime.Core.Services.Online
             }
 
             // ネットワークイベントを購読
-            _networkService.OnJoinedRoom += OnJoinedRoom;
-            _networkService.OnLeftRoom += OnLeftRoom;
+            _networkService.OnRoomJoined += OnRoomJoined;
+            _networkService.OnRoomLeft += OnRoomLeft;
 
             Debug.Log("[GameSyncService] Service initialized.");
         }
@@ -99,359 +110,128 @@ namespace ShaderOp.Runtime.Core.Services.Online
         /// </summary>
         public async UniTask<bool> EnableSyncAsync()
         {
-            try
+            if (_networkService == null || !_networkService.IsInRoom)
             {
-                if (_networkService == null || !_networkService.IsInRoom)
-                {
-                    Debug.LogWarning("[GameSyncService] Not in a room. Cannot enable sync.");
-                    return false;
-                }
-
-                // Unity Multiplayer Servicesのセッションを取得
-                _currentSession = MultiplayerService.Instance.GetSession(_networkService.RoomName ?? "");
-                if (_currentSession == null)
-                {
-                    Debug.LogError("[GameSyncService] Could not get current session.");
-                    return false;
-                }
-
-                // Wire Protocolメッセージハンドラを登録
-                RegisterMessageHandlers();
-
-                _isSyncEnabled = true;
-                Debug.Log("[GameSyncService] Sync enabled.");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameSyncService] Failed to enable sync: {e.Message}");
+                Debug.LogWarning("[GameSyncService] Not in a room. Cannot enable sync.");
                 return false;
             }
+
+            // TODO: Netcode for GameObjects がインストールされたら実装
+            // NetworkManager.CustomMessagingManager.RegisterNamedMessageHandler() でメッセージハンドラを登録
+
+            _isSyncEnabled = true;
+            Debug.Log("[GameSyncService] Sync enabled (stub implementation - Netcode required for actual message passing).");
+
+            await UniTask.Yield();
+            return true;
         }
 
         /// <summary>
         /// 同期を無効化
         /// </summary>
-        public void DisableSync()
+        private void DisableSync()
         {
-            if (_currentSession != null)
+            if (!_isSyncEnabled)
             {
-                UnregisterMessageHandlers();
-                _currentSession = null;
+                return;
             }
 
+            // TODO: Netcode for GameObjects がインストールされたら実装
+            // メッセージハンドラの登録解除
+
             _isSyncEnabled = false;
+            _currentTurnPlayerId = 0;
+
             Debug.Log("[GameSyncService] Sync disabled.");
         }
 
         #endregion
 
-        #region Message Handlers Registration
+        #region Message Sending (STUB - Requires Netcode)
 
         /// <summary>
-        /// Wire Protocolメッセージハンドラを登録
-        /// </summary>
-        private void RegisterMessageHandlers()
-        {
-            if (_currentSession == null) return;
-
-            _currentSession.OnMessage += OnMessageReceived;
-            Debug.Log("[GameSyncService] Message handlers registered.");
-        }
-
-        /// <summary>
-        /// Wire Protocolメッセージハンドラを解除
-        /// </summary>
-        private void UnregisterMessageHandlers()
-        {
-            if (_currentSession == null) return;
-
-            _currentSession.OnMessage -= OnMessageReceived;
-            Debug.Log("[GameSyncService] Message handlers unregistered.");
-        }
-
-        #endregion
-
-        #region Message Receiving
-
-        /// <summary>
-        /// Wire Protocolメッセージを受信
-        /// </summary>
-        private void OnMessageReceived(IPlayer sender, byte messageCode, ArraySegment<byte> payload)
-        {
-            Debug.Log($"[GameSyncService] Message received: Code={messageCode}, Size={payload.Count} bytes, Sender={sender.Id}");
-
-            switch (messageCode)
-            {
-                case MSG_MOVE:
-                    HandleMoveMessage(payload);
-                    break;
-
-                case MSG_GAME_START:
-                    HandleGameStartMessage();
-                    break;
-
-                case MSG_GAME_END:
-                    HandleGameEndMessage(payload);
-                    break;
-
-                case MSG_TURN_PASS:
-                    HandleTurnPassMessage(payload);
-                    break;
-
-                case MSG_RESET:
-                    HandleResetMessage();
-                    break;
-
-                default:
-                    Debug.LogWarning($"[GameSyncService] Unknown message code: {messageCode}");
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// 移動メッセージを処理
-        /// </summary>
-        private void HandleMoveMessage(ArraySegment<byte> payload)
-        {
-            if (payload.Count < 16)
-            {
-                Debug.LogError($"[GameSyncService] Invalid move message size: {payload.Count} bytes (expected 16)");
-                return;
-            }
-
-            var (fromQ, fromR, toQ, toR) = DeserializeMove(payload);
-            var from = new HexCoordinate(fromQ, fromR);
-            var to = new HexCoordinate(toQ, toR);
-
-            Debug.Log($"[GameSyncService] Move received: {from} → {to}");
-            OnMoveReceived?.Invoke(from, to);
-        }
-
-        /// <summary>
-        /// ゲーム開始メッセージを処理
-        /// </summary>
-        private void HandleGameStartMessage()
-        {
-            Debug.Log("[GameSyncService] Game start received.");
-            _currentTurnPlayerId = 0; // ホストがターン開始
-            OnGameStarted?.Invoke();
-        }
-
-        /// <summary>
-        /// ゲーム終了メッセージを処理
-        /// </summary>
-        private void HandleGameEndMessage(ArraySegment<byte> payload)
-        {
-            if (payload.Count < 4)
-            {
-                Debug.LogError($"[GameSyncService] Invalid game end message size: {payload.Count} bytes");
-                return;
-            }
-
-            int winnerId = BitConverter.ToInt32(payload.Array!, payload.Offset);
-            Debug.Log($"[GameSyncService] Game end received: Winner={winnerId}");
-            OnGameEnded?.Invoke(winnerId);
-        }
-
-        /// <summary>
-        /// ターンパスメッセージを処理
-        /// </summary>
-        private void HandleTurnPassMessage(ArraySegment<byte> payload)
-        {
-            if (payload.Count < 4)
-            {
-                Debug.LogError($"[GameSyncService] Invalid turn pass message size: {payload.Count} bytes");
-                return;
-            }
-
-            int nextPlayerId = BitConverter.ToInt32(payload.Array!, payload.Offset);
-            _currentTurnPlayerId = nextPlayerId;
-            Debug.Log($"[GameSyncService] Turn changed to player: {nextPlayerId}");
-            OnTurnChanged?.Invoke(nextPlayerId);
-        }
-
-        /// <summary>
-        /// リセットメッセージを処理
-        /// </summary>
-        private void HandleResetMessage()
-        {
-            Debug.Log("[GameSyncService] Game reset received.");
-            _currentTurnPlayerId = 0;
-            OnGameReset?.Invoke();
-        }
-
-        #endregion
-
-        #region Message Sending
-
-        /// <summary>
-        /// 駒の移動を送信
+        /// 手番移動を送信
+        /// TODO: Netcode for GameObjectsのCustomMessagingManager.SendNamedMessage()を使用
         /// </summary>
         public async UniTask<bool> SendMoveAsync(HexCoordinate from, HexCoordinate to)
         {
-            if (!IsSyncEnabled || _currentSession == null)
+            if (!IsSyncEnabled || !IsMyTurn)
             {
-                Debug.LogWarning("[GameSyncService] Sync not enabled. Cannot send move.");
+                Debug.LogWarning("[GameSyncService] Cannot send move: sync disabled or not my turn.");
                 return false;
             }
 
-            try
-            {
-                byte[] payload = SerializeMove(from.Q, from.R, to.Q, to.R);
-
-                await _currentSession.SendMessageAsync(MSG_MOVE, new ArraySegment<byte>(payload));
-
-                Debug.Log($"[GameSyncService] Move sent: {from} → {to}");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameSyncService] Failed to send move: {e.Message}");
-                return false;
-            }
+            Debug.LogWarning($"[GameSyncService] SendMoveAsync STUB: {from} -> {to} (Netcode package required)");
+            await UniTask.Yield();
+            return false;
         }
 
         /// <summary>
         /// ゲーム開始を送信
+        /// TODO: Netcode for GameObjectsのCustomMessagingManager.SendNamedMessage()を使用
         /// </summary>
         public async UniTask<bool> SendGameStartAsync()
         {
-            if (!IsSyncEnabled || _currentSession == null)
+            if (!IsSyncEnabled)
             {
-                Debug.LogWarning("[GameSyncService] Sync not enabled.");
+                Debug.LogWarning("[GameSyncService] Cannot send game start: sync disabled.");
                 return false;
             }
 
-            try
-            {
-                await _currentSession.SendMessageAsync(MSG_GAME_START, new ArraySegment<byte>(Array.Empty<byte>()));
-
-                _currentTurnPlayerId = 0;
-                Debug.Log("[GameSyncService] Game start sent.");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameSyncService] Failed to send game start: {e.Message}");
-                return false;
-            }
+            Debug.LogWarning("[GameSyncService] SendGameStartAsync STUB (Netcode package required)");
+            await UniTask.Yield();
+            return false;
         }
 
         /// <summary>
         /// ゲーム終了を送信
+        /// TODO: Netcode for GameObjectsのCustomMessagingManager.SendNamedMessage()を使用
         /// </summary>
         public async UniTask<bool> SendGameEndAsync(int winnerId)
         {
-            if (!IsSyncEnabled || _currentSession == null)
+            if (!IsSyncEnabled)
             {
-                Debug.LogWarning("[GameSyncService] Sync not enabled.");
+                Debug.LogWarning("[GameSyncService] Cannot send game end: sync disabled.");
                 return false;
             }
 
-            try
-            {
-                byte[] payload = BitConverter.GetBytes(winnerId);
-
-                await _currentSession.SendMessageAsync(MSG_GAME_END, new ArraySegment<byte>(payload));
-
-                Debug.Log($"[GameSyncService] Game end sent: Winner={winnerId}");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameSyncService] Failed to send game end: {e.Message}");
-                return false;
-            }
+            Debug.LogWarning($"[GameSyncService] SendGameEndAsync STUB: winnerId={winnerId} (Netcode package required)");
+            await UniTask.Yield();
+            return false;
         }
 
         /// <summary>
         /// ターンパスを送信
+        /// TODO: Netcode for GameObjectsのCustomMessagingManager.SendNamedMessage()を使用
         /// </summary>
         public async UniTask<bool> SendTurnPassAsync(int nextPlayerId)
         {
-            if (!IsSyncEnabled || _currentSession == null)
+            if (!IsSyncEnabled)
             {
-                Debug.LogWarning("[GameSyncService] Sync not enabled.");
+                Debug.LogWarning("[GameSyncService] Cannot send turn pass: sync disabled.");
                 return false;
             }
 
-            try
-            {
-                byte[] payload = BitConverter.GetBytes(nextPlayerId);
-
-                await _currentSession.SendMessageAsync(MSG_TURN_PASS, new ArraySegment<byte>(payload));
-
-                _currentTurnPlayerId = nextPlayerId;
-                Debug.Log($"[GameSyncService] Turn pass sent: Next player={nextPlayerId}");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameSyncService] Failed to send turn pass: {e.Message}");
-                return false;
-            }
+            Debug.LogWarning($"[GameSyncService] SendTurnPassAsync STUB: nextPlayerId={nextPlayerId} (Netcode package required)");
+            await UniTask.Yield();
+            return false;
         }
 
         /// <summary>
         /// ゲームリセットを送信
+        /// TODO: Netcode for GameObjectsのCustomMessagingManager.SendNamedMessage()を使用
         /// </summary>
         public async UniTask<bool> SendResetAsync()
         {
-            if (!IsSyncEnabled || _currentSession == null)
+            if (!IsSyncEnabled)
             {
-                Debug.LogWarning("[GameSyncService] Sync not enabled.");
+                Debug.LogWarning("[GameSyncService] Cannot send reset: sync disabled.");
                 return false;
             }
 
-            try
-            {
-                await _currentSession.SendMessageAsync(MSG_RESET, new ArraySegment<byte>(Array.Empty<byte>()));
-
-                _currentTurnPlayerId = 0;
-                Debug.Log("[GameSyncService] Reset sent.");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[GameSyncService] Failed to send reset: {e.Message}");
-                return false;
-            }
-        }
-
-        #endregion
-
-        #region Binary Serialization
-
-        /// <summary>
-        /// 移動データをバイナリシリアライズ (16 bytes)
-        /// </summary>
-        private byte[] SerializeMove(int fromQ, int fromR, int toQ, int toR)
-        {
-            byte[] bytes = new byte[16];
-            BitConverter.GetBytes(fromQ).CopyTo(bytes, 0);
-            BitConverter.GetBytes(fromR).CopyTo(bytes, 4);
-            BitConverter.GetBytes(toQ).CopyTo(bytes, 8);
-            BitConverter.GetBytes(toR).CopyTo(bytes, 12);
-            return bytes;
-        }
-
-        /// <summary>
-        /// バイナリデータから移動を復元
-        /// </summary>
-        private (int fromQ, int fromR, int toQ, int toR) DeserializeMove(ArraySegment<byte> payload)
-        {
-            if (payload.Array == null)
-            {
-                throw new InvalidOperationException("Payload array is null");
-            }
-
-            int fromQ = BitConverter.ToInt32(payload.Array, payload.Offset + 0);
-            int fromR = BitConverter.ToInt32(payload.Array, payload.Offset + 4);
-            int toQ = BitConverter.ToInt32(payload.Array, payload.Offset + 8);
-            int toR = BitConverter.ToInt32(payload.Array, payload.Offset + 12);
-
-            return (fromQ, fromR, toQ, toR);
+            Debug.LogWarning("[GameSyncService] SendResetAsync STUB (Netcode package required)");
+            await UniTask.Yield();
+            return false;
         }
 
         #endregion
@@ -461,7 +241,7 @@ namespace ShaderOp.Runtime.Core.Services.Online
         /// <summary>
         /// ルーム参加時の処理
         /// </summary>
-        private async void OnJoinedRoom(string roomName)
+        private async void OnRoomJoined(string roomName)
         {
             Debug.Log($"[GameSyncService] Joined room: {roomName}");
 
@@ -472,7 +252,7 @@ namespace ShaderOp.Runtime.Core.Services.Online
         /// <summary>
         /// ルーム退出時の処理
         /// </summary>
-        private void OnLeftRoom()
+        private void OnRoomLeft()
         {
             Debug.Log("[GameSyncService] Left room.");
 
@@ -488,8 +268,8 @@ namespace ShaderOp.Runtime.Core.Services.Online
         {
             if (_networkService != null)
             {
-                _networkService.OnJoinedRoom -= OnJoinedRoom;
-                _networkService.OnLeftRoom -= OnLeftRoom;
+                _networkService.OnRoomJoined -= OnRoomJoined;
+                _networkService.OnRoomLeft -= OnRoomLeft;
             }
 
             DisableSync();

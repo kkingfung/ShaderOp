@@ -7,8 +7,8 @@ using System.Collections;
 using System;
 using Cysharp.Threading.Tasks;
 using ShaderOp.Runtime.Core.Services.Online;
-using ShaderOp.Runtime.Core.Services;
-using ShaderOp.Runtime.Minigames.HexGrid;
+using ShaderOp.Core.Services;
+using ShaderOp.Minigames.HexGrid;
 
 namespace ShaderOp.Tests.PlayMode
 {
@@ -57,17 +57,17 @@ namespace ShaderOp.Tests.PlayMode
             // GameObjectを破棄
             if (_gameSyncServiceObject != null)
             {
-                Object.DestroyImmediate(_gameSyncServiceObject);
+                UnityEngine.Object.DestroyImmediate(_gameSyncServiceObject);
             }
 
             if (_networkServiceObject != null)
             {
-                Object.DestroyImmediate(_networkServiceObject);
+                UnityEngine.Object.DestroyImmediate(_networkServiceObject);
             }
 
             if (_playerIdServiceObject != null)
             {
-                Object.DestroyImmediate(_playerIdServiceObject);
+                UnityEngine.Object.DestroyImmediate(_playerIdServiceObject);
             }
         }
 
@@ -312,7 +312,7 @@ namespace ShaderOp.Tests.PlayMode
             yield return enableTask.ToCoroutine();
 
             bool gameReset = false;
-            _gameSyncService.OnGameReset += () => gameReset = true;
+            _gameSyncService.OnResetRequested += () => gameReset = true;
 
             // Act: リセット送信
             var sendTask = _gameSyncService.SendResetAsync();
@@ -423,17 +423,27 @@ namespace ShaderOp.Tests.PlayMode
         public int PlayerCount => 1;
         public string? RoomName { get; private set; }
 
+        public event Action<bool>? OnConnectedChanged;
         public event Action? OnConnectedToServer;
-        public event Action<string>? OnDisconnected;
-        public event Action<string>? OnJoinedRoom;
-        public event Action? OnLeftRoom;
+        public event Action<string>? OnRoomJoined;
+        public event Action? OnRoomLeft;
         public event Action<int>? OnPlayerJoined;
         public event Action<int>? OnPlayerLeft;
-        public event Action<string>? OnRoomJoined;
-        public event Action<string>? OnRoomLeft;
-        public event Action<string>? OnRoomCreated;
 
         public UniTask<bool> InitializeAsync() => UniTask.FromResult(true);
+
+        public UniTask<bool> ConnectToServerAsync()
+        {
+            OnConnectedToServer?.Invoke();
+            OnConnectedChanged?.Invoke(true);
+            return UniTask.FromResult(true);
+        }
+
+        public UniTask DisconnectAsync()
+        {
+            OnConnectedChanged?.Invoke(false);
+            return UniTask.CompletedTask;
+        }
 
         public UniTask<bool> CreateRoomAsync(string roomName, int maxPlayers = 2)
         {
@@ -475,7 +485,7 @@ namespace ShaderOp.Tests.PlayMode
         {
             _isInRoom = true;
             RoomName = roomName;
-            OnJoinedRoom?.Invoke(roomName);
+            OnRoomJoined?.Invoke(roomName);
         }
 
         public void SimulateReceiveMessage(byte messageCode, byte[] payload)

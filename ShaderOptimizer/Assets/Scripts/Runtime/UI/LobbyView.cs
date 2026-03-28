@@ -274,8 +274,14 @@ namespace ShaderOp.Runtime.UI
                 })
                 .AddTo(_disposables);
 
-            // プレイヤーリストの変更を監視
-            _viewModel.PlayerList.CollectionChanged += OnPlayerListChanged;
+            // プレイヤーリストの変更を監視（ReactiveCollection）
+            _viewModel.PlayerList.ObserveAdd()
+                .Subscribe(_ => UpdatePlayerListUI())
+                .AddTo(_disposables);
+
+            _viewModel.PlayerList.ObserveRemove()
+                .Subscribe(_ => UpdatePlayerListUI())
+                .AddTo(_disposables);
 
             // ViewModelのイベントを購読
             _viewModel.OnStartGameRequested += HandleStartGameRequested;
@@ -290,7 +296,6 @@ namespace ShaderOp.Runtime.UI
         {
             if (_viewModel != null)
             {
-                _viewModel.PlayerList.CollectionChanged -= OnPlayerListChanged;
                 _viewModel.OnStartGameRequested -= HandleStartGameRequested;
                 _viewModel.OnLeaveRoomRequested -= HandleLeaveRoomRequested;
                 _viewModel.OnReadyToggleRequested -= HandleReadyToggleRequested;
@@ -304,14 +309,6 @@ namespace ShaderOp.Runtime.UI
         // ============================================
         // UI更新
         // ============================================
-
-        /// <summary>
-        /// プレイヤーリストが変更されたときにUIを更新
-        /// </summary>
-        private void OnPlayerListChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            UpdatePlayerListUI();
-        }
 
         /// <summary>
         /// プレイヤーリストUIを再構築
@@ -425,7 +422,7 @@ namespace ShaderOp.Runtime.UI
             // ゲーム開始を同期
             if (_gameSyncService != null)
             {
-                _gameSyncService.SyncGameStartAsync().Forget();
+                _gameSyncService.SendGameStartAsync().Forget();
             }
 
             // ゲームシーンに遷移（例: TicTacToeHex）

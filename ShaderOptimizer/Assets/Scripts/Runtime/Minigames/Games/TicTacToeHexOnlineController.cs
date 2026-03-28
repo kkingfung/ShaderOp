@@ -139,18 +139,19 @@ namespace ShaderOp.Minigames.Games
             {
                 Debug.Log($"[TicTacToeHexOnline] 移動送信: {from} → {to}");
 
-                // ターンを相手に渡す
-                await _gameSyncService.PassTurnAsync();
+                // ターンを相手に渡す（次のプレイヤーIDを指定）
+                int nextPlayerId = (_networkService?.LocalPlayerId == 0) ? 1 : 0;
+                await _gameSyncService.SendTurnPassAsync(nextPlayerId);
 
                 // 勝利判定
                 if (_model?.State == GameState.Player1Won || _model?.State == GameState.Player2Won)
                 {
                     int winnerId = _networkService?.LocalPlayerId ?? -1;
-                    await _gameSyncService.SyncGameEndAsync(winnerId);
+                    await _gameSyncService.SendGameEndAsync(winnerId);
                 }
                 else if (_model?.State == GameState.Draw)
                 {
-                    await _gameSyncService.SyncGameEndAsync(-1); // 引き分けは-1
+                    await _gameSyncService.SendGameEndAsync(-1); // 引き分けは-1
                 }
             }
             else
@@ -298,7 +299,7 @@ namespace ShaderOp.Minigames.Games
             // オンラインモードでは相手にもリセット通知
             if (IsOnlineMode && _gameSyncService != null)
             {
-                _gameSyncService.ResetGameStateAsync().Forget();
+                _gameSyncService.SendResetAsync().Forget();
                 Debug.Log("[TicTacToeHexOnline] リセット通知送信");
             }
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using ShaderOp.Core.Services;
 using ShaderOp.Core.Services.Online;
 using ShaderOp.Online.Services;
+using ShaderOp.Runtime.Core.Services.Online;
 
 namespace ShaderOp.Core
 {

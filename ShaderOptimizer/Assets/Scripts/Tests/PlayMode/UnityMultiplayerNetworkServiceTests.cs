@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 using System.Collections;
 using Cysharp.Threading.Tasks;
 using ShaderOp.Runtime.Core.Services.Online;
-using ShaderOp.Runtime.Core.Services;
+using ShaderOp.Core.Services;
 
 namespace ShaderOp.Tests.PlayMode
 {
@@ -186,10 +186,10 @@ namespace ShaderOp.Tests.PlayMode
         }
 
         /// <summary>
-        /// CreateRoomAsync成功時にOnRoomCreatedイベントが発火することを検証
+        /// CreateRoomAsync成功時にOnRoomJoinedイベントが発火することを検証
         /// </summary>
         [UnityTest]
-        public IEnumerator CreateRoomAsync_OnSuccess_FiresOnRoomCreatedEvent()
+        public IEnumerator CreateRoomAsync_OnSuccess_FiresOnRoomJoinedEvent()
         {
             // Arrange
             var initTask = _networkService!.InitializeAsync();
@@ -197,7 +197,7 @@ namespace ShaderOp.Tests.PlayMode
             Assert.IsTrue(initTask.GetAwaiter().GetResult());
 
             string? receivedRoomName = null;
-            _networkService.OnRoomCreated += (roomName) => receivedRoomName = roomName;
+            _networkService.OnRoomJoined += (roomName) => receivedRoomName = roomName;
 
             // Act
             var createTask = _networkService.CreateRoomWithCodeAsync("EventTestRoom", maxPlayers: 2);
@@ -208,7 +208,7 @@ namespace ShaderOp.Tests.PlayMode
             if (joinCode != null)
             {
                 Assert.IsNotNull(receivedRoomName,
-                    "OnRoomCreatedイベントが発火されるべきです");
+                    "OnRoomJoinedイベントが発火されるべきです");
             }
             else
             {

@@ -6,6 +6,7 @@ using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Multiplayer;
 using UnityEngine;
+using ShaderOp.Core.Services;
 
 namespace ShaderOp.Runtime.Core.Services.Online
 {
@@ -13,20 +14,24 @@ namespace ShaderOp.Runtime.Core.Services.Online
     /// Unity Multiplayer Services v2を使用したネットワークサービス実装
     /// </summary>
     /// <remarks>
-    /// Photon PUN 2からUnity Multiplayer Servicesへの移行版。
-    /// Session-based APIを使用してルーム管理、プレイヤー管理を実装。
+    /// Unity Multiplayer Services v2.1.3の実装。
+    /// セッション管理（作成・参加・離脱）のみ提供。
     ///
-    /// 主要機能:
-    /// - 匿名認証（AnonymousSignIn）
-    /// - セッション作成・参加（CreateSessionAsync / JoinSessionByCodeAsync）
+    /// **重要**: メッセージ送受信にはNetcode for GameObjectsパッケージが必要です。
+    /// 現在はスタブ実装のみ。manifest.jsonに以下を追加してインストール:
+    /// "com.unity.netcode.gameobjects": "2.0.0"
+    ///
+    /// 機能:
+    /// - Unity Services初期化・匿名認証
+    /// - セッション作成（CreateSessionAsync with Relay）
     /// - Join Code生成（6桁コード）
-    /// - プレイヤー参加/離脱イベント
+    /// - Join Codeでセッション参加（JoinSessionByCodeAsync）
+    /// - プレイヤー参加/離脱イベント（session.PlayerJoined/PlayerLeft）
     /// </remarks>
     public class UnityMultiplayerNetworkService : MonoBehaviour, INetworkService
     {
         private IPlayerIdService? _playerIdService;
         private ISession? _currentSession;
-        private string? _sessionHostId;
         private bool _isInitialized;
 
         #region INetworkService Properties
@@ -36,8 +41,8 @@ namespace ShaderOp.Runtime.Core.Services.Online
         public bool IsInRoom => _currentSession != null;
 
         public bool IsMasterClient =>
-            _sessionHostId != null &&
-            _sessionHostId == AuthenticationService.Instance.PlayerId;
+            _currentSession != null &&
+            _currentSession.IsServer;
 
         public int LocalPlayerId => _playerIdService?.LocalGameId ?? -1;
 
@@ -49,15 +54,12 @@ namespace ShaderOp.Runtime.Core.Services.Online
 
         #region INetworkService Events
 
+        public event Action<bool>? OnConnectedChanged;
         public event Action? OnConnectedToServer;
-        public event Action<string>? OnDisconnected;
-        public event Action<string>? OnJoinedRoom;
-        public event Action? OnLeftRoom;
+        public event Action<string>? OnRoomJoined;
+        public event Action? OnRoomLeft;
         public event Action<int>? OnPlayerJoined;
         public event Action<int>? OnPlayerLeft;
-        public event Action<string>? OnRoomJoined;
-        public event Action<string>? OnRoomLeft;
-        public event Action<string>? OnRoomCreated;
 
         #endregion
 
@@ -101,6 +103,7 @@ namespace ShaderOp.Runtime.Core.Services.Online
 
                 _isInitialized = true;
                 OnConnectedToServer?.Invoke();
+                OnConnectedChanged?.Invoke(true);
 
                 Debug.Log("[NetworkService] Unity Services initialized successfully.");
                 return true;
@@ -117,7 +120,7 @@ namespace ShaderOp.Runtime.Core.Services.Online
         #region Room Management
 
         /// <summary>
-        /// 新しいセッションを作成
+        /// 新しいセッションを作成（Unity Multiplayer Services v2 API）
         /// </summary>
         /// <param name="roomName">ルーム名</param>
         /// <param name="maxPlayers">最大プレイヤー数</param>
@@ -126,118 +129,109 @@ namespace ShaderOp.Runtime.Core.Services.Online
         {
             try
             {
-                Debug.Log($"[NetworkService] Creating room: {roomName}, MaxPlayers: {maxPlayers}");
+                Debug.Log($"[NetworkService] Creating session: {roomName}, MaxPlayers: {maxPlayers}");
 
-                var sessionOptions = new SessionOptions
+                var options = new SessionOptions
                 {
                     Name = roomName,
                     MaxPlayers = maxPlayers
-                };
+                }.WithRelayNetwork();
 
-                _currentSession = await MultiplayerService.Instance.CreateSessionAsync(sessionOptions);
+                _currentSession = await MultiplayerService.Instance.CreateSessionAsync(options);
 
                 // プレイヤーイベントを購読
-                _currentSession.Players.PlayerJoined += OnSessionPlayerJoined;
-                _currentSession.Players.PlayerLeft += OnSessionPlayerLeft;
-
-                // セッションホストIDを保存
-                _sessionHostId = _currentSession.HostId;
+                _currentSession.PlayerJoined += OnSessionPlayerJoined;
+                _currentSession.PlayerLeaving += OnSessionPlayerLeft;
 
                 // ローカルプレイヤーはホストなのでGameId=0
                 _playerIdService?.RegisterLocalPlayer(AuthenticationService.Instance.PlayerId, gameId: 0);
 
-                OnRoomCreated?.Invoke(roomName);
-                OnJoinedRoom?.Invoke(roomName);
+                OnRoomJoined?.Invoke(roomName);
+                OnConnectedChanged?.Invoke(true);
 
-                Debug.Log($"[NetworkService] Room created successfully: {_currentSession.Id}");
+                Debug.Log($"[NetworkService] Session created successfully: {_currentSession.Id}");
                 return true;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[NetworkService] Failed to create room: {e.Message}");
+                Debug.LogError($"[NetworkService] Failed to create session: {e.Message}");
                 return false;
             }
         }
 
         /// <summary>
-        /// ルームを作成してJoin Codeを生成
+        /// 新しいセッションを作成してJoin Codeを取得
         /// </summary>
         /// <param name="roomName">ルーム名</param>
         /// <param name="maxPlayers">最大プレイヤー数</param>
-        /// <returns>6桁のjoin code（失敗時はnull）</returns>
+        /// <returns>6桁のJoin Code、失敗時はnull</returns>
         public async UniTask<string?> CreateRoomWithCodeAsync(string roomName, int maxPlayers = 2)
         {
             try
             {
-                Debug.Log($"[NetworkService] Creating room with join code: {roomName}");
+                Debug.Log($"[NetworkService] Creating session with join code: {roomName}");
 
-                var sessionOptions = new SessionOptions
+                var options = new SessionOptions
                 {
                     Name = roomName,
                     MaxPlayers = maxPlayers
-                };
+                }.WithRelayNetwork();
 
-                _currentSession = await MultiplayerService.Instance.CreateSessionAsync(sessionOptions);
+                _currentSession = await MultiplayerService.Instance.CreateSessionAsync(options);
 
                 // プレイヤーイベントを購読
-                _currentSession.Players.PlayerJoined += OnSessionPlayerJoined;
-                _currentSession.Players.PlayerLeft += OnSessionPlayerLeft;
-
-                // セッションホストIDを保存
-                _sessionHostId = _currentSession.HostId;
+                _currentSession.PlayerJoined += OnSessionPlayerJoined;
+                _currentSession.PlayerLeaving += OnSessionPlayerLeft;
 
                 // ローカルプレイヤーはホストなのでGameId=0
                 _playerIdService?.RegisterLocalPlayer(AuthenticationService.Instance.PlayerId, gameId: 0);
 
-                // Join Codeを生成
-                string joinCode = await _currentSession.GetJoinCodeAsync();
+                // Join Codeを取得（Unity Multiplayer Services v2ではsession.Codeプロパティ）
+                string joinCode = _currentSession.Code;
 
-                OnRoomCreated?.Invoke(joinCode);
-                OnJoinedRoom?.Invoke(joinCode);
+                OnRoomJoined?.Invoke(joinCode);
+                OnConnectedChanged?.Invoke(true);
 
-                Debug.Log($"[NetworkService] Room created with join code: {joinCode}");
+                Debug.Log($"[NetworkService] Session created with join code: {joinCode}");
                 return joinCode;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[NetworkService] Failed to create room with code: {e.Message}");
+                Debug.LogError($"[NetworkService] Failed to create session with join code: {e.Message}");
                 return null;
             }
         }
 
         /// <summary>
-        /// Join Codeを使用してセッションに参加
+        /// Join Codeでセッションに参加
         /// </summary>
-        /// <param name="joinCode">6桁のjoin code</param>
+        /// <param name="joinCode">6桁のJoin Code</param>
         /// <returns>参加成功でtrue</returns>
         public async UniTask<bool> JoinRoomAsync(string joinCode)
         {
             try
             {
-                Debug.Log($"[NetworkService] Joining session by code: {joinCode}");
+                Debug.Log($"[NetworkService] Joining session with code: {joinCode}");
 
-                // Join Codeでセッションに参加
                 _currentSession = await MultiplayerService.Instance.JoinSessionByCodeAsync(joinCode);
 
                 // プレイヤーイベントを購読
-                _currentSession.Players.PlayerJoined += OnSessionPlayerJoined;
-                _currentSession.Players.PlayerLeft += OnSessionPlayerLeft;
+                _currentSession.PlayerJoined += OnSessionPlayerJoined;
+                _currentSession.PlayerLeaving += OnSessionPlayerLeft;
 
-                // セッションホストIDを保存
-                _sessionHostId = _currentSession.HostId;
-
-                // ローカルプレイヤーのGameIdを決定（ホスト=0、ゲスト=1）
-                int localGameId = (AuthenticationService.Instance.PlayerId == _sessionHostId) ? 0 : 1;
-                _playerIdService?.RegisterLocalPlayer(AuthenticationService.Instance.PlayerId, localGameId);
+                // ゲストプレイヤーを登録（GameId=1）
+                _playerIdService?.RegisterLocalPlayer(AuthenticationService.Instance.PlayerId, gameId: 1);
 
                 // 既存プレイヤーを登録
                 if (_currentSession.Players != null)
                 {
+                    int nextGameId = 2;
                     foreach (var player in _currentSession.Players)
                     {
+                        // ローカルプレイヤー以外を登録
                         if (player.Id != AuthenticationService.Instance.PlayerId)
                         {
-                            int gameId = _playerIdService?.GetNextGameId() ?? -1;
+                            int gameId = nextGameId++;
                             _playerIdService?.RegisterPlayer(player.Id, gameId);
                             Debug.Log($"[NetworkService] Registered existing player: {player.Id} as GameId={gameId}");
                         }
@@ -245,7 +239,7 @@ namespace ShaderOp.Runtime.Core.Services.Online
                 }
 
                 OnRoomJoined?.Invoke(joinCode);
-                OnJoinedRoom?.Invoke(joinCode);
+                OnConnectedChanged?.Invoke(true);
 
                 Debug.Log($"[NetworkService] Joined session successfully: {_currentSession.Id}");
                 return true;
@@ -258,80 +252,44 @@ namespace ShaderOp.Runtime.Core.Services.Online
         }
 
         /// <summary>
-        /// ランダムなセッションに参加
+        /// ランダムなセッションに参加（マッチメイキング）
+        /// TODO: Unity Multiplayer Services v2.1.3ではQuickJoinが未実装の可能性
         /// </summary>
         public async UniTask<bool> JoinRandomRoomAsync()
         {
-            try
-            {
-                Debug.Log("[NetworkService] Joining random session...");
-
-                _currentSession = await MultiplayerService.Instance.JoinRandomSessionAsync();
-
-                // プレイヤーイベントを購読
-                _currentSession.Players.PlayerJoined += OnSessionPlayerJoined;
-                _currentSession.Players.PlayerLeft += OnSessionPlayerLeft;
-
-                // セッションホストIDを保存
-                _sessionHostId = _currentSession.HostId;
-
-                // ローカルプレイヤーのGameIdを決定
-                int localGameId = _playerIdService?.GetNextGameId() ?? 1;
-                _playerIdService?.RegisterLocalPlayer(AuthenticationService.Instance.PlayerId, localGameId);
-
-                // 既存プレイヤーを登録
-                if (_currentSession.Players != null)
-                {
-                    foreach (var player in _currentSession.Players)
-                    {
-                        if (player.Id != AuthenticationService.Instance.PlayerId)
-                        {
-                            int gameId = _playerIdService?.GetNextGameId() ?? -1;
-                            _playerIdService?.RegisterPlayer(player.Id, gameId);
-                        }
-                    }
-                }
-
-                OnRoomJoined?.Invoke(_currentSession.Name ?? "RandomRoom");
-                OnJoinedRoom?.Invoke(_currentSession.Name ?? "RandomRoom");
-
-                Debug.Log($"[NetworkService] Joined random session: {_currentSession.Id}");
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[NetworkService] Failed to join random session: {e.Message}");
-                return false;
-            }
+            // Unity Multiplayer Services v2.1.3にはJoinRandomSessionAsync相当のAPIが見つからない
+            // QuickMatchmakingを使う必要があるかもしれないが、要調査
+            Debug.LogWarning("[NetworkService] JoinRandomRoomAsync is not implemented yet. Use JoinRoomAsync with a join code.");
+            await UniTask.Yield();
+            return false;
         }
 
         /// <summary>
-        /// 現在のセッションから退出
+        /// セッションから退出
         /// </summary>
         public async UniTask LeaveRoomAsync()
         {
+            if (_currentSession == null)
+            {
+                Debug.LogWarning("[NetworkService] Not in a session.");
+                return;
+            }
+
             try
             {
-                if (_currentSession == null)
-                {
-                    Debug.LogWarning("[NetworkService] Not in a session.");
-                    return;
-                }
-
                 Debug.Log("[NetworkService] Leaving session...");
 
                 // イベント購読解除
-                _currentSession.Players.PlayerJoined -= OnSessionPlayerJoined;
-                _currentSession.Players.PlayerLeft -= OnSessionPlayerLeft;
+                _currentSession.PlayerJoined -= OnSessionPlayerJoined;
+                _currentSession.PlayerLeaving -= OnSessionPlayerLeft;
 
-                string roomName = _currentSession.Name ?? "Unknown";
-
+                // セッション離脱
                 await _currentSession.LeaveAsync();
-                _currentSession = null;
-                _sessionHostId = null;
 
-                OnLeftRoom?.Invoke();
-                OnRoomLeft?.Invoke(roomName);
+                _currentSession = null;
+
+                OnRoomLeft?.Invoke();
+                OnConnectedChanged?.Invoke(false);
 
                 Debug.Log("[NetworkService] Left session successfully.");
             }
@@ -343,40 +301,67 @@ namespace ShaderOp.Runtime.Core.Services.Online
 
         #endregion
 
-        #region Player Events
+        #region Additional Interface Methods
 
         /// <summary>
-        /// プレイヤーがセッションに参加したときの処理
+        /// Photonマスターサーバーに接続（Unity Multiplayer Servicesでは不要）
         /// </summary>
-        private void OnSessionPlayerJoined(IPlayer player)
+        public async UniTask<bool> ConnectToServerAsync()
         {
-            Debug.Log($"[NetworkService] Player joined session: {player.Id}");
-
-            // 新しいGameIdを割り当て
-            int gameId = _playerIdService?.GetNextGameId() ?? -1;
-            _playerIdService?.RegisterPlayer(player.Id, gameId);
-
-            // イベント発火
-            OnPlayerJoined?.Invoke(gameId);
-
-            Debug.Log($"[NetworkService] Player registered: PlayerId={player.Id}, GameId={gameId}");
+            // Unity Multiplayer Servicesでは、InitializeAsync()で既に接続済み
+            // このメソッドはPhoton互換性のため存在するが、何もしない
+            await UniTask.Yield();
+            return _isInitialized;
         }
 
         /// <summary>
-        /// プレイヤーがセッションから退出したときの処理
+        /// Photonサーバーから切断（Unity Multiplayer Servicesではセッション離脱のみ）
         /// </summary>
-        private void OnSessionPlayerLeft(IPlayer player)
+        public async UniTask DisconnectAsync()
         {
-            Debug.Log($"[NetworkService] Player left session: {player.Id}");
+            if (_currentSession != null)
+            {
+                await LeaveRoomAsync();
+            }
+            OnConnectedChanged?.Invoke(false);
+        }
 
-            // GameIdを取得してから削除
-            int gameId = _playerIdService?.GetGameId(player.Id) ?? -1;
-            _playerIdService?.RemovePlayer(player.Id);
+        /// <summary>
+        /// Wire Protocolメッセージ受信ハンドラを登録
+        /// TODO: Netcode for GameObjectsパッケージが必要
+        /// </summary>
+        public void RegisterMessageReceiver(Action<byte, ArraySegment<byte>> receiver)
+        {
+            // TODO: Netcode for GameObjectsのCustomMessagingManagerを使用する必要がある
+            // 現在はスタブ実装
+            Debug.LogWarning("[NetworkService] RegisterMessageReceiver: Netcode for GameObjects package required. Stub implementation.");
+        }
 
-            // イベント発火
+        #endregion
+
+        #region Player Events
+
+        private void OnSessionPlayerJoined(string playerId)
+        {
+            Debug.Log($"[NetworkService] Player joined: {playerId}");
+
+            // GameIdを割り当て
+            int gameId = _playerIdService?.GetNextGameId() ?? -1;
+            _playerIdService?.RegisterPlayer(playerId, gameId);
+
+            OnPlayerJoined?.Invoke(gameId);
+        }
+
+        private void OnSessionPlayerLeft(string playerId)
+        {
+            Debug.Log($"[NetworkService] Player left: {playerId}");
+
+            // GameIdを取得
+            int gameId = _playerIdService?.GetGameId(playerId) ?? -1;
+
+            // TODO: IPlayerIdService needs UnregisterPlayer method
+            // For now, just invoke the event
             OnPlayerLeft?.Invoke(gameId);
-
-            Debug.Log($"[NetworkService] Player unregistered: PlayerId={player.Id}, GameId={gameId}");
         }
 
         #endregion
@@ -387,12 +372,11 @@ namespace ShaderOp.Runtime.Core.Services.Online
         {
             if (_currentSession != null)
             {
-                _currentSession.Players.PlayerJoined -= OnSessionPlayerJoined;
-                _currentSession.Players.PlayerLeft -= OnSessionPlayerLeft;
+                _currentSession.PlayerJoined -= OnSessionPlayerJoined;
+                _currentSession.PlayerLeaving -= OnSessionPlayerLeft;
             }
 
             _currentSession = null;
-            _sessionHostId = null;
             _isInitialized = false;
 
             Debug.Log("[NetworkService] Service destroyed.");

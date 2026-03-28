@@ -177,7 +177,7 @@ namespace ShaderOp.Tests
 
             Debug.Log($"[NetworkTestRunner] ✓ ルーム作成成功: {roomName}");
             Debug.Log($"[NetworkTestRunner] IsInRoom: {_networkService.IsInRoom}");
-            Debug.Log($"[NetworkTestRunner] CurrentRoomName: {_networkService.CurrentRoomName}");
+            Debug.Log($"[NetworkTestRunner] RoomName: {_networkService.RoomName}");
             Debug.Log($"[NetworkTestRunner] PlayerCount: {_networkService.PlayerCount}");
             Debug.Log($"[NetworkTestRunner] LocalPlayerId: {_networkService.LocalPlayerId}");
             Debug.Log($"[NetworkTestRunner] IsMasterClient: {_networkService.IsMasterClient}");
