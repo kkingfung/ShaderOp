@@ -23,7 +23,7 @@ namespace ShaderOp.Core.Services
         bool IsInRoom { get; }
 
         /// <summary>現在のルーム名（未参加時はnull）</summary>
-        string? CurrentRoomName { get; }
+        string? RoomName { get; }
 
         /// <summary>現在のルーム内プレイヤー数</summary>
         int PlayerCount { get; }
@@ -33,6 +33,12 @@ namespace ShaderOp.Core.Services
 
         /// <summary>ローカルプレイヤーがルームマスターか</summary>
         bool IsMasterClient { get; }
+
+        /// <summary>
+        /// Unity Multiplayer Servicesを初期化
+        /// </summary>
+        /// <returns>初期化成功でtrue</returns>
+        UniTask<bool> InitializeAsync();
 
         /// <summary>
         /// Photonマスターサーバーに接続
@@ -47,6 +53,14 @@ namespace ShaderOp.Core.Services
         /// <param name="maxPlayers">最大プレイヤー数（デフォルト2）</param>
         /// <returns>作成成功でtrue、失敗でfalse</returns>
         UniTask<bool> CreateRoomAsync(string roomName, int maxPlayers = 2);
+
+        /// <summary>
+        /// 新規ルームを作成してJoin Codeを取得（Unity Multiplayer Services v2専用）
+        /// </summary>
+        /// <param name="roomName">ルーム名</param>
+        /// <param name="maxPlayers">最大プレイヤー数（デフォルト2）</param>
+        /// <returns>6桁のJoin Code、失敗時はnull</returns>
+        UniTask<string?> CreateRoomWithCodeAsync(string roomName, int maxPlayers = 2);
 
         /// <summary>
         /// 指定コードのルームに参加（Unity Multiplayer Servicesでは6桁Join Code使用）
@@ -78,6 +92,9 @@ namespace ShaderOp.Core.Services
         /// <summary>接続状態変更時イベント（true=接続、false=切断）</summary>
         event Action<bool>? OnConnectedChanged;
 
+        /// <summary>サーバー接続完了時イベント</summary>
+        event Action? OnConnectedToServer;
+
         /// <summary>ルーム参加成功時イベント（ルーム名を通知）</summary>
         event Action<string>? OnRoomJoined;
 
@@ -89,5 +106,11 @@ namespace ShaderOp.Core.Services
 
         /// <summary>他プレイヤーがルームから退出した時（Actor IDを通知）</summary>
         event Action<int>? OnPlayerLeft;
+
+        /// <summary>
+        /// メッセージ受信ハンドラを登録（Wire Protocol用）
+        /// </summary>
+        /// <param name="receiver">メッセージコードとペイロードを受け取るコールバック</param>
+        void RegisterMessageReceiver(Action<byte, ArraySegment<byte>> receiver);
     }
 }

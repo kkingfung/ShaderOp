@@ -39,25 +39,36 @@ namespace ShaderOp.Core.Services
         UniTask<bool> SendMoveAsync(HexCoordinate from, HexCoordinate to);
 
         /// <summary>
-        /// ゲーム開始を同期（全プレイヤーに通知）
+        /// 同期機能を有効化（ルーム参加後に呼び出し）
         /// </summary>
-        UniTask SyncGameStartAsync();
+        /// <returns>有効化成功でtrue</returns>
+        UniTask<bool> EnableSyncAsync();
 
         /// <summary>
-        /// ゲーム終了を同期（勝者IDを通知）
+        /// ゲーム開始を送信（全プレイヤーに通知）
+        /// </summary>
+        /// <returns>送信成功でtrue</returns>
+        UniTask<bool> SendGameStartAsync();
+
+        /// <summary>
+        /// ゲーム終了を送信（勝者IDを通知）
         /// </summary>
         /// <param name="winnerId">勝者のActor ID（引き分けは-1）</param>
-        UniTask SyncGameEndAsync(int winnerId);
+        /// <returns>送信成功でtrue</returns>
+        UniTask<bool> SendGameEndAsync(int winnerId);
 
         /// <summary>
         /// ターンを次のプレイヤーに渡す
         /// </summary>
-        UniTask PassTurnAsync();
+        /// <param name="nextPlayerId">次のターンプレイヤーID</param>
+        /// <returns>送信成功でtrue</returns>
+        UniTask<bool> SendTurnPassAsync(int nextPlayerId);
 
         /// <summary>
         /// ゲーム状態をリセット（再戦準備）
         /// </summary>
-        UniTask ResetGameStateAsync();
+        /// <returns>送信成功でtrue</returns>
+        UniTask<bool> SendResetAsync();
 
         /// <summary>対戦相手から移動を受信した時（from, to座標を通知）</summary>
         event Action<HexCoordinate, HexCoordinate>? OnMoveReceived;

@@ -72,6 +72,13 @@ namespace ShaderOp.Runtime.UI
         {
             _uiDocument = GetComponent<UIDocument>();
 
+            // ServiceLocator存在チェック
+            if (ServiceLocator.Instance == null)
+            {
+                Debug.LogError("[LobbyView] ServiceLocator.Instance is null! Make sure GameBootstrap has run.");
+                return;
+            }
+
             // サービス取得
             _networkService = ServiceLocator.Instance.Get<INetworkService>();
             _gameSyncService = ServiceLocator.Instance.Get<IGameSyncService>();
