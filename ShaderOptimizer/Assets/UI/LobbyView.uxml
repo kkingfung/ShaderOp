@@ -1,0 +1,75 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+        xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+        noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+
+    <!-- スタイルシート -->
+    <Style src="project://database/Assets/UI/Styles/ShaderOpDesignSystem.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#ShaderOpDesignSystem" />
+    <Style src="project://database/Assets/UI/Styles/PortraitMobile.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#PortraitMobile" />
+    <Style src="project://database/Assets/UI/LobbyView.uss?fileID=7433441132597879392&amp;guid=PLACEHOLDER&amp;type=3#LobbyView" />
+
+    <!-- ルートコンテナ - Portrait Safe Area 対応 -->
+    <ui:VisualElement name="Root" class="root-portrait portrait-safe-area">
+
+        <!-- ヘッダー (10%) -->
+        <ui:VisualElement name="Header" class="lobby-header">
+            <ui:Button name="LeaveButton" class="button-icon button-danger">
+                <ui:Label text="←" class="icon-text" />
+            </ui:Button>
+            <ui:Label name="LobbyTitle" text="Lobby" class="lobby-title-text" />
+            <ui:VisualElement class="header-spacer" />
+        </ui:VisualElement>
+
+        <!-- メインコンテンツ (80%) -->
+        <ui:VisualElement name="Content" class="lobby-content">
+
+            <!-- 参加コードセクション -->
+            <ui:VisualElement name="JoinCodeSection" class="section join-code-section">
+                <ui:Label text="Room Code" class="section-label" />
+
+                <ui:VisualElement name="JoinCodeContainer" class="join-code-container">
+                    <ui:Label name="JoinCodeLabel" text="ABC123" class="join-code-text" />
+                    <ui:Button name="CopyCodeButton" class="button-icon button-copy">
+                        <ui:Label text="📋" class="icon-emoji" />
+                    </ui:Button>
+                </ui:VisualElement>
+
+                <ui:Label text="Share this code with friends to join" class="helper-text" />
+            </ui:VisualElement>
+
+            <!-- プレイヤーリストセクション -->
+            <ui:VisualElement name="PlayerListSection" class="section player-list-section">
+                <ui:Label name="PlayerCountLabel" text="Players (1/4)" class="section-label" />
+
+                <ui:ScrollView name="PlayerListScrollView" class="player-list-scroll">
+                    <ui:VisualElement name="PlayerListContainer" class="player-list-container">
+                        <!-- プレイヤーアイテムはC#で動的生成 -->
+                        <!-- テンプレート例:
+                        <ui:VisualElement name="PlayerItem_0" class="player-item local-player">
+                            <ui:VisualElement name="PlayerAvatar" class="player-avatar">
+                                <ui:Label text="🎮" class="avatar-emoji" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="PlayerInfo" class="player-info">
+                                <ui:Label name="PlayerName" text="You (Host)" class="player-name" />
+                                <ui:Label name="PlayerStatus" text="Ready ✓" class="player-status ready" />
+                            </ui:VisualElement>
+                            <ui:Label name="HostIcon" text="⭐" class="host-icon" />
+                        </ui:VisualElement>
+                        -->
+                    </ui:VisualElement>
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <!-- ステータスメッセージ -->
+            <ui:VisualElement name="StatusSection" class="status-section">
+                <ui:Label name="StatusLabel" text="Waiting for players..." class="status-text" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- フッター - アクションボタン (10%) -->
+        <ui:VisualElement name="Footer" class="lobby-footer">
+            <ui:Button name="ReadyButton" text="Ready" class="action-button ready-button game-button-success game-button-lg" />
+            <ui:Button name="StartGameButton" text="Start Game" class="action-button start-button game-button-primary game-button-lg" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
