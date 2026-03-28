@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace ShaderOp.Minigames.HexGrid
@@ -124,6 +126,149 @@ namespace ShaderOp.Minigames.HexGrid
                     HexCoordinate coord = new HexCoordinate(q, r);
                     Vector3 worldPos = coord.ToWorldPosition(HexSize);
                     _tiles[coord] = new HexTile(coord, worldPos);
+                }
+            }
+        }
+
+        // ==================== ASYNC GENERATION METHODS (UniTask) ====================
+
+        /// <summary>
+        /// 長方形グリッドを非同期生成（UniTask版）
+        /// </summary>
+        /// <remarks>
+        /// 大きなグリッド生成時にフレームドロップを防ぐため、
+        /// 一定タイル数ごとにYield挿入してメインスレッドを解放します。
+        /// </remarks>
+        public async UniTask GenerateRectangleAsync(int width, int height, int tilesPerFrame = 50, CancellationToken cancellationToken = default)
+        {
+            _tiles.Clear();
+            Shape = GridShape.Rectangle;
+
+            int tilesGenerated = 0;
+
+            for (int r = 0; r < height; r++)
+            {
+                for (int q = 0; q < width; q++)
+                {
+                    // キャンセルチェック
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    HexCoordinate coord = new HexCoordinate(q, r);
+                    Vector3 worldPos = coord.ToWorldPosition(HexSize);
+                    _tiles[coord] = new HexTile(coord, worldPos);
+
+                    tilesGenerated++;
+
+                    // 一定数ごとにフレームを譲渡（60fps維持）
+                    if (tilesGenerated >= tilesPerFrame)
+                    {
+                        await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                        tilesGenerated = 0;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 六角形グリッドを非同期生成（UniTask版）
+        /// </summary>
+        /// <remarks>
+        /// HexChessなど大規模グリッド（121タイル）でのフレームドロップ防止
+        /// </remarks>
+        public async UniTask GenerateHexagonAsync(int radius, int tilesPerFrame = 50, CancellationToken cancellationToken = default)
+        {
+            _tiles.Clear();
+            Shape = GridShape.Hexagon;
+
+            int tilesGenerated = 0;
+
+            for (int q = -radius; q <= radius; q++)
+            {
+                int r1 = Math.Max(-radius, -q - radius);
+                int r2 = Math.Min(radius, -q + radius);
+                for (int r = r1; r <= r2; r++)
+                {
+                    // キャンセルチェック
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    HexCoordinate coord = new HexCoordinate(q, r);
+                    Vector3 worldPos = coord.ToWorldPosition(HexSize);
+                    _tiles[coord] = new HexTile(coord, worldPos);
+
+                    tilesGenerated++;
+
+                    // 一定数ごとにフレームを譲渡（60fps維持）
+                    if (tilesGenerated >= tilesPerFrame)
+                    {
+                        await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                        tilesGenerated = 0;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 三角形グリッドを非同期生成（UniTask版）
+        /// </summary>
+        public async UniTask GenerateTriangleAsync(int size, int tilesPerFrame = 50, CancellationToken cancellationToken = default)
+        {
+            _tiles.Clear();
+            Shape = GridShape.Triangle;
+
+            int tilesGenerated = 0;
+
+            for (int q = 0; q <= size; q++)
+            {
+                for (int r = 0; r <= size - q; r++)
+                {
+                    // キャンセルチェック
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    HexCoordinate coord = new HexCoordinate(q, r);
+                    Vector3 worldPos = coord.ToWorldPosition(HexSize);
+                    _tiles[coord] = new HexTile(coord, worldPos);
+
+                    tilesGenerated++;
+
+                    // 一定数ごとにフレームを譲渡（60fps維持）
+                    if (tilesGenerated >= tilesPerFrame)
+                    {
+                        await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                        tilesGenerated = 0;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 平行四辺形グリッドを非同期生成（UniTask版）
+        /// </summary>
+        public async UniTask GenerateParallelogramAsync(int width, int height, int tilesPerFrame = 50, CancellationToken cancellationToken = default)
+        {
+            _tiles.Clear();
+            Shape = GridShape.Parallelogram;
+
+            int tilesGenerated = 0;
+
+            for (int q = 0; q < width; q++)
+            {
+                for (int r = 0; r < height; r++)
+                {
+                    // キャンセルチェック
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    HexCoordinate coord = new HexCoordinate(q, r);
+                    Vector3 worldPos = coord.ToWorldPosition(HexSize);
+                    _tiles[coord] = new HexTile(coord, worldPos);
+
+                    tilesGenerated++;
+
+                    // 一定数ごとにフレームを譲渡（60fps維持）
+                    if (tilesGenerated >= tilesPerFrame)
+                    {
+                        await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                        tilesGenerated = 0;
+                    }
                 }
             }
         }

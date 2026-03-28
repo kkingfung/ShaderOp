@@ -1,6 +1,8 @@
 using Cysharp.Threading.Tasks;
 using System;
 
+#nullable enable
+
 namespace ShaderOp.Core.Services
 {
     /// <summary>
@@ -47,11 +49,15 @@ namespace ShaderOp.Core.Services
         UniTask<bool> CreateRoomAsync(string roomName, int maxPlayers = 2);
 
         /// <summary>
-        /// 指定名のルームに参加
+        /// 指定コードのルームに参加（Unity Multiplayer Servicesでは6桁Join Code使用）
         /// </summary>
-        /// <param name="roomName">参加するルーム名</param>
+        /// <param name="joinCode">参加するルームのJoin Code（6桁数字、例: "123456"）</param>
         /// <returns>参加成功でtrue、失敗でfalse</returns>
-        UniTask<bool> JoinRoomAsync(string roomName);
+        /// <remarks>
+        /// Unity Multiplayer Servicesでは、ルーム名ではなく6桁のJoin Codeで参加します。
+        /// CreateRoomWithCodeAsync()で生成されたJoin Codeを使用してください。
+        /// </remarks>
+        UniTask<bool> JoinRoomAsync(string joinCode);
 
         /// <summary>
         /// ランダムなルームに参加（マッチメイキング）

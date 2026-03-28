@@ -29,11 +29,15 @@ namespace ShaderOp.Core
         [Tooltip("オブジェクトプールサービスを有効化")]
         [SerializeField] private bool _enableObjectPoolService = true;
 
-        [Header("Network Service Prefabs (Phase 5)")]
-        [Tooltip("PhotonNetworkServiceプレハブ")]
-        [SerializeField] private GameObject? _networkServicePrefab;
+        [Header("Network Service Settings (Phase 2)")]
+        [Tooltip("ネットワークサービスの種類")]
+        [SerializeField] private NetworkServiceType _networkServiceType = NetworkServiceType.UnityMultiplayer;
 
-        [Tooltip("PhotonGameSyncServiceプレハブ")]
+        [Header("Network Service Prefabs (Legacy)")]
+        [Tooltip("PhotonNetworkServiceプレハブ (Legacy)")]
+        [SerializeField] private GameObject? _photonNetworkServicePrefab;
+
+        [Tooltip("PhotonGameSyncServiceプレハブ (Legacy)")]
         [SerializeField] private GameObject? _gameSyncServicePrefab;
 
         [Header("Object Pool Prefabs (Optional)")]
@@ -72,13 +76,18 @@ namespace ShaderOp.Core
         {
             Debug.Log("[GameBootstrap] Initializing services...");
 
-            // 1. ネットワークサービス（Phase 5）
+            // 1. PlayerIdService（Phase 5 Week 2で追加 - ネットワークサービスより先に登録）
+            var playerIdService = gameObject.AddComponent<PlayerIdService>();
+            ServiceLocator.Instance.Register<IPlayerIdService>(playerIdService);
+            Debug.Log("[GameBootstrap] PlayerIdService registered.");
+
+            // 2. ネットワークサービス（Phase 5）
             if (_enableNetworkService)
             {
                 RegisterNetworkServices();
             }
 
-            // 2. セーブデータサービス
+            // 3. セーブデータサービス
             if (_enableSaveDataService)
             {
                 var saveDataService = new LocalSaveDataService();
@@ -86,25 +95,25 @@ namespace ShaderOp.Core
                 Debug.Log("[GameBootstrap] SaveDataService registered.");
             }
 
-            // 3. Firebase認証サービス
+            // 4. Firebase認証サービス
             if (_enableFirebaseAuth)
             {
                 var firebaseAuthService = gameObject.AddComponent<FirebaseAuthService>();
                 ServiceLocator.Instance.Register<IFirebaseAuthService>(firebaseAuthService);
                 Debug.Log("[GameBootstrap] FirebaseAuthService registered.");
 
-                // 4. HTTPクライアントサービス（Firebase認証に依存）
+                // 5. HTTPクライアントサービス（Firebase認証に依存）
                 var httpClientService = new HttpClientService(firebaseAuthService);
                 ServiceLocator.Instance.Register<IHttpClientService>(httpClientService);
                 Debug.Log("[GameBootstrap] HttpClientService registered.");
             }
 
-            // 5. シーンローダーサービス（既存SceneLoaderをラップ）
+            // 6. シーンローダーサービス（既存SceneLoaderをラップ）
             var sceneLoaderService = new SceneLoaderService();
             ServiceLocator.Instance.Register<ISceneLoaderService>(sceneLoaderService);
             Debug.Log("[GameBootstrap] SceneLoaderService registered.");
 
-            // 6. オブジェクトプールサービス
+            // 7. オブジェクトプールサービス
             if (_enableObjectPoolService)
             {
                 var poolService = gameObject.AddComponent<ObjectPoolService>();
@@ -152,54 +161,74 @@ namespace ShaderOp.Core
         }
 
         /// <summary>
-        /// ネットワークサービスを登録（Phase 5 Week 1）
+        /// ネットワークサービスを登録（Phase 2: Unity Multiplayer Services）
         /// </summary>
         private void RegisterNetworkServices()
         {
-            // PhotonNetworkService登録
-            if (_networkServicePrefab != null)
-            {
-                GameObject networkServiceObj = Instantiate(_networkServicePrefab);
-                DontDestroyOnLoad(networkServiceObj);
-                networkServiceObj.name = "PhotonNetworkService"; // インスタンス名をクリーンに
+            INetworkService? networkService = null;
 
-                var networkService = networkServiceObj.GetComponent<PhotonNetworkService>();
-                if (networkService != null)
-                {
-                    ServiceLocator.Instance.Register<INetworkService>(networkService);
-                    Debug.Log("[GameBootstrap] INetworkService (Photon) registered.");
-                }
-                else
-                {
-                    Debug.LogError("[GameBootstrap] PhotonNetworkServiceコンポーネントが見つかりません");
-                }
+            switch (_networkServiceType)
+            {
+                case NetworkServiceType.UnityMultiplayer:
+                    // Unity Multiplayer Servicesを使用
+                    var unityMultiplayerService = gameObject.AddComponent<UnityMultiplayerNetworkService>();
+                    networkService = unityMultiplayerService;
+                    Debug.Log("[GameBootstrap] INetworkService (Unity Multiplayer) registered.");
+                    break;
+
+                case NetworkServiceType.Photon:
+                    // Photon PUN2を使用（レガシー - 現在無効化）
+                    Debug.LogWarning("[GameBootstrap] Photon support disabled. PhotonNetworkService has been replaced with UnityMultiplayerNetworkService.");
+                    networkService = null;
+                    /* DISABLED - Photon removed
+                    if (_photonNetworkServicePrefab != null)
+                    {
+                        GameObject networkServiceObj = Instantiate(_photonNetworkServicePrefab);
+                        DontDestroyOnLoad(networkServiceObj);
+                        networkServiceObj.name = "PhotonNetworkService";
+
+                        var photonService = networkServiceObj.GetComponent<PhotonNetworkService>();
+                        if (photonService != null)
+                        {
+                            networkService = photonService;
+                            Debug.Log("[GameBootstrap] INetworkService (Photon) registered.");
+                        }
+                        else
+                        {
+                            Debug.LogError("[GameBootstrap] PhotonNetworkServiceコンポーネントが見つかりません");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[GameBootstrap] PhotonNetworkServicePrefabが設定されていません（オフラインモードで動作）");
+                    }
+                    */
+                    break;
+
+                case NetworkServiceType.None:
+                    Debug.Log("[GameBootstrap] NetworkService disabled (offline mode).");
+                    break;
+            }
+
+            if (networkService != null)
+            {
+                ServiceLocator.Instance.Register<INetworkService>(networkService);
+            }
+
+            // UnityMultiplayerGameSyncService登録（Phase 5 Week 2）
+            if (_networkServiceType == NetworkServiceType.UnityMultiplayer && networkService != null)
+            {
+                var gameSyncService = gameObject.AddComponent<UnityMultiplayerGameSyncService>();
+                ServiceLocator.Instance.Register<IGameSyncService>(gameSyncService);
+                Debug.Log("[GameBootstrap] IGameSyncService (Unity Multiplayer) registered.");
+            }
+            else if (_networkServiceType == NetworkServiceType.Photon)
+            {
+                Debug.LogWarning("[GameBootstrap] Photon GameSyncService not implemented. Use UnityMultiplayer instead.");
             }
             else
             {
-                Debug.LogWarning("[GameBootstrap] NetworkServicePrefabが設定されていません（オフラインモードで動作）");
-            }
-
-            // PhotonGameSyncService登録
-            if (_gameSyncServicePrefab != null)
-            {
-                GameObject gameSyncServiceObj = Instantiate(_gameSyncServicePrefab);
-                DontDestroyOnLoad(gameSyncServiceObj);
-                gameSyncServiceObj.name = "PhotonGameSyncService"; // インスタンス名をクリーンに
-
-                var gameSyncService = gameSyncServiceObj.GetComponent<PhotonGameSyncService>();
-                if (gameSyncService != null)
-                {
-                    ServiceLocator.Instance.Register<IGameSyncService>(gameSyncService);
-                    Debug.Log("[GameBootstrap] IGameSyncService (Photon) registered.");
-                }
-                else
-                {
-                    Debug.LogError("[GameBootstrap] PhotonGameSyncServiceコンポーネントが見つかりません");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("[GameBootstrap] GameSyncServicePrefabが設定されていません（オフラインモードで動作）");
+                Debug.Log("[GameBootstrap] GameSyncService not registered (offline mode).");
             }
         }
 
@@ -209,6 +238,7 @@ namespace ShaderOp.Core
         private int CountRegisteredServices()
         {
             int count = 0;
+            if (ServiceLocator.Instance.IsRegistered<IPlayerIdService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<INetworkService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<IGameSyncService>()) count++;
             if (ServiceLocator.Instance.IsRegistered<ISaveDataService>()) count++;
@@ -355,4 +385,17 @@ namespace ShaderOp.Core
     }
 
     #endregion
+
+    /// <summary>
+    /// ネットワークサービスの種類
+    /// </summary>
+    public enum NetworkServiceType
+    {
+        /// <summary>ネットワーク機能を無効化（オフラインモード）</summary>
+        None,
+        /// <summary>Unity Multiplayer Services (推奨)</summary>
+        UnityMultiplayer,
+        /// <summary>Photon PUN2 (レガシー)</summary>
+        Photon
+    }
 }

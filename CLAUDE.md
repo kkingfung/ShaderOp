@@ -10,6 +10,29 @@
 
 **技術スタック**: Unity UI Toolkit, URP, C# (UniTask/UniRx), WebSocket/Photon, Python, Jenkins
 
+## 重要な制約事項
+
+### ⚠️ manifest.json の変更禁止
+
+**絶対にやってはいけないこと:**
+- `ShaderOptimizer/Packages/manifest.json` を直接編集してはいけない
+- Git URL（`https://github.com/...`）をmanifest.jsonに追加してはいけない
+- OpenUPMやscoped registryをmanifest.jsonに追加してはいけない
+- ネットワーク接続が必要なパッケージをmanifest.jsonに追加してはいけない
+
+**理由:**
+- ネットワーク接続の問題でUnityが起動できなくなる（タイムアウト、スタック）
+- パッケージ解決中にUnityがフリーズする可能性がある
+
+**UniTask/UniRxのインストール方法:**
+1. Unityを起動してからMCP経由でインストール
+2. または手動で`Assets/Plugins/`にコピー
+3. manifest.jsonは触らない！
+
+**エージェントへの指示:**
+- unity-developerエージェントにmanifest.json変更を指示しない
+- パッケージインストールはMCP経由のみ
+
 ## コーディング規約
 
 ### すべてのコメントは日本語で記述

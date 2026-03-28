@@ -227,7 +227,7 @@ namespace ShaderOp.Minigames.Games
         /// <summary>
         /// ターン変更通知
         /// </summary>
-        private void OnTurnChanged(int newPlayerId)
+        protected override void OnTurnChanged(int newPlayerId)
         {
             bool isMyTurn = _gameSyncService?.IsMyTurn == true;
             Debug.Log($"[TicTacToeHexOnline] ターン変更: Player {newPlayerId} (自分のターン: {isMyTurn})");

@@ -655,5 +655,443 @@ ScrollView.mobile-scroll > .unity-scroll-view__content-container {
 }
 
 /* ============================================
+   11. MAIN MENU SPECIFIC STYLES
+   ============================================ */
+
+/* Safe Area - 全方向対応 */
+.portrait-safe-area {
+    flex-grow: 1;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgb(15, 15, 25) 0%, rgb(25, 20, 35) 100%);
+    padding-top: max(44px, env(safe-area-inset-top, 0));
+    padding-bottom: max(34px, env(safe-area-inset-bottom, 0));
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+}
+
+/* ヘッダーセクション (15%) */
+.header-section {
+    flex-shrink: 0;
+    height: 15%;
+    min-height: 100px;
+    max-height: 150px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(40, 40, 60, 0.5);
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(100, 120, 200, 0.3);
+    padding: var(--space-md);
+}
+
+.title-text {
+    font-size: 42px;
+    color: rgb(200, 220, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: var(--space-xs);
+}
+
+.subtitle-text {
+    font-size: 16px;
+    color: rgb(150, 170, 200);
+    -unity-text-align: middle-center;
+    -unity-font-style: italic;
+}
+
+/* メインコンテンツセクション (70%) */
+.content-section {
+    flex-grow: 1;
+    padding: var(--space-sm);
+}
+
+/* メニューカテゴリ */
+.menu-category {
+    margin-bottom: var(--space-xl);
+}
+
+.category-label {
+    font-size: 20px;
+    color: rgb(220, 220, 240);
+    -unity-font-style: bold;
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-sm);
+    border-left-width: 4px;
+    border-left-color: var(--color-primary);
+}
+
+/* メニューグリッド (2列レイアウト) */
+.menu-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 0 var(--space-xs);
+}
+
+/* メニューボタン */
+.menu-button {
+    width: calc(50% - var(--space-xs));
+    min-height: 120px;
+    background-color: rgba(40, 45, 70, 0.8);
+    border-radius: var(--radius-lg);
+    border-width: 2px;
+    border-color: rgba(100, 120, 180, 0.4);
+    margin-bottom: var(--space-md);
+    padding: var(--space-md);
+    transition-property: background-color, border-color, scale;
+    transition-duration: var(--transition-fast);
+}
+
+.menu-button:hover {
+    background-color: rgba(50, 60, 90, 1);
+    border-color: rgba(100, 150, 220, 0.8);
+    scale: 1.02;
+}
+
+.menu-button:active {
+    scale: 0.98;
+}
+
+/* 無効化されたボタン */
+.menu-button.disabled {
+    background-color: rgba(30, 30, 40, 0.5);
+    border-color: rgba(80, 80, 100, 0.3);
+    opacity: 0.6;
+}
+
+.menu-button.disabled:hover {
+    scale: 1;
+    background-color: rgba(30, 30, 40, 0.5);
+    border-color: rgba(80, 80, 100, 0.3);
+    cursor: not-allowed;
+}
+
+/* ボタン内コンテンツ */
+.button-content {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.button-icon {
+    font-size: 48px;
+    margin-bottom: var(--space-sm);
+}
+
+.button-label {
+    font-size: 14px;
+    color: rgb(220, 220, 240);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* Coming Soon バッジ */
+.badge-coming-soon {
+    font-size: 10px;
+    color: rgb(255, 180, 80);
+    background-color: rgba(255, 140, 60, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+    margin-top: var(--space-xs);
+    -unity-font-style: bold;
+}
+
+/* フッターセクション (15%) */
+.footer-section {
+    flex-shrink: 0;
+    height: 15%;
+    min-height: 100px;
+    max-height: 140px;
+    background-color: rgba(30, 30, 45, 0.9);
+    border-top-width: 2px;
+    border-top-color: rgba(100, 120, 200, 0.3);
+    padding: var(--space-md);
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.footer-top {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.version-text {
+    font-size: 12px;
+    color: rgb(120, 130, 150);
+    -unity-text-align: middle-center;
+}
+
+.footer-buttons {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.footer-button {
+    min-width: 140px;
+    min-height: 44px;
+    background-color: rgba(60, 80, 140, 0.6);
+    border-radius: var(--radius-md);
+    border-width: 2px;
+    border-color: rgba(80, 120, 180, 0.6);
+    color: rgb(220, 220, 240);
+    font-size: 16px;
+    -unity-font-style: bold;
+    transition-property: background-color, border-color, scale;
+    transition-duration: var(--transition-fast);
+}
+
+.footer-button:hover {
+    background-color: rgba(70, 100, 160, 0.8);
+    border-color: rgba(100, 150, 220, 1);
+    scale: 1.05;
+}
+
+.footer-button:active {
+    scale: 0.95;
+}
+
+.footer-button-danger {
+    background-color: rgba(160, 60, 60, 0.6);
+    border-color: rgba(200, 80, 80, 0.6);
+}
+
+.footer-button-danger:hover {
+    background-color: rgba(200, 80, 80, 0.8);
+    border-color: rgba(220, 100, 100, 1);
+}
+
+/* ============================================
+   12. GAME BUTTON ANIMATIONS (Task 5)
+   ============================================ */
+
+/* 汎用ゲームボタン - 統一されたアニメーション */
+.game-button {
+    /* トランジション設定（GPU-accelerated properties） */
+    transition-property: scale, background-color, border-color;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
+
+    /* デフォルトスタイル */
+    min-height: 48px;
+    min-width: 44px;
+    border-radius: var(--radius-md);
+    cursor: link;
+}
+
+/* ホバー効果 - スケール拡大 + 色変更 */
+.game-button:hover {
+    scale: 1.05;
+    background-color: rgba(100, 150, 255, 0.8); /* ライトブルー */
+    border-color: rgba(120, 170, 255, 1);
+}
+
+/* クリック効果 - スケール縮小 */
+.game-button:active {
+    scale: 0.95;
+    transition-duration: 0.1s; /* 高速レスポンス */
+}
+
+/* フォーカス効果（キーボード操作時） */
+.game-button:focus {
+    border-color: rgba(150, 200, 255, 1);
+    border-width: 3px;
+}
+
+/* 無効化状態 */
+.game-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.game-button:disabled:hover {
+    scale: 1; /* ホバー効果無効 */
+    background-color: initial;
+    border-color: initial;
+}
+
+/* ============================================
+   BUTTON VARIANTS - 用途別スタイル
+   ============================================ */
+
+/* プライマリボタン（メインアクション） */
+.game-button-primary {
+    background-color: rgba(60, 100, 200, 0.9);
+    border-color: rgba(80, 120, 220, 0.8);
+    color: rgb(255, 255, 255);
+}
+
+.game-button-primary:hover {
+    background-color: rgba(80, 120, 220, 1);
+    border-color: rgba(100, 140, 240, 1);
+    scale: 1.05;
+}
+
+/* セカンダリボタン（サブアクション） */
+.game-button-secondary {
+    background-color: rgba(100, 100, 120, 0.6);
+    border-color: rgba(120, 120, 140, 0.6);
+    color: rgb(220, 220, 240);
+}
+
+.game-button-secondary:hover {
+    background-color: rgba(120, 120, 140, 0.8);
+    border-color: rgba(140, 140, 160, 1);
+    scale: 1.05;
+}
+
+/* 危険なアクション（削除、キャンセル等） */
+.game-button-danger {
+    background-color: rgba(200, 60, 60, 0.7);
+    border-color: rgba(220, 80, 80, 0.7);
+    color: rgb(255, 255, 255);
+}
+
+.game-button-danger:hover {
+    background-color: rgba(220, 80, 80, 0.9);
+    border-color: rgba(240, 100, 100, 1);
+    scale: 1.05;
+}
+
+/* 成功アクション（確定、完了等） */
+.game-button-success {
+    background-color: rgba(60, 180, 100, 0.7);
+    border-color: rgba(80, 200, 120, 0.7);
+    color: rgb(255, 255, 255);
+}
+
+.game-button-success:hover {
+    background-color: rgba(80, 200, 120, 0.9);
+    border-color: rgba(100, 220, 140, 1);
+    scale: 1.05;
+}
+
+/* ============================================
+   BUTTON SIZES
+   ============================================ */
+
+/* 小サイズボタン */
+.game-button-sm {
+    min-height: 36px;
+    min-width: 36px;
+    font-size: 12px;
+    padding: 4px 12px;
+}
+
+/* 中サイズボタン（デフォルト） */
+.game-button-md {
+    min-height: 48px;
+    min-width: 44px;
+    font-size: 14px;
+    padding: 8px 16px;
+}
+
+/* 大サイズボタン */
+.game-button-lg {
+    min-height: 56px;
+    min-width: 56px;
+    font-size: 18px;
+    padding: 12px 24px;
+}
+
+/* 特大サイズボタン（メニューボタン等） */
+.game-button-xl {
+    min-height: 72px;
+    min-width: 72px;
+    font-size: 20px;
+    padding: 16px 32px;
+}
+
+/* ============================================
+   BUTTON EFFECTS - Advanced Animations
+   ============================================ */
+
+/* グロー効果（ホバー時） */
+@media (prefers-reduced-motion: no-preference) {
+    .game-button-glow {
+        transition-property: scale, background-color, border-color, box-shadow;
+        transition-duration: 0.2s;
+    }
+
+    .game-button-glow:hover {
+        /* Note: UI Toolkitは現在box-shadowをサポートしていないため、border-glowで代替 */
+        border-width: 3px;
+        border-color: rgba(150, 200, 255, 1);
+        scale: 1.08;
+    }
+}
+
+/* パルスアニメーション（注目を引く） */
+.game-button-pulse {
+    /* Note: UI Toolkitには@keyframesがないため、C#で制御推奨 */
+    /* ここでは基本的なホバー効果のみ */
+}
+
+/* リップル効果（マテリアルデザイン風） */
+.game-button-ripple {
+    overflow: hidden;
+    /* Note: リップル効果はC#で実装推奨 */
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced Motion Support
+   ============================================ */
+
+/* モーション削減設定時 */
+@media (prefers-reduced-motion: reduce) {
+    .game-button,
+    .game-button-primary,
+    .game-button-secondary,
+    .game-button-danger,
+    .game-button-success {
+        transition-duration: 0.01s; /* 即座に切り替え */
+    }
+
+    .game-button:hover,
+    .game-button-primary:hover,
+    .game-button-secondary:hover,
+    .game-button-danger:hover,
+    .game-button-success:hover {
+        scale: 1; /* スケールアニメーション無効 */
+    }
+
+    .game-button:active,
+    .game-button-primary:active,
+    .game-button-secondary:active,
+    .game-button-danger:active,
+    .game-button-success:active {
+        scale: 1; /* スケールアニメーション無効 */
+    }
+}
+
+/* ============================================
+   INTEGRATION - 既存スタイルとの統合
+   ============================================ */
+
+/* .menu-button に .game-button を適用 */
+.menu-button.game-button {
+    /* 既存スタイルを維持しつつ、アニメーションを統一 */
+}
+
+/* .footer-button に .game-button を適用 */
+.footer-button.game-button {
+    /* 既存スタイルを維持しつつ、アニメーションを統一 */
+}
+
+/* .tab-button に軽量アニメーション */
+.tab-button.game-button {
+    transition-property: background-color, border-top-color;
+    transition-duration: 0.15s;
+}
+
+.tab-button.game-button:hover {
+    scale: 1; /* タブボタンはスケール変更しない */
+}
+
+/* ============================================
    END OF PORTRAIT MOBILE STYLES
    ============================================ */

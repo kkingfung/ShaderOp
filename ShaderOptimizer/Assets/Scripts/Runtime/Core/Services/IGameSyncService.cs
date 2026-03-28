@@ -2,6 +2,8 @@ using Cysharp.Threading.Tasks;
 using System;
 using ShaderOp.Minigames.HexGrid;
 
+#nullable enable
+
 namespace ShaderOp.Core.Services
 {
     /// <summary>

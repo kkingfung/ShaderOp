@@ -6,7 +6,8 @@
         "ShaderOp.Tests",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "UniTask"
+        "UniTask",
+        "UniRx"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
