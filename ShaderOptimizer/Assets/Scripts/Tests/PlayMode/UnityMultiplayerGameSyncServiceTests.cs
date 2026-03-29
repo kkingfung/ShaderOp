@@ -259,8 +259,8 @@ namespace ShaderOp.Tests.PlayMode
             yield return null;
 
             // Assert: 正しいwinnerIdを受信
-            Assert.IsNotNull(receivedWinnerId);
-            Assert.AreEqual(1, receivedWinnerId!.Value,
+            Assert.IsTrue(receivedWinnerId.HasValue, "winnerIdが受信されるべきです");
+            Assert.AreEqual(1, receivedWinnerId.Value,
                 "正しいwinnerIdが受信されるべきです");
         }
 
@@ -293,8 +293,8 @@ namespace ShaderOp.Tests.PlayMode
             yield return null;
 
             // Assert: 正しいnextPlayerIdを受信
-            Assert.IsNotNull(receivedNextPlayerId);
-            Assert.AreEqual(2, receivedNextPlayerId!.Value,
+            Assert.IsTrue(receivedNextPlayerId.HasValue, "nextPlayerIdが受信されるべきです");
+            Assert.AreEqual(2, receivedNextPlayerId.Value,
                 "正しいnextPlayerIdが受信されるべきです");
         }
 
