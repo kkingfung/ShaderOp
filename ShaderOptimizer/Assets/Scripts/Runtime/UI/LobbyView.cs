@@ -9,6 +9,7 @@ using UniRx;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Specialized;
+using System.Threading;
 
 namespace ShaderOp.Runtime.UI
 {
@@ -41,6 +42,8 @@ namespace ShaderOp.Runtime.UI
         private VisualElement? _root;
         private LobbyViewModel? _viewModel;
         private readonly CompositeDisposable _disposables = new();
+        private CancellationTokenSource? _cancellationTokenSource;
+        private readonly System.Collections.Generic.Dictionary<int, VisualElement> _playerElements = new();
 
         // サービス
         private INetworkService? _networkService;
@@ -102,7 +105,7 @@ namespace ShaderOp.Runtime.UI
             Debug.Log("[LobbyView] Initialized.");
         }
 
-        private async void OnEnable()
+        private void OnEnable()
         {
             if (_uiDocument == null || _uiDocument.rootVisualElement == null)
             {
@@ -121,19 +124,37 @@ namespace ShaderOp.Runtime.UI
             // ViewModelバインド
             BindViewModel();
 
-            // ルームを作成してJoin Codeを取得
-            await CreateRoomWithJoinCode();
+            // CancellationTokenSourceを作成
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            // ルームを作成してJoin Codeを取得（エラーハンドリング付き）
+            CreateRoomWithJoinCode().Forget(ex =>
+            {
+                Debug.LogError($"[LobbyView] Failed to create room: {ex.Message}\n{ex.StackTrace}");
+
+                // エラー時はメインメニューに戻る
+                var sceneService = ServiceLocator.Instance.Get<ISceneLoaderService>();
+                sceneService?.LoadMainMenuAsync().Forget();
+            });
 
             Debug.Log("[LobbyView] OnEnable complete.");
         }
 
         private void OnDisable()
         {
+            // すべての非同期処理をキャンセル
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+
             UnregisterEventHandlers();
             UnbindViewModel();
 
-            // ルームから退出
-            LeaveRoom().Forget();
+            // ルームから退出（エラーハンドリング付き）
+            LeaveRoom().Forget(ex =>
+            {
+                Debug.LogError($"[LobbyView] Failed to leave room: {ex.Message}");
+            });
         }
 
         private void OnDestroy()
@@ -275,11 +296,14 @@ namespace ShaderOp.Runtime.UI
                 .AddTo(_disposables);
 
             // プレイヤーリストの変更を監視（ReactiveCollection）
-            _viewModel.PlayerList.ObserveAdd()
-                .Subscribe(_ => UpdatePlayerListUI())
-                .AddTo(_disposables);
-
-            _viewModel.PlayerList.ObserveRemove()
+            // Throttleで100ms以内の変更を集約してUI更新を最適化
+            Observable.Merge(
+                    _viewModel.PlayerList.ObserveAdd().AsUnitObservable(),
+                    _viewModel.PlayerList.ObserveRemove().AsUnitObservable(),
+                    _viewModel.PlayerList.ObserveReset().AsUnitObservable()
+                )
+                .Throttle(System.TimeSpan.FromMilliseconds(100))
+                .ObserveOnMainThread()
                 .Subscribe(_ => UpdatePlayerListUI())
                 .AddTo(_disposables);
 
@@ -311,23 +335,72 @@ namespace ShaderOp.Runtime.UI
         // ============================================
 
         /// <summary>
-        /// プレイヤーリストUIを再構築
+        /// プレイヤーリストUIを差分更新（パフォーマンス最適化版）
         /// </summary>
         private void UpdatePlayerListUI()
         {
             if (_playerListScrollView == null || _viewModel == null) return;
 
-            // 既存のリストをクリア
-            _playerListScrollView.Clear();
-
-            // プレイヤーごとにUI要素を作成
+            // 現在のプレイヤーのGameIdセットを作成
+            var currentGameIds = new System.Collections.Generic.HashSet<int>();
             foreach (var player in _viewModel.PlayerList)
             {
-                var playerElement = CreatePlayerElement(player);
-                _playerListScrollView.Add(playerElement);
+                currentGameIds.Add(player.GameId);
             }
 
-            Debug.Log($"[LobbyView] Player list UI updated: {_viewModel.PlayerList.Count} players.");
+            // 削除されたプレイヤーのUI要素を削除
+            var toRemove = new System.Collections.Generic.List<int>();
+            foreach (var kvp in _playerElements)
+            {
+                if (!currentGameIds.Contains(kvp.Key))
+                {
+                    _playerListScrollView.Remove(kvp.Value);
+                    toRemove.Add(kvp.Key);
+                }
+            }
+
+            foreach (var gameId in toRemove)
+            {
+                _playerElements.Remove(gameId);
+            }
+
+            // 新規または更新されたプレイヤーを処理
+            foreach (var player in _viewModel.PlayerList)
+            {
+                if (_playerElements.TryGetValue(player.GameId, out var element))
+                {
+                    // 既存要素を更新（再作成しない）
+                    UpdatePlayerElement(element, player);
+                }
+                else
+                {
+                    // 新規要素を作成
+                    var newElement = CreatePlayerElement(player);
+                    _playerElements[player.GameId] = newElement;
+                    _playerListScrollView.Add(newElement);
+                }
+            }
+
+            Debug.Log($"[LobbyView] Player list UI updated (differential): {_viewModel.PlayerList.Count} players, {_playerElements.Count} UI elements.");
+        }
+
+        /// <summary>
+        /// 既存のプレイヤーUI要素を更新（再作成せずに内容のみ更新）
+        /// </summary>
+        private void UpdatePlayerElement(VisualElement element, LobbyPlayerInfo player)
+        {
+            var nameLabel = element.Q<Label>("player-name");
+            var statusLabel = element.Q<Label>("player-status");
+
+            if (nameLabel != null)
+            {
+                nameLabel.text = $"{player.Name} {(player.IsHost ? "(Host)" : "")}";
+            }
+
+            if (statusLabel != null)
+            {
+                statusLabel.text = player.IsReady ? "Ready ✓" : "Not Ready";
+            }
         }
 
         /// <summary>
@@ -339,9 +412,11 @@ namespace ShaderOp.Runtime.UI
             container.AddToClassList("player-item");
 
             var nameLabel = new Label($"{player.Name} {(player.IsHost ? "(Host)" : "")}");
+            nameLabel.name = "player-name";  // 名前を設定してQ()で検索可能に
             nameLabel.AddToClassList("player-name");
 
             var statusLabel = new Label(player.IsReady ? "Ready ✓" : "Not Ready");
+            statusLabel.name = "player-status";  // 名前を設定してQ()で検索可能に
             statusLabel.AddToClassList("player-status");
 
             container.Add(nameLabel);
@@ -492,12 +567,19 @@ namespace ShaderOp.Runtime.UI
                 return;
             }
 
+            if (_cancellationTokenSource == null)
+            {
+                Debug.LogWarning("[LobbyView] CancellationTokenSource is null, operation may not be cancellable.");
+            }
+
             try
             {
-                // Unity Multiplayer Servicesを初期化
+                // Unity Multiplayer Servicesを初期化（キャンセル可能）
                 if (_networkService is UnityMultiplayerNetworkService unityService)
                 {
-                    bool initialized = await unityService.InitializeAsync();
+                    bool initialized = await unityService.InitializeAsync()
+                        .AttachExternalCancellation(_cancellationTokenSource?.Token ?? default);
+
                     if (!initialized)
                     {
                         Debug.LogError("[LobbyView] Failed to initialize Unity Multiplayer Services.");
@@ -508,12 +590,13 @@ namespace ShaderOp.Runtime.UI
                 // ルーム名を生成（タイムスタンプ使用）
                 string roomName = $"Room_{DateTime.Now.Ticks}";
 
-                // ルームを作成してJoin Codeを取得
+                // ルームを作成してJoin Codeを取得（キャンセル可能）
                 string? joinCode = null;
 
                 if (_networkService is UnityMultiplayerNetworkService unityMultiplayerService)
                 {
-                    joinCode = await unityMultiplayerService.CreateRoomWithCodeAsync(roomName, maxPlayers: 2);
+                    joinCode = await unityMultiplayerService.CreateRoomWithCodeAsync(roomName, maxPlayers: 2)
+                        .AttachExternalCancellation(_cancellationTokenSource?.Token ?? default);
                 }
 
                 if (string.IsNullOrEmpty(joinCode))
@@ -539,6 +622,10 @@ namespace ShaderOp.Runtime.UI
                 }
 
                 Debug.Log($"[LobbyView] Room created successfully with join code: {joinCode}");
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("[LobbyView] Room creation was cancelled.");
             }
             catch (Exception e)
             {

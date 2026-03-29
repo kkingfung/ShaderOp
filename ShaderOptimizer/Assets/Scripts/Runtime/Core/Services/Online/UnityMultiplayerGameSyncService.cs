@@ -241,12 +241,15 @@ namespace ShaderOp.Runtime.Core.Services.Online
         /// <summary>
         /// ルーム参加時の処理
         /// </summary>
-        private async void OnRoomJoined(string roomName)
+        private void OnRoomJoined(string roomName)
         {
             Debug.Log($"[GameSyncService] Joined room: {roomName}");
 
-            // 同期を自動的に有効化
-            await EnableSyncAsync();
+            // 同期を自動的に有効化（エラーハンドリング付き）
+            EnableSyncAsync().Forget(ex =>
+            {
+                Debug.LogError($"[GameSyncService] Failed to enable sync on room join: {ex.Message}\n{ex.StackTrace}");
+            });
         }
 
         /// <summary>
